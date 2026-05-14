@@ -317,14 +317,19 @@ function FixedCard({
               <button
                 onClick={onRemove}
                 style={{
-                  background: 'none', border: 'none',
-                  color: tokens.color.text_disabled,
-                  fontSize: tokens.primitive.fontSize.sm,
+                  background: `${tokens.color.danger}14`,
+                  border: `1px solid ${tokens.color.danger}55`,
+                  color: tokens.color.danger,
+                  fontSize: tokens.primitive.fontSize.xs,
+                  fontWeight: tokens.primitive.fontWeight.bold,
                   fontFamily: 'inherit',
                   cursor: 'pointer',
+                  padding: '4px 10px',
+                  borderRadius: 8,
+                  letterSpacing: '0.02em',
                 }}
               >
-                ✕
+                remover
               </button>
             </div>
           </div>
@@ -683,9 +688,9 @@ function InstallmentCard({
         <button
           onClick={onRemove}
           style={{
-            background: 'none',
-            color: tokens.color.text_disabled,
-            border: `1.5px solid ${tokens.color.border_default}`,
+            background: `${tokens.color.danger}14`,
+            color: tokens.color.danger,
+            border: `1.5px solid ${tokens.color.danger}55`,
             borderRadius: tokens.primitive.radius.md,
             padding: `${tokens.primitive.space[5]} ${tokens.primitive.space[7]}`,
             fontWeight: tokens.primitive.fontWeight.bold,
@@ -694,7 +699,7 @@ function InstallmentCard({
             cursor: 'pointer',
           }}
         >
-          ✕
+          remover
         </button>
       </div>
     </div>
