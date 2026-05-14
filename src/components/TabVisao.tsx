@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, parseMonthKey, shiftMonth, monthLabel } from '@/lib/format'
+import { fixedAppearsInMonth } from '@/lib/fixed'
 import { categoryEmoji } from '@/lib/categories'
 import type { Expense, FixedCost, Installment, CustomCategory } from './types'
 
@@ -36,7 +37,7 @@ export default function TabVisao({
   const computeMonth = (mk: string) => {
     const { year, month } = parseMonthKey(mk)
     const monthExpenses = expenses.filter((e) => e.monthKey === mk)
-    const monthFixed = fixedCosts.filter((f) => f.active)
+    const monthFixed = fixedCosts.filter((f) => f.active && fixedAppearsInMonth(f.createdAt, f.frequency, mk))
     const monthInst = installments.filter((i) => {
       const start = new Date(i.startedAt)
       const elapsed = (year - start.getFullYear()) * 12 + (month - 1 - start.getMonth())

@@ -5,6 +5,7 @@ import { tokens } from '@/lib/tokens'
 import { formatBRL } from '@/lib/format'
 import { Card, Tag, ProgressBar } from './ui'
 import { categoryEmoji } from '@/lib/categories'
+import { FIXED_FREQUENCY_LABEL } from '@/lib/fixed'
 import { paymentMethodLabel } from './constants'
 import type { FixedCost, Installment, CustomCategory } from './types'
 
@@ -257,6 +258,9 @@ function FixedCard({
                 label={fixed.scope === 'casal' ? '💑 Casal' : fixed.scope === 'A' ? `👤 ${nameA}` : `👤 ${nameB}`}
                 color={fixed.scope === 'casal' ? tokens.color.brand : fixed.scope === 'A' ? tokens.color.personA : tokens.color.personB}
               />
+              {fixed.frequency && fixed.frequency !== 'monthly' && (
+                <Tag label={FIXED_FREQUENCY_LABEL[fixed.frequency]} color={tokens.color.fixed} />
+              )}
               {fixed.dueDay && (
                 <Tag label={`vence dia ${fixed.dueDay}`} color={tokens.color.fixed} />
               )}

@@ -47,6 +47,8 @@ export interface FixedCost {
   createdAt: number
   paymentMethod?: PaymentMethod
   dueDay?: number
+  /** Default 'monthly'. Define a cada quantos meses o custo aparece. */
+  frequency?: 'monthly' | 'bimonthly' | 'quarterly' | 'semiannual' | 'annual'
 }
 
 export interface Goal {

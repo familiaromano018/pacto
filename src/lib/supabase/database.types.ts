@@ -57,6 +57,7 @@ export interface FixedCostRow {
   payment_method: PaymentMethod | null
   due_day: number | null
   active: boolean
+  frequency: 'monthly' | 'bimonthly' | 'quarterly' | 'semiannual' | 'annual' | null
   created_at: string
   updated_at: string
 }

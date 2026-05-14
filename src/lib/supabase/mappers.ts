@@ -59,6 +59,7 @@ export function fixedFromRow(r: FixedCostRow): FixedCost {
     createdAt: isoToTs(r.created_at),
     paymentMethod: r.payment_method ?? undefined,
     dueDay: r.due_day ?? undefined,
+    frequency: r.frequency ?? 'monthly',
   }
 }
 export function fixedToRow(
@@ -78,6 +79,7 @@ export function fixedToRow(
     payment_method: f.paymentMethod ?? null,
     due_day: f.dueDay ?? null,
     active: f.active,
+    frequency: f.frequency ?? 'monthly',
     created_at: tsToIso(f.createdAt),
   }
 }

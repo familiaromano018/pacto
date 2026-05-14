@@ -25,6 +25,7 @@ import { getCurrentCoupleId, getCoupleRow } from '@/lib/supabase/couple'
 import { useCloudSync } from '@/lib/sync/useCloudSync'
 import { enqueue, drainQueue, clearQueue } from '@/lib/sync/queue'
 import { useSubscription } from '@/lib/subscription/useSubscription'
+import { fixedAppearsInMonth } from '@/lib/fixed'
 import type {
   Expense, FixedCost, Installment, Goal, ClosedMonth, CustomCategory,
 } from './types'
@@ -306,7 +307,9 @@ function AuthedShell({ userId }: { userId: string }) {
     const totalCasal = monthExpenses.filter((e) => e.scope === 'casal').reduce((s, e) => s + e.amount, 0)
     const totalPersonalA = monthExpenses.filter((e) => e.scope === 'A').reduce((s, e) => s + e.amount, 0)
     const totalPersonalB = monthExpenses.filter((e) => e.scope === 'B').reduce((s, e) => s + e.amount, 0)
-    const totalFixed = fixedCosts.filter((f) => f.active).reduce((s, f) => s + f.amount, 0)
+    const totalFixed = fixedCosts
+      .filter((f) => f.active && fixedAppearsInMonth(f.createdAt, f.frequency, mk))
+      .reduce((s, f) => s + f.amount, 0)
 
     const activeInst = installments.filter((i) => {
       const elapsed = monthsBetween(i.startedAt, mk)
@@ -383,7 +386,9 @@ function AuthedShell({ userId }: { userId: string }) {
     if (isFuture) return 0
 
     const fromExpenses = expenses.filter((e) => e.monthKey === monthKey).reduce((s, e) => s + e.amount, 0)
-    const fromFixed = fixedCosts.filter((f) => f.active).reduce((s, f) => s + f.amount, 0)
+    const fromFixed = fixedCosts
+      .filter((f) => f.active && fixedAppearsInMonth(f.createdAt, f.frequency, monthKey))
+      .reduce((s, f) => s + f.amount, 0)
     const fromInst = installments.reduce((s, i) => {
       const elapsed = monthsBetween(i.startedAt, monthKey)
       return elapsed >= 0 && elapsed < i.totalParcelas ? s + i.parcelaMensal : s

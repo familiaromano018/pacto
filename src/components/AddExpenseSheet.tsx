@@ -7,6 +7,7 @@ import { currentMonthKey } from '@/lib/format'
 import { allCategoryNames, categoryEmoji, EMOJI_PICKER_OPTIONS } from '@/lib/categories'
 import { PAYMENT_METHODS } from './constants'
 import type { Expense, FixedCost, Installment, PaidBy, Scope, ExpenseKind, CustomCategory, PaymentMethod } from './types'
+import type { FixedFrequency } from '@/lib/fixed'
 
 interface Props {
   open: boolean
@@ -42,6 +43,7 @@ export default function AddExpenseSheet({
   const [parcelasPagas, setParcelasPagas] = useState('0')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('')
   const [dueDay, setDueDay] = useState('')
+  const [frequency, setFrequency] = useState<FixedFrequency>('monthly')
   const [error, setError] = useState<string | null>(null)
   const [justSavedValue, setJustSavedValue] = useState<number | null>(null)
 
@@ -67,6 +69,7 @@ export default function AddExpenseSheet({
         setParcelasPagas('0')
         setPaymentMethod('')
         setDueDay('')
+        setFrequency('monthly')
       }
       setJustSavedValue(null)
       setCreatingCategory(false)
@@ -110,6 +113,7 @@ export default function AddExpenseSheet({
         createdAt: Date.now(),
         paymentMethod: pm,
         dueDay: dueDayClamped,
+        frequency,
       })
     } else {
       const total = parseInt(parcelas)
@@ -396,6 +400,46 @@ export default function AddExpenseSheet({
             )
           })}
         </div>
+
+        {/* Frequência (apenas fixo) */}
+        {kind === 'fixo' && (
+          <div style={{ marginBottom: tokens.primitive.space[8] }}>
+            <FieldLabel text="Frequência" />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {([
+                { id: 'monthly', label: 'Mensal' },
+                { id: 'bimonthly', label: 'Bimestral' },
+                { id: 'quarterly', label: 'Trimestral' },
+                { id: 'semiannual', label: 'Semestral' },
+                { id: 'annual', label: 'Anual' },
+              ] as { id: FixedFrequency; label: string }[]).map((f) => {
+                const active = frequency === f.id
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setFrequency(f.id)}
+                    style={{
+                      background: active ? tokens.color.brand : tokens.color.bg_card,
+                      color: active ? tokens.color.text_onBrand : tokens.color.text_body,
+                      border: `1.5px solid ${active ? tokens.color.brand : tokens.color.border_default}`,
+                      borderRadius: tokens.primitive.radius.pill,
+                      padding: `${tokens.primitive.space[3]} ${tokens.primitive.space[6]}`,
+                      fontSize: tokens.primitive.fontSize.base,
+                      fontWeight: tokens.primitive.fontWeight.semibold,
+                      fontFamily: 'inherit',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div style={{ marginTop: 6, fontSize: 12, color: tokens.color.text_muted }}>
+              Tipo Netflix mensal → Mensal. Tipo iCloud anual → Anual.
+            </div>
+          </div>
+        )}
 
         {/* Dia de vencimento (apenas fixo/parcela) */}
         {(kind === 'fixo' || kind === 'parcela') && (

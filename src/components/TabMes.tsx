@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, formatRelativeDay, currentMonthKey, parseMonthKey } from '@/lib/format'
+import { fixedAppearsInMonth } from '@/lib/fixed'
 import { Card } from './ui'
 import FeedRow from './FeedRow'
 import type { Expense, FixedCost, Installment, FeedEntry, CustomCategory } from './types'
@@ -63,7 +64,9 @@ export default function TabMes({
     const dayFor = (dueDay?: number) =>
       Math.min(Math.max(dueDay ?? 1, 1), daysInMonth)
 
-    fixedCosts.filter((f) => f.active).forEach((f) => {
+    fixedCosts
+      .filter((f) => f.active && fixedAppearsInMonth(f.createdAt, f.frequency, monthKey))
+      .forEach((f) => {
       const day = dayFor(f.dueDay)
       entries.push({
         id: `fixed-${f.id}-${monthKey}`,
