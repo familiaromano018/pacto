@@ -127,13 +127,17 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], on
             onClick={() => onRemove(entry.id)}
             aria-label="Remover"
             style={{
-              background: 'none', border: 'none',
-              color: tokens.color.text_disabled,
+              background: `${tokens.color.danger}14`,
+              border: `1px solid ${tokens.color.danger}55`,
+              color: tokens.color.danger,
               cursor: 'pointer',
-              fontSize: tokens.primitive.fontSize.sm,
+              fontSize: tokens.primitive.fontSize.xs,
+              fontWeight: tokens.primitive.fontWeight.bold,
               fontFamily: 'inherit',
-              padding: 0,
-              marginTop: 2,
+              padding: '4px 10px',
+              borderRadius: 8,
+              marginTop: 4,
+              letterSpacing: '0.02em',
             }}
           >
             remover
