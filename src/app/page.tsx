@@ -825,11 +825,11 @@ function Pricing() {
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 14 }}>
               <span style={{ fontSize: 22, color: '#a0a3ad', fontWeight: 600 }}>R$</span>
-              <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>14,90</span>
+              <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>29,90</span>
               <span style={{ fontSize: 14, color: '#a0a3ad' }}>/ mês</span>
             </div>
             <div style={{ fontSize: 14, color: '#a0a3ad', marginTop: 6 }}>
-              Um único plano. Casal inteiro inclusive.
+              Menos de <strong style={{ color: '#fff' }}>R$ 1 por dia</strong>. Casal inteiro inclusive.
             </div>
             <ul style={ulStyle}>
               <Li>Tudo do trial</Li>

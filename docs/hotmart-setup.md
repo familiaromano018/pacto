@@ -11,7 +11,7 @@ Esse documento é o que falta pra começar a receber pagamentos. Você cuida dis
 3. Categoria: **Negócios e Carreira** (ou Finanças)
 4. Nome: **Pacto** (ou "Pacto — Planejador Financeiro do Casal")
 5. Tipo de serviço: **Digital**
-6. **Preço:** sugiro R$ 14,90/mês (combina com o que tá na landing). Pode também criar um plano anual com desconto (ex: R$ 119/ano = R$ 9,92/mês).
+6. **Preço:** R$ 29,90/mês (combina com o que tá na landing — "menos de R$ 1/dia"). Sugiro também criar plano anual com desconto (ex: R$ 239/ano = R$ 19,90/mês).
 7. **Recorrência:** Mensal (e/ou Anual). NÃO marca "produto único".
 8. Trial gratuito da Hotmart: **deixa desligado** (a gente já dá 14 dias direto no app, não precisa do trial do Hotmart).
 9. Forma de pagamento: Cartão + PIX + Boleto (todos)
