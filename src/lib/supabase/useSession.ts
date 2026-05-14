@@ -49,7 +49,7 @@ export async function signInWithGoogle(redirectTo?: string) {
   return sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}${redirectTo ?? '/'}`,
+      redirectTo: `${origin}${redirectTo ?? '/app'}`,
     },
   })
 }

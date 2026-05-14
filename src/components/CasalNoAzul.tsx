@@ -8,6 +8,8 @@ import { useToast } from './Toast'
 import { currentMonthKey, parseMonthKey } from '@/lib/format'
 import Setup from './Setup'
 import LoginScreen from './LoginScreen'
+import PaywallScreen from './PaywallScreen'
+import TrialBanner from './TrialBanner'
 import MonthHeader from './MonthHeader'
 import TabMes from './TabMes'
 import TabVisao from './TabVisao'
@@ -22,6 +24,7 @@ import { supabase } from '@/lib/supabase/client'
 import { getCurrentCoupleId, getCoupleRow } from '@/lib/supabase/couple'
 import { useCloudSync } from '@/lib/sync/useCloudSync'
 import { enqueue, drainQueue, clearQueue } from '@/lib/sync/queue'
+import { useSubscription } from '@/lib/subscription/useSubscription'
 import type {
   Expense, FixedCost, Installment, Goal, ClosedMonth, CustomCategory,
 } from './types'
@@ -153,6 +156,9 @@ function AuthedShell({ userId }: { userId: string }) {
     current: { expenses, fixedCosts, installments, goals, closedMonths, customCategories },
     setExpenses, setFixedCosts, setInstallments, setGoals, setClosedMonths, setCustomCategories,
   })
+
+  // Subscription state pro paywall + trial banner
+  const sub = useSubscription(coupleId ?? null)
 
   // ── Wrappers de mutation: set local + enqueue ──
   // Sentinel: refs locais pra setState com diff e enqueue automático
@@ -390,6 +396,12 @@ function AuthedShell({ userId }: { userId: string }) {
     )
   }
 
+  // Gate de assinatura: enquanto carrega, mostra splash; sem acesso, mostra paywall
+  if (sub.loading) return <Splash />
+  if (!sub.hasAccess) {
+    return <PaywallScreen status={sub.status} coupleCode={coupleCode} />
+  }
+
   return (
     <div
       style={{
@@ -399,6 +411,9 @@ function AuthedShell({ userId }: { userId: string }) {
         paddingBottom: 110,
       }}
     >
+      {sub.status === 'trial' && (
+        <TrialBanner daysRemaining={sub.daysRemaining} coupleCode={coupleCode} />
+      )}
       <MonthHeader
         nameA={nameA}
         nameB={nameB}

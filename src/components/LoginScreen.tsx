@@ -12,7 +12,7 @@ export default function LoginScreen() {
     setLoading(true)
     setError(null)
     try {
-      const { error } = await signInWithGoogle('/')
+      const { error } = await signInWithGoogle('/app')
       if (error) throw error
       // browser redireciona pra Google. Nada a fazer aqui.
     } catch (err: any) {
@@ -59,6 +59,8 @@ export default function LoginScreen() {
           }}
         >
           Combinem as contas. Pacto cuida de quem deve quanto.
+          <br/>
+          <span style={{ opacity: 0.65, fontSize: 11 }}>14 dias grátis. Sem cartão.</span>
         </p>
 
         <button
