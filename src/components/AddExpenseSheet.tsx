@@ -15,6 +15,8 @@ interface Props {
   nameB: string
   monthKey: string
   customCategories: CustomCategory[]
+  /** se passado, abre em modo edit (form pré-populado, salva via upsert no mesmo id) */
+  editingExpense?: Expense | null
   onAddExpense: (e: Expense) => void
   onAddFixed: (f: FixedCost) => void
   onAddInstallment: (i: Installment) => void
@@ -23,8 +25,10 @@ interface Props {
 
 export default function AddExpenseSheet({
   open, onClose, nameA, nameB, monthKey, customCategories,
+  editingExpense,
   onAddExpense, onAddFixed, onAddInstallment, onAddCategory,
 }: Props) {
+  const isEditing = !!editingExpense
   const [creatingCategory, setCreatingCategory] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [newCatEmoji, setNewCatEmoji] = useState('📦')
@@ -44,18 +48,32 @@ export default function AddExpenseSheet({
   useEffect(() => {
     if (open) {
       setError(null)
-      setDesc('')
-      setAmount('')
-      setParcelas('12')
-      setParcelasPagas('0')
-      setPaymentMethod('')
-      setDueDay('')
+      if (editingExpense) {
+        // pré-popula form pra edição
+        setKind('avulso')
+        setDesc(editingExpense.desc)
+        setAmount(String(editingExpense.amount).replace('.', ','))
+        setScope(editingExpense.scope)
+        setPaidBy(editingExpense.paidBy)
+        setCategory(editingExpense.category)
+        setPaymentMethod(editingExpense.paymentMethod || '')
+        setParcelas('12')
+        setParcelasPagas('0')
+        setDueDay('')
+      } else {
+        setDesc('')
+        setAmount('')
+        setParcelas('12')
+        setParcelasPagas('0')
+        setPaymentMethod('')
+        setDueDay('')
+      }
       setJustSavedValue(null)
       setCreatingCategory(false)
       setNewCatName('')
       setNewCatEmoji('📦')
     }
-  }, [open])
+  }, [open, editingExpense])
 
   if (!open) return null
 
@@ -74,11 +92,14 @@ export default function AddExpenseSheet({
     const dueDayClamped = Number.isFinite(dd) && dd >= 1 && dd <= 31 ? dd : undefined
 
     if (kind === 'avulso') {
+      // Em modo edição, preserva id + createdAt + monthKey originais
       onAddExpense({
-        id: newId(), desc: desc.trim(), amount: value,
+        id: editingExpense?.id ?? newId(),
+        desc: desc.trim(),
+        amount: value,
         paidBy, scope, category,
-        createdAt: Date.now(),
-        monthKey: monthKey || currentMonthKey(),
+        createdAt: editingExpense?.createdAt ?? Date.now(),
+        monthKey: editingExpense?.monthKey ?? (monthKey || currentMonthKey()),
         paymentMethod: pm,
       })
     } else if (kind === 'fixo') {
@@ -639,7 +660,7 @@ export default function AddExpenseSheet({
               transition: tokens.motion.interaction,
             }}
           >
-            Adicionar ✓
+            {isEditing ? 'Salvar ✓' : 'Adicionar ✓'}
           </button>
         </div>
         </>

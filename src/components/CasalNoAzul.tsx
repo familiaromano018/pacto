@@ -75,6 +75,7 @@ function AuthedShell({ userId }: { userId: string }) {
   const [tab, setTab] = useState<TabId>('mes')
   const [monthKey, setMonthKey] = useState(currentMonthKey())
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const toast = useToast()
 
   // Carrega coupleId inicial
@@ -174,8 +175,14 @@ function AuthedShell({ userId }: { userId: string }) {
   }
 
   // ── Expense ──
-  function addExpense(e: Expense) {
-    setExpenses((prev) => [...prev, e])
+  function upsertExpense(e: Expense) {
+    setExpenses((prev) => {
+      const i = prev.findIndex((x) => x.id === e.id)
+      if (i === -1) return [...prev, e]
+      const copy = prev.slice()
+      copy[i] = e
+      return copy
+    })
     enqueue({ table: 'expenses', op: 'upsert', payload: e })
     pushDrain()
   }
@@ -183,6 +190,12 @@ function AuthedShell({ userId }: { userId: string }) {
     setExpenses((prev) => prev.filter((x) => x.id !== id))
     enqueue({ table: 'expenses', op: 'delete', payload: { id } })
     pushDrain()
+  }
+  function startEditExpense(id: string) {
+    const e = expenses.find((x) => x.id === id)
+    if (!e) return
+    setEditingExpense(e)
+    setSheetOpen(true)
   }
 
   // ── Diff-and-enqueue setter factory ──
@@ -445,7 +458,8 @@ function AuthedShell({ userId }: { userId: string }) {
             installments={installments}
             customCategories={customCategories}
             onRemoveExpense={removeExpense}
-            onOpenAdd={() => setSheetOpen(true)}
+            onEditExpense={startEditExpense}
+            onOpenAdd={() => { setEditingExpense(null); setSheetOpen(true) }}
             onCloseMonth={closeMonth}
             onExportPDF={() => exportPDF()}
             isClosed={isCurrentMonthClosed}
@@ -489,12 +503,17 @@ function AuthedShell({ userId }: { userId: string }) {
 
       <AddExpenseSheet
         open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
+        onClose={() => { setSheetOpen(false); setEditingExpense(null) }}
         nameA={nameA}
         nameB={nameB}
         monthKey={monthKey}
         customCategories={customCategories}
-        onAddExpense={(e) => { addExpense(e); toast.show('Gasto adicionado ✓') }}
+        editingExpense={editingExpense}
+        onAddExpense={(e) => {
+          const wasEditing = !!editingExpense
+          upsertExpense(e)
+          toast.show(wasEditing ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
+        }}
         onAddFixed={(f) => { addFixed(f); toast.show('Custo fixo criado ✓') }}
         onAddInstallment={(i) => { addInstallment(i); toast.show('Parcelado criado ✓') }}
         onAddCategory={(name, emoji) => {

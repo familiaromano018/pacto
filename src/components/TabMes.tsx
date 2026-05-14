@@ -19,6 +19,7 @@ interface Props {
   installments: Installment[]
   customCategories: CustomCategory[]
   onRemoveExpense: (id: string) => void
+  onEditExpense: (id: string) => void
   onOpenAdd: () => void
   onCloseMonth: () => void
   onExportPDF: () => void
@@ -30,7 +31,7 @@ type FilterId = 'all' | 'casal' | 'A' | 'B'
 export default function TabMes({
   nameA, nameB, incomeA, incomeB, method,
   monthKey, expenses, fixedCosts, installments, customCategories,
-  onRemoveExpense, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
+  onRemoveExpense, onEditExpense, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
 }: Props) {
   const [filter, setFilter] = useState<FilterId>('all')
   const [query, setQuery] = useState('')
@@ -358,6 +359,7 @@ export default function TabMes({
               nameB={nameB}
               customCategories={customCategories}
               onRemove={e.kind === 'avulso' ? onRemoveExpense : undefined}
+              onEdit={e.kind === 'avulso' ? onEditExpense : undefined}
             />
           ))}
         </div>
