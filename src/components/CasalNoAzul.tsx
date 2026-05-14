@@ -10,6 +10,8 @@ import Setup from './Setup'
 import LoginScreen from './LoginScreen'
 import PaywallScreen from './PaywallScreen'
 import TrialBanner from './TrialBanner'
+import InstallModal from './InstallModal'
+import DailyTipModal from './DailyTipModal'
 import MonthHeader from './MonthHeader'
 import TabMes from './TabMes'
 import TabVisao from './TabVisao'
@@ -538,6 +540,9 @@ function AuthedShell({ userId }: { userId: string }) {
       )}
 
       <BottomNav tab={tab} onTab={setTab} onOpenAdd={() => setSheetOpen(true)} />
+
+      <InstallModal />
+      <DailyTipModal coupleId={coupleId ?? null} />
 
       <AddExpenseSheet
         open={sheetOpen}
