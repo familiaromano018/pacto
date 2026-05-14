@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, monthLabel } from '@/lib/format'
 import { Avatar, Card, Inp, Lbl } from './ui'
+import InstallPrompt from './InstallPrompt'
 import type { ClosedMonth, CustomCategory } from './types'
 
 interface Props {
@@ -54,6 +55,9 @@ export default function TabConfig({
 
   return (
     <>
+      {/* Instalar como app (esconde se já tá instalado ou não suportado) */}
+      <InstallPrompt />
+
       {/* Identidade */}
       <Card>
         <h3

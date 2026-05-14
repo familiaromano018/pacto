@@ -728,6 +728,31 @@ export default function AddExpenseSheet({
           >
             Cancelar
           </button>
+          {isEditing && editing && (
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined' && !window.confirm('Excluir este lançamento?')) return
+                if (editing.kind === 'avulso') onRemoveExpense?.(editing.expense.id)
+                else if (editing.kind === 'fixo') onRemoveFixed?.(editing.fixed.id)
+                else if (editing.kind === 'parcela') onRemoveInstallment?.(editing.installment.id)
+                onClose()
+              }}
+              style={{
+                flex: 1,
+                background: `${tokens.color.danger}14`,
+                color: tokens.color.danger,
+                border: `1.5px solid ${tokens.color.danger}55`,
+                borderRadius: tokens.component.button.radius.md,
+                padding: `${tokens.primitive.space[6]} 0`,
+                fontWeight: tokens.primitive.fontWeight.extrabold,
+                fontSize: tokens.primitive.fontSize.lg,
+                fontFamily: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              Excluir
+            </button>
+          )}
           <button
             onClick={submit}
             disabled={!canSubmit}
