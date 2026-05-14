@@ -18,13 +18,15 @@ interface Props {
   setFixedCosts: React.Dispatch<React.SetStateAction<FixedCost[]>>
   setInstallments: React.Dispatch<React.SetStateAction<Installment[]>>
   onOpenAdd: () => void
+  onEditFixed?: (id: string) => void
+  onEditInstallment?: (id: string) => void
 }
 
 type SubView = 'fixos' | 'parcelados'
 
 export default function TabRecorrentes({
   nameA, nameB, fixedCosts, installments, customCategories,
-  setFixedCosts, setInstallments, onOpenAdd,
+  setFixedCosts, setInstallments, onOpenAdd, onEditFixed, onEditInstallment,
 }: Props) {
   const [sub, setSub] = useState<SubView>('fixos')
 
@@ -78,6 +80,7 @@ export default function TabRecorrentes({
           fixedCosts={fixedCosts} setFixedCosts={setFixedCosts}
           customCategories={customCategories}
           onOpenAdd={onOpenAdd}
+          onEditFixed={onEditFixed}
         />
       ) : (
         <ParcelasView
@@ -85,6 +88,7 @@ export default function TabRecorrentes({
           installments={installments} setInstallments={setInstallments}
           customCategories={customCategories}
           onOpenAdd={onOpenAdd}
+          onEditInstallment={onEditInstallment}
         />
       )}
     </>
@@ -94,13 +98,14 @@ export default function TabRecorrentes({
 // ───────────────────────────────────────────────────────────────────────────────
 
 function FixosView({
-  nameA, nameB, fixedCosts, setFixedCosts, customCategories, onOpenAdd,
+  nameA, nameB, fixedCosts, setFixedCosts, customCategories, onOpenAdd, onEditFixed,
 }: {
   nameA: string; nameB: string
   fixedCosts: FixedCost[]
   customCategories: CustomCategory[]
   setFixedCosts: React.Dispatch<React.SetStateAction<FixedCost[]>>
   onOpenAdd: () => void
+  onEditFixed?: (id: string) => void
 }) {
   const active = fixedCosts.filter((f) => f.active)
   const paused = fixedCosts.filter((f) => !f.active)
@@ -145,6 +150,7 @@ function FixosView({
               onToggle={() => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, active: !x.active } : x))}
               onRemove={() => setFixedCosts((prev) => prev.filter((x) => x.id !== f.id))}
               onUpdate={(patch) => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, ...patch } : x))}
+              onClickRow={onEditFixed ? () => onEditFixed(f.id) : undefined}
             />
           ))}
         </>
@@ -164,6 +170,7 @@ function FixosView({
               onToggle={() => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, active: !x.active } : x))}
               onRemove={() => setFixedCosts((prev) => prev.filter((x) => x.id !== f.id))}
               onUpdate={(patch) => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, ...patch } : x))}
+              onClickRow={onEditFixed ? () => onEditFixed(f.id) : undefined}
             />
           ))}
         </>
@@ -173,13 +180,14 @@ function FixosView({
 }
 
 function FixedCard({
-  fixed, nameA, nameB, customCategories, muted, onToggle, onRemove, onUpdate,
+  fixed, nameA, nameB, customCategories, muted, onToggle, onRemove, onUpdate, onClickRow,
 }: {
   fixed: FixedCost; nameA: string; nameB: string
   customCategories: CustomCategory[]
   muted?: boolean
   onToggle: () => void; onRemove: () => void
   onUpdate: (patch: Partial<FixedCost>) => void
+  onClickRow?: () => void
 }) {
   const [editing, setEditing] = useState(false)
   const [desc, setDesc] = useState(fixed.desc)
@@ -197,9 +205,15 @@ function FixedCard({
     setEditing(false)
   }
 
+  const isClickable = !!onClickRow && !editing
   return (
     <div
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? () => onClickRow?.() : undefined}
+      onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClickRow?.() } } : undefined}
       style={{
+        cursor: isClickable ? 'pointer' : 'default',
         background: muted ? tokens.color.bg_card_muted : tokens.color.bg_card,
         borderRadius: tokens.radius.cardSm,
         padding: `${tokens.primitive.space[7]} ${tokens.primitive.space[8]}`,
@@ -283,23 +297,7 @@ function FixedCard({
             </div>
             <div style={{ display: 'flex', gap: tokens.primitive.space[3], justifyContent: 'flex-end', marginTop: 4 }}>
               <button
-                onClick={startEdit}
-                style={{
-                  background: tokens.color.bg_app,
-                  color: tokens.color.text_secondary,
-                  border: 'none',
-                  borderRadius: tokens.primitive.radius.sm,
-                  padding: `${tokens.primitive.space[2]} ${tokens.primitive.space[5]}`,
-                  fontSize: tokens.primitive.fontSize.xs,
-                  fontWeight: tokens.primitive.fontWeight.extrabold,
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                }}
-              >
-                ✏️
-              </button>
-              <button
-                onClick={onToggle}
+                onClick={(e) => { e.stopPropagation(); onToggle() }}
                 style={{
                   background: muted ? tokens.color.fixed + '22' : tokens.color.bg_app,
                   color: muted ? tokens.color.fixed : tokens.color.text_secondary,
@@ -315,7 +313,7 @@ function FixedCard({
                 {muted ? 'reativar' : 'pausar'}
               </button>
               <button
-                onClick={onRemove}
+                onClick={(e) => { e.stopPropagation(); onRemove() }}
                 style={{
                   background: `${tokens.color.danger}14`,
                   border: `1px solid ${tokens.color.danger}55`,
@@ -342,13 +340,14 @@ function FixedCard({
 // ───────────────────────────────────────────────────────────────────────────────
 
 function ParcelasView({
-  nameA, nameB, installments, setInstallments, customCategories, onOpenAdd,
+  nameA, nameB, installments, setInstallments, customCategories, onOpenAdd, onEditInstallment,
 }: {
   nameA: string; nameB: string
   installments: Installment[]
   customCategories: CustomCategory[]
   setInstallments: React.Dispatch<React.SetStateAction<Installment[]>>
   onOpenAdd: () => void
+  onEditInstallment?: (id: string) => void
 }) {
   const active = installments.filter((i) => i.paidParcelas < i.totalParcelas)
   const done = installments.filter((i) => i.paidParcelas >= i.totalParcelas)
@@ -418,6 +417,7 @@ function ParcelasView({
               onUnpay={() => unpayOne(i.id)}
               onRemove={() => remove(i.id)}
               onUpdate={(patch) => setInstallments((prev) => prev.map((x) => x.id === i.id ? { ...x, ...patch } : x))}
+              onClickRow={onEditInstallment ? () => onEditInstallment(i.id) : undefined}
             />
           ))}
         </>
@@ -507,12 +507,13 @@ function ParcelasView({
 }
 
 function InstallmentCard({
-  inst, nameA, nameB, customCategories, onPay, onUnpay, onRemove, onUpdate,
+  inst, nameA, nameB, customCategories, onPay, onUnpay, onRemove, onUpdate, onClickRow,
 }: {
   inst: Installment; nameA: string; nameB: string
   customCategories: CustomCategory[]
   onPay: () => void; onUnpay: () => void; onRemove: () => void
   onUpdate: (patch: Partial<Installment>) => void
+  onClickRow?: () => void
 }) {
   const pct = (inst.paidParcelas / inst.totalParcelas) * 100
   const remaining = inst.parcelaMensal * (inst.totalParcelas - inst.paidParcelas)
@@ -533,9 +534,15 @@ function InstallmentCard({
     setEditing(false)
   }
 
+  const isClickable = !!onClickRow && !editing
   return (
     <div
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? () => onClickRow?.() : undefined}
+      onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClickRow?.() } } : undefined}
       style={{
+        cursor: isClickable ? 'pointer' : 'default',
         background: tokens.color.bg_card,
         borderRadius: tokens.primitive.radius['2xl'],
         padding: `${tokens.primitive.space[8]} ${tokens.primitive.space[10]}`,
@@ -651,7 +658,7 @@ function InstallmentCard({
 
       <div style={{ display: 'flex', gap: tokens.primitive.space[3] }}>
         <button
-          onClick={onPay}
+          onClick={(e) => { e.stopPropagation(); onPay() }}
           style={{
             flex: 1,
             background: tokens.color.installment,
@@ -669,7 +676,7 @@ function InstallmentCard({
         </button>
         {inst.paidParcelas > 0 && (
           <button
-            onClick={onUnpay}
+            onClick={(e) => { e.stopPropagation(); onUnpay() }}
             style={{
               background: tokens.color.bg_card,
               color: tokens.color.text_secondary,
@@ -686,7 +693,7 @@ function InstallmentCard({
           </button>
         )}
         <button
-          onClick={onRemove}
+          onClick={(e) => { e.stopPropagation(); onRemove() }}
           style={{
             background: `${tokens.color.danger}14`,
             color: tokens.color.danger,

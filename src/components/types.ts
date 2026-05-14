@@ -79,8 +79,15 @@ export interface ClosedMonth {
   }
 }
 
+export type EditTarget =
+  | { kind: 'avulso'; expense: Expense }
+  | { kind: 'fixo'; fixed: FixedCost }
+  | { kind: 'parcela'; installment: Installment }
+
 export interface FeedEntry {
   id: string
+  /** id do registro original (Expense/FixedCost/Installment) — usado pra editar/remover */
+  sourceId: string
   kind: ExpenseKind
   desc: string
   amount: number

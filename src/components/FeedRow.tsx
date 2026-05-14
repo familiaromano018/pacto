@@ -11,8 +11,8 @@ interface Props {
   nameA: string
   nameB: string
   customCategories?: CustomCategory[]
-  onRemove?: (id: string) => void
-  onEdit?: (id: string) => void
+  onRemove?: () => void
+  onEdit?: () => void
 }
 
 const KIND_META: Record<FeedEntry['kind'], { label: string; color: string }> = {
@@ -32,8 +32,13 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], on
       ? tokens.color.personA
       : tokens.color.personB
 
+  const isClickable = !!onEdit
   return (
     <div
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
+      onClick={isClickable ? () => onEdit?.() : undefined}
+      onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit?.() } } : undefined}
       style={{
         background: tokens.color.bg_card,
         borderRadius: tokens.radius.cardSm,
@@ -44,7 +49,11 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], on
         gap: tokens.primitive.space[7],
         boxShadow: tokens.shadow.cardSubtle,
         border: `1px solid ${tokens.color.border_subtle}`,
+        cursor: isClickable ? 'pointer' : 'default',
+        transition: 'transform 0.1s ease, box-shadow 0.1s ease',
       }}
+      onMouseEnter={isClickable ? (e) => { e.currentTarget.style.borderColor = tokens.color.brand + '66' } : undefined}
+      onMouseLeave={isClickable ? (e) => { e.currentTarget.style.borderColor = tokens.color.border_subtle } : undefined}
     >
       <div
         style={{
@@ -123,49 +132,26 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], on
         >
           {formatBRL(entry.amount)}
         </div>
-        {entry.kind === 'avulso' && (onEdit || onRemove) && (
-          <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-            {onEdit && (
-              <button
-                onClick={() => onEdit(entry.id)}
-                aria-label="Editar"
-                style={{
-                  background: `${tokens.color.brand}14`,
-                  border: `1px solid ${tokens.color.brand}55`,
-                  color: tokens.color.brand,
-                  cursor: 'pointer',
-                  fontSize: tokens.primitive.fontSize.xs,
-                  fontWeight: tokens.primitive.fontWeight.bold,
-                  fontFamily: 'inherit',
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  letterSpacing: '0.02em',
-                }}
-              >
-                editar
-              </button>
-            )}
-            {onRemove && (
-              <button
-                onClick={() => onRemove(entry.id)}
-                aria-label="Remover"
-                style={{
-                  background: `${tokens.color.danger}14`,
-                  border: `1px solid ${tokens.color.danger}55`,
-                  color: tokens.color.danger,
-                  cursor: 'pointer',
-                  fontSize: tokens.primitive.fontSize.xs,
-                  fontWeight: tokens.primitive.fontWeight.bold,
-                  fontFamily: 'inherit',
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  letterSpacing: '0.02em',
-                }}
-              >
-                remover
-              </button>
-            )}
-          </div>
+        {onRemove && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onRemove() }}
+            aria-label="Remover"
+            style={{
+              background: `${tokens.color.danger}14`,
+              border: `1px solid ${tokens.color.danger}55`,
+              color: tokens.color.danger,
+              cursor: 'pointer',
+              fontSize: tokens.primitive.fontSize.xs,
+              fontWeight: tokens.primitive.fontWeight.bold,
+              fontFamily: 'inherit',
+              padding: '4px 10px',
+              borderRadius: 8,
+              marginTop: 4,
+              letterSpacing: '0.02em',
+            }}
+          >
+            remover
+          </button>
         )}
       </div>
     </div>

@@ -21,6 +21,8 @@ interface Props {
   customCategories: CustomCategory[]
   onRemoveExpense: (id: string) => void
   onEditExpense: (id: string) => void
+  onEditFixed: (id: string) => void
+  onEditInstallment: (id: string) => void
   onOpenAdd: () => void
   onCloseMonth: () => void
   onExportPDF: () => void
@@ -32,7 +34,7 @@ type FilterId = 'all' | 'casal' | 'A' | 'B'
 export default function TabMes({
   nameA, nameB, incomeA, incomeB, method,
   monthKey, expenses, fixedCosts, installments, customCategories,
-  onRemoveExpense, onEditExpense, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
+  onRemoveExpense, onEditExpense, onEditFixed, onEditInstallment, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
 }: Props) {
   const [filter, setFilter] = useState<FilterId>('all')
   const [query, setQuery] = useState('')
@@ -53,7 +55,8 @@ export default function TabMes({
 
     expenses.filter((e) => e.monthKey === monthKey).forEach((e) => {
       entries.push({
-        id: e.id, kind: 'avulso', desc: e.desc, amount: e.amount,
+        id: e.id, sourceId: e.id,
+        kind: 'avulso', desc: e.desc, amount: e.amount,
         paidBy: e.paidBy, scope: e.scope, category: e.category,
         date: e.createdAt,
         paymentMethod: e.paymentMethod,
@@ -70,6 +73,7 @@ export default function TabMes({
       const day = dayFor(f.dueDay)
       entries.push({
         id: `fixed-${f.id}-${monthKey}`,
+        sourceId: f.id,
         kind: 'fixo', desc: f.desc, amount: f.amount,
         paidBy: f.paidBy, scope: f.scope, category: f.category,
         date: new Date(monthInfo.year, monthInfo.month - 1, day).getTime(),
@@ -84,6 +88,7 @@ export default function TabMes({
         const day = dayFor(i.dueDay)
         entries.push({
           id: `inst-${i.id}-${monthKey}`,
+          sourceId: i.id,
           kind: 'parcela', desc: i.desc, amount: i.parcelaMensal,
           paidBy: i.paidBy, scope: i.scope, category: i.category,
           date: new Date(monthInfo.year, monthInfo.month - 1, day).getTime(),
@@ -361,8 +366,13 @@ export default function TabMes({
               nameA={nameA}
               nameB={nameB}
               customCategories={customCategories}
-              onRemove={e.kind === 'avulso' ? onRemoveExpense : undefined}
-              onEdit={e.kind === 'avulso' ? onEditExpense : undefined}
+              onRemove={e.kind === 'avulso' ? () => onRemoveExpense(e.sourceId) : undefined}
+              onEdit={
+                e.kind === 'avulso' ? () => onEditExpense(e.sourceId)
+                : e.kind === 'fixo' ? () => onEditFixed(e.sourceId)
+                : e.kind === 'parcela' ? () => onEditInstallment(e.sourceId)
+                : undefined
+              }
             />
           ))}
         </div>

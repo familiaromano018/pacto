@@ -27,7 +27,7 @@ import { enqueue, drainQueue, clearQueue } from '@/lib/sync/queue'
 import { useSubscription } from '@/lib/subscription/useSubscription'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import type {
-  Expense, FixedCost, Installment, Goal, ClosedMonth, CustomCategory,
+  Expense, FixedCost, Installment, Goal, ClosedMonth, CustomCategory, EditTarget,
 } from './types'
 
 type TabId = 'visao' | 'mes' | 'recorrentes' | 'metas' | 'config'
@@ -76,7 +76,7 @@ function AuthedShell({ userId }: { userId: string }) {
   const [tab, setTab] = useState<TabId>('mes')
   const [monthKey, setMonthKey] = useState(currentMonthKey())
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
+  const [editing, setEditing] = useState<EditTarget | null>(null)
   const toast = useToast()
 
   // Carrega coupleId inicial
@@ -195,8 +195,48 @@ function AuthedShell({ userId }: { userId: string }) {
   function startEditExpense(id: string) {
     const e = expenses.find((x) => x.id === id)
     if (!e) return
-    setEditingExpense(e)
+    setEditing({ kind: 'avulso', expense: e })
     setSheetOpen(true)
+  }
+  function startEditFixed(id: string) {
+    const f = fixedCosts.find((x) => x.id === id)
+    if (!f) return
+    setEditing({ kind: 'fixo', fixed: f })
+    setSheetOpen(true)
+  }
+  function startEditInstallment(id: string) {
+    const i = installments.find((x) => x.id === id)
+    if (!i) return
+    setEditing({ kind: 'parcela', installment: i })
+    setSheetOpen(true)
+  }
+  function removeFixed(id: string) {
+    setFixedCosts((prev) => prev.filter((x) => x.id !== id))
+    enqueue({ table: 'fixed_costs', op: 'delete', payload: { id } })
+    pushDrain()
+  }
+  function removeInstallment(id: string) {
+    setInstallments((prev) => prev.filter((x) => x.id !== id))
+    enqueue({ table: 'installments', op: 'delete', payload: { id } })
+    pushDrain()
+  }
+  function upsertFixed(f: FixedCost) {
+    setFixedCosts((prev) => {
+      const i = prev.findIndex((x) => x.id === f.id)
+      if (i === -1) return [...prev, f]
+      const copy = prev.slice(); copy[i] = f; return copy
+    })
+    enqueue({ table: 'fixed_costs', op: 'upsert', payload: f })
+    pushDrain()
+  }
+  function upsertInstallment(i: Installment) {
+    setInstallments((prev) => {
+      const idx = prev.findIndex((x) => x.id === i.id)
+      if (idx === -1) return [...prev, i]
+      const copy = prev.slice(); copy[idx] = i; return copy
+    })
+    enqueue({ table: 'installments', op: 'upsert', payload: i })
+    pushDrain()
   }
 
   // ── Diff-and-enqueue setter factory ──
@@ -234,17 +274,6 @@ function AuthedShell({ userId }: { userId: string }) {
   const updateInstallments = useMemo(() => makeDiffSetter<Installment>(setInstallments, 'installments'), [])
   const updateGoals = useMemo(() => makeDiffSetter<Goal>(setGoals, 'goals'), [])
 
-  // ── FixedCost / Installment add (atalhos do AddExpenseSheet) ──
-  function addFixed(f: FixedCost) {
-    setFixedCosts((prev) => [...prev, f])
-    enqueue({ table: 'fixed_costs', op: 'upsert', payload: f })
-    pushDrain()
-  }
-  function addInstallment(i: Installment) {
-    setInstallments((prev) => [...prev, i])
-    enqueue({ table: 'installments', op: 'upsert', payload: i })
-    pushDrain()
-  }
 
   // ── Categories ──
   function addCustomCategory(name: string, emoji: string) {
@@ -464,7 +493,9 @@ function AuthedShell({ userId }: { userId: string }) {
             customCategories={customCategories}
             onRemoveExpense={removeExpense}
             onEditExpense={startEditExpense}
-            onOpenAdd={() => { setEditingExpense(null); setSheetOpen(true) }}
+            onEditFixed={startEditFixed}
+            onEditInstallment={startEditInstallment}
+            onOpenAdd={() => { setEditing(null); setSheetOpen(true) }}
             onCloseMonth={closeMonth}
             onExportPDF={() => exportPDF()}
             isClosed={isCurrentMonthClosed}
@@ -477,7 +508,9 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts} setFixedCosts={updateFixed}
             installments={installments} setInstallments={updateInstallments}
             customCategories={customCategories}
-            onOpenAdd={() => setSheetOpen(true)}
+            onOpenAdd={() => { setEditing(null); setSheetOpen(true) }}
+            onEditFixed={startEditFixed}
+            onEditInstallment={startEditInstallment}
           />
         )}
 
@@ -508,19 +541,27 @@ function AuthedShell({ userId }: { userId: string }) {
 
       <AddExpenseSheet
         open={sheetOpen}
-        onClose={() => { setSheetOpen(false); setEditingExpense(null) }}
+        onClose={() => { setSheetOpen(false); setEditing(null) }}
         nameA={nameA}
         nameB={nameB}
         monthKey={monthKey}
         customCategories={customCategories}
-        editingExpense={editingExpense}
+        editing={editing}
         onAddExpense={(e) => {
-          const wasEditing = !!editingExpense
           upsertExpense(e)
-          toast.show(wasEditing ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
+          toast.show(editing?.kind === 'avulso' ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
         }}
-        onAddFixed={(f) => { addFixed(f); toast.show('Custo fixo criado ✓') }}
-        onAddInstallment={(i) => { addInstallment(i); toast.show('Parcelado criado ✓') }}
+        onAddFixed={(f) => {
+          upsertFixed(f)
+          toast.show(editing?.kind === 'fixo' ? 'Custo fixo atualizado ✓' : 'Custo fixo criado ✓')
+        }}
+        onAddInstallment={(i) => {
+          upsertInstallment(i)
+          toast.show(editing?.kind === 'parcela' ? 'Parcelado atualizado ✓' : 'Parcelado criado ✓')
+        }}
+        onRemoveExpense={removeExpense}
+        onRemoveFixed={removeFixed}
+        onRemoveInstallment={removeInstallment}
         onAddCategory={(name, emoji) => {
           const cat = addCustomCategory(name, emoji)
           toast.show('Categoria criada ✓')

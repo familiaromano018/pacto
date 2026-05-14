@@ -6,7 +6,7 @@ import { newId } from '@/lib/id'
 import { currentMonthKey } from '@/lib/format'
 import { allCategoryNames, categoryEmoji, EMOJI_PICKER_OPTIONS } from '@/lib/categories'
 import { PAYMENT_METHODS } from './constants'
-import type { Expense, FixedCost, Installment, PaidBy, Scope, ExpenseKind, CustomCategory, PaymentMethod } from './types'
+import type { Expense, FixedCost, Installment, PaidBy, Scope, ExpenseKind, CustomCategory, PaymentMethod, EditTarget } from './types'
 import type { FixedFrequency } from '@/lib/fixed'
 
 interface Props {
@@ -16,20 +16,25 @@ interface Props {
   nameB: string
   monthKey: string
   customCategories: CustomCategory[]
-  /** se passado, abre em modo edit (form pré-populado, salva via upsert no mesmo id) */
-  editingExpense?: Expense | null
+  /** se passado, abre em modo edit. Aceita os 3 tipos. */
+  editing?: EditTarget | null
   onAddExpense: (e: Expense) => void
   onAddFixed: (f: FixedCost) => void
   onAddInstallment: (i: Installment) => void
   onAddCategory: (name: string, emoji: string) => CustomCategory
+  /** chamado quando o user troca o tipo durante edição (ex: fixo → avulso) */
+  onRemoveExpense?: (id: string) => void
+  onRemoveFixed?: (id: string) => void
+  onRemoveInstallment?: (id: string) => void
 }
 
 export default function AddExpenseSheet({
   open, onClose, nameA, nameB, monthKey, customCategories,
-  editingExpense,
+  editing,
   onAddExpense, onAddFixed, onAddInstallment, onAddCategory,
+  onRemoveExpense, onRemoveFixed, onRemoveInstallment,
 }: Props) {
-  const isEditing = !!editingExpense
+  const isEditing = !!editing
   const [creatingCategory, setCreatingCategory] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [newCatEmoji, setNewCatEmoji] = useState('📦')
@@ -50,33 +55,47 @@ export default function AddExpenseSheet({
   useEffect(() => {
     if (open) {
       setError(null)
-      if (editingExpense) {
-        // pré-popula form pra edição
-        setKind('avulso')
-        setDesc(editingExpense.desc)
-        setAmount(String(editingExpense.amount).replace('.', ','))
-        setScope(editingExpense.scope)
-        setPaidBy(editingExpense.paidBy)
-        setCategory(editingExpense.category)
-        setPaymentMethod(editingExpense.paymentMethod || '')
-        setParcelas('12')
-        setParcelasPagas('0')
-        setDueDay('')
+      if (editing) {
+        if (editing.kind === 'avulso') {
+          const e = editing.expense
+          setKind('avulso')
+          setDesc(e.desc); setAmount(String(e.amount).replace('.', ','))
+          setScope(e.scope); setPaidBy(e.paidBy); setCategory(e.category)
+          setPaymentMethod(e.paymentMethod || '')
+          setParcelas('12'); setParcelasPagas('0'); setDueDay('')
+          setFrequency('monthly')
+        } else if (editing.kind === 'fixo') {
+          const f = editing.fixed
+          setKind('fixo')
+          setDesc(f.desc); setAmount(String(f.amount).replace('.', ','))
+          setScope(f.scope); setPaidBy(f.paidBy); setCategory(f.category)
+          setPaymentMethod(f.paymentMethod || '')
+          setDueDay(f.dueDay ? String(f.dueDay) : '')
+          setFrequency(f.frequency ?? 'monthly')
+          setParcelas('12'); setParcelasPagas('0')
+        } else if (editing.kind === 'parcela') {
+          const i = editing.installment
+          setKind('parcela')
+          setDesc(i.desc); setAmount(String(i.totalAmount).replace('.', ','))
+          setScope(i.scope); setPaidBy(i.paidBy); setCategory(i.category)
+          setPaymentMethod(i.paymentMethod || '')
+          setDueDay(i.dueDay ? String(i.dueDay) : '')
+          setParcelas(String(i.totalParcelas))
+          setParcelasPagas(String(i.paidParcelas))
+          setFrequency('monthly')
+        }
       } else {
-        setDesc('')
-        setAmount('')
-        setParcelas('12')
-        setParcelasPagas('0')
-        setPaymentMethod('')
-        setDueDay('')
-        setFrequency('monthly')
+        setKind('avulso')
+        setDesc(''); setAmount('')
+        setParcelas('12'); setParcelasPagas('0')
+        setPaymentMethod(''); setDueDay(''); setFrequency('monthly')
       }
       setJustSavedValue(null)
       setCreatingCategory(false)
       setNewCatName('')
       setNewCatEmoji('📦')
     }
-  }, [open, editingExpense])
+  }, [open, editing])
 
   if (!open) return null
 
@@ -94,23 +113,43 @@ export default function AddExpenseSheet({
     const dd = parseInt(dueDay)
     const dueDayClamped = Number.isFinite(dd) && dd >= 1 && dd <= 31 ? dd : undefined
 
+    // Se mudou de tipo durante edit, deleta o antigo antes de inserir o novo
+    const typeChanged = editing && editing.kind !== kind
+    if (typeChanged) {
+      if (editing!.kind === 'avulso') onRemoveExpense?.(editing!.expense.id)
+      else if (editing!.kind === 'fixo') onRemoveFixed?.(editing!.fixed.id)
+      else if (editing!.kind === 'parcela') onRemoveInstallment?.(editing!.installment.id)
+    }
+    // Se manteve tipo, preserva id; senão gera novo
+    const sameTypeId =
+      editing && editing.kind === kind
+        ? editing.kind === 'avulso'
+          ? editing.expense.id
+          : editing.kind === 'fixo'
+          ? editing.fixed.id
+          : editing.installment.id
+        : null
+
     if (kind === 'avulso') {
-      // Em modo edição, preserva id + createdAt + monthKey originais
+      const preservedCreatedAt = editing?.kind === 'avulso' ? editing.expense.createdAt : Date.now()
+      const preservedMonthKey = editing?.kind === 'avulso' ? editing.expense.monthKey : (monthKey || currentMonthKey())
       onAddExpense({
-        id: editingExpense?.id ?? newId(),
-        desc: desc.trim(),
-        amount: value,
+        id: sameTypeId ?? newId(),
+        desc: desc.trim(), amount: value,
         paidBy, scope, category,
-        createdAt: editingExpense?.createdAt ?? Date.now(),
-        monthKey: editingExpense?.monthKey ?? (monthKey || currentMonthKey()),
+        createdAt: preservedCreatedAt,
+        monthKey: preservedMonthKey,
         paymentMethod: pm,
       })
     } else if (kind === 'fixo') {
+      const preservedCreatedAt = editing?.kind === 'fixo' ? editing.fixed.createdAt : Date.now()
+      const preservedActive = editing?.kind === 'fixo' ? editing.fixed.active : true
       onAddFixed({
-        id: newId(), desc: desc.trim(), amount: value,
+        id: sameTypeId ?? newId(),
+        desc: desc.trim(), amount: value,
         paidBy, scope, category,
-        active: true,
-        createdAt: Date.now(),
+        active: preservedActive,
+        createdAt: preservedCreatedAt,
         paymentMethod: pm,
         dueDay: dueDayClamped,
         frequency,
@@ -118,14 +157,16 @@ export default function AddExpenseSheet({
     } else {
       const total = parseInt(parcelas)
       const paid = Math.min(parseInt(parcelasPagas) || 0, total - 1)
+      const preservedStartedAt = editing?.kind === 'parcela' ? editing.installment.startedAt : Date.now()
       onAddInstallment({
-        id: newId(), desc: desc.trim(),
+        id: sameTypeId ?? newId(),
+        desc: desc.trim(),
         totalAmount: value,
         totalParcelas: total,
         paidParcelas: paid,
         parcelaMensal: value / total,
         paidBy, scope, category,
-        startedAt: Date.now(),
+        startedAt: preservedStartedAt,
         paymentMethod: pm,
         dueDay: dueDayClamped,
       })
