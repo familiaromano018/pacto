@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Casal no Azul — Parcelas (Mockup 04)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #FF6B6B;
+    --teal: #4ECDC4;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --red:   #ef4444;
+    --ink-900: #0f1419;
+    --ink-700: #2d3748;
+    --ink-500: #64748b;
+    --ink-300: #cbd5e1;
+    --ink-100: #f1f5f9;
+    --ink-50:  #f8fafc;
+    --bg:      #f3f4f6;
+    --white:   #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #faf5ff 0%, #f0fdfa 50%, #fff7ed 100%);
+    min-height: 100vh; color: var(--ink-900);
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    display: flex; justify-content: center;
+    padding: 40px 20px 80px; gap: 40px;
+    flex-wrap: wrap;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    background: var(--ink-900);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .phone {
+    width: 420px; max-width: 100%;
+    background: var(--bg);
+    border-radius: 40px;
+    padding: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 8px #1a1a1a;
+    position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute;
+    top: 22px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 24px; background: #1a1a1a;
+    border-radius: 0 0 14px 14px; z-index: 10;
+  }
+  .screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden; position: relative;
+    height: 820px;
+    overflow-y: auto; scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* STATUS */
+  .status-bar {
+    height: 44px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    font-size: 14px; font-weight: 600;
+  }
+  .header-top {
+    padding: 4px 20px 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .header-top .back {
+    width: 38px; height: 38px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    cursor: pointer; color: var(--ink-700);
+  }
+  .header-top h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px; font-weight: 800; color: var(--ink-900);
+  }
+  .header-top .badge {
+    margin-left: auto;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  /* HERO SUMMARY */
+  .summary {
+    margin: 0 16px 18px;
+    padding: 22px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+    border-radius: 22px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(139,92,246,.25);
+  }
+  .summary::before {
+    content: "💳";
+    position: absolute;
+    font-size: 120px;
+    right: -20px;
+    top: -20px;
+    opacity: .12;
+    transform: rotate(-15deg);
+  }
+  .summary .lbl {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: .85;
+    font-weight: 600;
+  }
+  .summary .val {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    margin-top: 4px;
+    line-height: 1.1;
+  }
+  .summary .sub {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: .85;
+  }
+  .summary-stats {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    background: rgba(255,255,255,.15);
+    border-radius: 14px;
+    padding: 12px;
+    backdrop-filter: blur(8px);
+    position: relative; z-index: 2;
+  }
+  .summary-stats .stat-mini {
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,.2);
+  }
+  .summary-stats .stat-mini:last-child { border-right: 0; }
+  .summary-stats .k {
+    font-size: 10px; opacity: .8;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    font-weight: 600;
+  }
+  .summary-stats .v {
+    font-family: 'Poppins', sans-serif;
+    font-size: 17px; font-weight: 800;
+    margin-top: 2px;
+  }
+
+  /* TABS */
+  .tabs {
+    margin: 0 16px 12px;
+    background: white;
+    border-radius: 12px;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 0;
+    text-align: center;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-500);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--ink-900);
+    color: white;
+  }
+
+  /* PARCELA CARD */
+  .parc-card {
+    margin: 0 16px 12px;
+    background: white;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    position: relative;
+  }
+  .parc-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .parc-emoji {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: var(--ink-50);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .parc-emoji.alert {
+    background: #fef3c7;
+  }
+  .parc-info { flex: 1; min-width: 0; }
+  .parc-name {
+    font-size: 15px; font-weight: 700;
+    color: var(--ink-900);
+  }
+  .parc-meta {
+    font-size: 12px;
+    color: var(--ink-500);
+    margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .payer-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 8px; font-weight: 800;
+  }
+  .payer-dot.ana { background: var(--coral); }
+  .payer-dot.pedro { background: var(--teal); }
+  .payer-dot.casal { background: linear-gradient(135deg, var(--coral) 50%, var(--teal) 50%); }
+  .parc-right { text-align: right; }
+  .parc-installment {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--coral);
+  }
+  .parc-total {
+    font-size: 11px;
+    color: var(--ink-500);
+    margin-top: 2px;
+  }
+
+  /* PROGRESS WITH SEGMENTS */
+  .progress-segmented {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 8px;
+  }
+  .seg-dot {
+    flex: 1;
+    height: 8px;
+    background: var(--ink-100);
+    border-radius: 4px;
+  }
+  .seg-dot.paid { background: var(--green); }
+  .seg-dot.now { background: var(--coral); animation: pulse 2s infinite; }
+  @keyframes pulse {
+    50% { opacity: .65; }
+  }
+
+  .parc-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px;
+  }
+  .parc-footer .left {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--ink-700);
+  }
+  .parc-footer .left b {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: var(--ink-900);
+  }
+  .pct-pill {
+    background: #d1fae5;
+    color: #047857;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
+  .next-pill {
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
+
+  /* GROUP SECTION HEADER */
+  .group-header {
+    margin: 18px 22px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .group-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-500);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .group-header .right-total {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--ink-700);
+  }
+
+  /* FINISHED CARD STYLE */
+  .parc-card.done {
+    opacity: .7;
+  }
+  .parc-card.done .parc-name {
+    text-decoration: line-through;
+    color: var(--ink-500);
+  }
+  .parc-card.done .parc-installment {
+    color: var(--green);
+  }
+  .done-stamp {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: var(--green);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  /* NAV / FAB */
+  .fab {
+    position: absolute;
+    bottom: 92px; right: 22px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--coral), #ff8a5b);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 300;
+    box-shadow: 0 10px 25px rgba(255,107,107,.45);
+    z-index: 20;
+    border: 4px solid #fafafa;
+  }
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 76px;
+    background: white;
+    border-top: 1px solid var(--ink-100);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 0 14px 12px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--ink-500); font-size: 11px; font-weight: 600;
+  }
+  .nav-item.active { color: var(--coral); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* NOTES */
+  .notes { width: 420px; max-width: 100%; }
+  .note-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    border-left: 4px solid var(--teal);
+  }
+  .note-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #3dbdb4;
+    margin-bottom: 8px;
+  }
+  .note-card p { font-size: 13px; color: var(--ink-700); line-height: 1.5; }
+  .note-card ul { margin-top: 8px; padding-left: 18px; }
+  .note-card li { font-size: 13px; color: var(--ink-700); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ PHONE ============ -->
+  <div class="phone-wrap">
+    <div class="phone-label">Parcelas — visão geral</div>
+    <div class="phone">
+      <div class="screen">
+
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="font-size:11px;color:var(--ink-500)">• • • •</span>
+        </div>
+
+        <header class="header-top">
+          <div class="back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+          </div>
+          <h1>💳 Parcelados</h1>
+          <div class="badge">7 ativos</div>
+        </header>
+
+        <!-- SUMMARY HERO -->
+        <section class="summary">
+          <div class="lbl">Total devendo no parcelado</div>
+          <div class="val">R$ 4.218,00</div>
+          <div class="sub">Faltam <b>11 parcelas</b> pra zerar tudo</div>
+
+          <div class="summary-stats">
+            <div class="stat-mini">
+              <div class="k">Este mês</div>
+              <div class="v">R$ 893</div>
+            </div>
+            <div class="stat-mini">
+              <div class="k">Próximo</div>
+              <div class="v">R$ 720</div>
+            </div>
+            <div class="stat-mini">
+              <div class="k">Liberta em</div>
+              <div class="v">jan/27</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABS -->
+        <div class="tabs">
+          <div class="tab active">Ativos · 7</div>
+          <div class="tab">Quitados · 3</div>
+          <div class="tab">Todos</div>
+        </div>
+
+        <!-- GROUP: PAGAM ESTE MÊS -->
+        <div class="group-header">
+          <h3>Vencem este mês</h3>
+          <div class="right-total">R$ 893,00</div>
+        </div>
+
+        <!-- CARD 1 -->
+        <div class="parc-card">
+          <div class="parc-head">
+            <div class="parc-emoji">🛋️</div>
+            <div class="parc-info">
+              <div class="parc-name">Sofá Tok&Stok</div>
+              <div class="parc-meta">
+                <span class="payer-dot pedro">P</span> Pedro · casal ÷2 · vence dia 10
+              </div>
+            </div>
+            <div class="parc-right">
+              <div class="parc-installment">3 de 12</div>
+              <div class="parc-total">R$ 5.100 total</div>
+            </div>
+          </div>
+
+          <div class="progress-segmented">
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot now"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+          </div>
+
+          <div class="parc-footer">
+            <div class="left">
+              <span>9 restam</span>·
+              <span>faltam <b>R$ 3.825,00</b></span>
+            </div>
+            <span class="next-pill">vence em 4 dias</span>
+          </div>
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="parc-card">
+          <div class="parc-head">
+            <div class="parc-emoji">📱</div>
+            <div class="parc-info">
+              <div class="parc-name">iPhone 14 — Magalu</div>
+              <div class="parc-meta">
+                <span class="payer-dot ana">A</span> Ana · pessoal · vence dia 15
+              </div>
+            </div>
+            <div class="parc-right">
+              <div class="parc-installment">8 de 10</div>
+              <div class="parc-total">R$ 4.680 total</div>
+            </div>
+          </div>
+
+          <div class="progress-segmented">
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot now"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+          </div>
+
+          <div class="parc-footer">
+            <div class="left">
+              <span>2 restam</span> ·
+              <span>faltam <b>R$ 936,00</b></span>
+            </div>
+            <span class="pct-pill">80% pago 🎉</span>
+          </div>
+        </div>
+
+        <!-- GROUP: PRÓXIMOS -->
+        <div class="group-header">
+          <h3>Vencem mês que vem</h3>
+          <div class="right-total">R$ 720,00</div>
+        </div>
+
+        <div class="parc-card">
+          <div class="parc-head">
+            <div class="parc-emoji">✈️</div>
+            <div class="parc-info">
+              <div class="parc-name">Viagem Bonito — Decolar</div>
+              <div class="parc-meta">
+                <span class="payer-dot casal">C</span> Casal ÷2 · vence dia 20
+              </div>
+            </div>
+            <div class="parc-right">
+              <div class="parc-installment">1 de 6</div>
+              <div class="parc-total">R$ 4.320 total</div>
+            </div>
+          </div>
+
+          <div class="progress-segmented">
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+            <span class="seg-dot"></span>
+          </div>
+
+          <div class="parc-footer">
+            <div class="left">
+              <span>5 restam</span> ·
+              <span>faltam <b>R$ 3.600,00</b></span>
+            </div>
+            <span class="next-pill">próxima · jun</span>
+          </div>
+        </div>
+
+        <!-- QUITADO -->
+        <div class="group-header">
+          <h3>Recém-quitados 🎉</h3>
+          <div class="right-total">R$ 0,00</div>
+        </div>
+
+        <div class="parc-card done">
+          <div class="done-stamp">✓ Quitado</div>
+          <div class="parc-head">
+            <div class="parc-emoji">🎧</div>
+            <div class="parc-info">
+              <div class="parc-name">AirPods Pro</div>
+              <div class="parc-meta">
+                <span class="payer-dot pedro">P</span> Pedro · pessoal · finalizou em abril
+              </div>
+            </div>
+            <div class="parc-right">
+              <div class="parc-installment">10 de 10</div>
+              <div class="parc-total">R$ 2.200 total</div>
+            </div>
+          </div>
+
+          <div class="progress-segmented">
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+            <span class="seg-dot paid"></span>
+          </div>
+        </div>
+
+        <div style="height: 110px"></div>
+
+        <!-- FAB & NAV -->
+        <div class="fab">+</div>
+        <nav class="bottom-nav">
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 9v12h5v-7h6v7h5V9z"/></svg>
+            <span>Início</span>
+          </div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <span>Gastos</span>
+          </div>
+          <div style="width:60px"></div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            <span>Análise</span>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21c0-3 3-5 6-5s6 2 6 5M14 21c0-3 3-5 6-5"/></svg>
+            <span>Casal</span>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ NOTES ============ -->
+  <div class="notes">
+    <div class="note-card">
+      <h3>🎯 Hero summary roxo</h3>
+      <ul>
+        <li><b>Total geral devendo</b> + faltam X parcelas pra zerar — a métrica que importa mental e emocionalmente.</li>
+        <li><b>3 stats inline</b>: este mês / próximo mês / data de liberdade. "Liberta em jan/27" é storytelling — mostra que tem fim.</li>
+        <li><b>Cor roxa</b> diferencia esta seção das outras (coral = pendência, teal = composição, roxo = compromisso de longo prazo).</li>
+      </ul>
+    </div>
+    <div class="note-card" style="border-color: var(--coral);">
+      <h3>📊 Progress segmentado vs barra</h3>
+      <p>Ao invés de progress bar contínua, usamos <b>X dots discretos</b> — cada um é uma parcela. Verde = pago, coral pulsante = parcela atual, cinza = pendente. Bate com modelo mental de "quantas faltam".</p>
+    </div>
+    <div class="note-card" style="border-color: var(--amber);">
+      <h3>📦 Densidade & agrupamento</h3>
+      <ul>
+        <li>Card ~120px de altura vs ~250px do design atual (50% mais denso).</li>
+        <li><b>3 grupos contextuais</b>: vencem este mês / vencem mês que vem / recém-quitados.</li>
+        <li>Quitado fica "fantasma" (opacity .7 + line-through no nome) + stamp verde "✓ Quitado".</li>
+        <li>Pills coloridas no footer: vermelho = vence em 4 dias / verde = 80% pago / âmbar = próxima.</li>
+      </ul>
+    </div>
+    <div class="note-card" style="border-color: var(--purple);">
+      <h3>🎨 Hierarquia clara</h3>
+      <p>Cada parcela: emoji 22px → nome 15px bold → meta 12px com payer-dot → installment "3 de 12" em coral monospace-feel → progress segmentado → footer com restantes + valor + pill contextual. Sempre na mesma ordem visual.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

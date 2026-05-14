@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ── Identidade (azul como brand — combina com "Casal no Azul") ── */
+  --color-person-a: #5b8dff;
+  --color-person-a-bg: rgba(91, 141, 255, 0.12);
+  --color-person-b: #4dd4cf;
+  --color-person-b-bg: rgba(77, 212, 207, 0.12);
+  --color-fixed: #a78bfa;
+  --color-fixed-bg: rgba(167, 139, 250, 0.12);
+  --color-installment: #fbbf24;
+  --color-installment-bg: rgba(251, 191, 36, 0.12);
+  --color-personal: #a78bfa;
+  --color-brand: #5b8dff;
+  --color-brand-emphasis: #7da3ff;
+
+  /* ── Status ── */
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.10);
+  --color-success-border: rgba(52, 211, 153, 0.35);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.10);
+  --color-warning-border: rgba(251, 191, 36, 0.30);
+  --color-warning-text: #fcd34d;
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.10);
+
+  /* ── Superfícies (DARK por padrão) ── */
+  --color-bg-app: #0b0b10;
+  --color-bg-card: #16161c;
+  --color-bg-card-muted: #1d1d24;
+  --color-bg-overlay: rgba(0, 0, 0, 0.78);
+  --color-bg-elevated: #1f1f27;
+
+  /* ── Textos ── */
+  --color-text-primary: #ffffff;
+  --color-text-heading: #f4f4f6;
+  --color-text-body: #cacace;
+  --color-text-secondary: #8b8b94;
+  --color-text-muted: #5c5c66;
+  --color-text-placeholder: #44444c;
+  --color-text-disabled: #2e2e36;
+  --color-text-on-brand: #ffffff;
+
+  /* ── Borders ── */
+  --color-border-default: #2a2a32;
+  --color-border-subtle: #1f1f27;
+  --color-border-divider: #18181f;
+  --color-border-focus: #5b8dff;
+
+  /* ── Shadows (mais discretas no dark) ── */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --shadow-header: 0 1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-bottom-nav: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-focus: 0 0 0 3px rgba(91, 141, 255, 0.30);
+  --shadow-fab: 0 12px 28px rgba(91, 141, 255, 0.45), 0 4px 12px rgba(0, 0, 0, 0.4);
+  --color-brand-rgb: 91, 141, 255;
+}
+
+/* Tema light opcional (manter porta aberta) */
+@media (prefers-color-scheme: light) {
+  :root[data-theme='light'] {
+    --color-bg-app: #f7f7f8;
+    --color-bg-card: #ffffff;
+    --color-bg-card-muted: #fafafa;
+    --color-bg-overlay: rgba(0, 0, 0, 0.5);
+    --color-bg-elevated: #ffffff;
+    --color-text-heading: #18181c;
+    --color-text-body: #3f3f46;
+    --color-text-secondary: #6b6b75;
+    --color-text-muted: #9b9ba2;
+    --color-text-placeholder: #c5c5cb;
+    --color-text-disabled: #d4d4d9;
+    --color-border-default: #e6e6ea;
+    --color-border-subtle: #f0f0f3;
+    --color-border-divider: #f5f5f8;
+    --shadow-card: 0 8px 24px rgba(20, 20, 28, 0.06);
+    --shadow-sm: 0 2px 8px rgba(20, 20, 28, 0.04);
+    --shadow-header: 0 2px 12px rgba(20, 20, 28, 0.04);
+    --shadow-bottom-nav: 0 -8px 24px rgba(20, 20, 28, 0.06);
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--color-bg-app);
+  color: var(--color-text-heading);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+::selection {
+  background: rgba(91, 141, 255, 0.35);
+  color: #fff;
+}
+
+@keyframes cna-fab-pulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 12px 28px rgba(91, 141, 255, 0.45), 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.06);
+    box-shadow: 0 16px 36px rgba(91, 141, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes cna-sheet-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes cna-sheet-backdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cna-fab-pop {
+  0%   { transform: translateX(-50%) scale(0.8); opacity: 0; }
+  60%  { transform: translateX(-50%) scale(1.08); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+@keyframes cna-success-pop {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}

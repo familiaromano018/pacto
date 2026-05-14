@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Casal no Azul — Bottom Nav (Mockup 05)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #FF6B6B;
+    --teal: #4ECDC4;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --red:   #ef4444;
+    --ink-900: #0f1419;
+    --ink-700: #2d3748;
+    --ink-500: #64748b;
+    --ink-300: #cbd5e1;
+    --ink-100: #f1f5f9;
+    --ink-50:  #f8fafc;
+    --bg:      #f3f4f6;
+    --white:   #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #faf5ff 0%, #f0fdfa 50%, #fff7ed 100%);
+    min-height: 100vh; color: var(--ink-900);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-header {
+    text-align: center;
+    padding: 50px 20px 30px;
+  }
+  .page-header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px; font-weight: 800;
+    color: var(--ink-900);
+  }
+  .page-header p {
+    color: var(--ink-500);
+    font-size: 15px;
+    margin-top: 8px;
+    max-width: 600px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  .stage {
+    display: flex; justify-content: center;
+    padding: 0 20px 40px; gap: 32px;
+    flex-wrap: wrap;
+  }
+  .col {
+    display: flex; flex-direction: column;
+    align-items: center;
+    max-width: 360px;
+  }
+  .col h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px; font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .col .sub {
+    color: var(--ink-500);
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  .label-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--ink-900);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .label-pill.bad { background: #b91c1c; }
+  .label-pill.good { background: var(--green); }
+
+  /* PHONE */
+  .phone {
+    width: 360px; max-width: 100%;
+    background: var(--bg);
+    border-radius: 36px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 7px #1a1a1a;
+    position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute;
+    top: 18px; left: 50%; transform: translateX(-50%);
+    width: 90px; height: 22px; background: #1a1a1a;
+    border-radius: 0 0 12px 12px; z-index: 10;
+  }
+  .screen {
+    background: white;
+    border-radius: 26px;
+    overflow: hidden; position: relative;
+    height: 600px;
+  }
+
+  /* FAKE CONTENT INSIDE PHONE */
+  .fake-content {
+    padding: 40px 20px;
+    background: linear-gradient(180deg, #faf5ff, white);
+    height: calc(100% - 76px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .fake-content .ph-box {
+    background: var(--ink-50);
+    border-radius: 12px;
+    width: 100%; height: 14px;
+    margin-bottom: 8px;
+  }
+  .fake-content .ph-box.short { width: 60%; }
+  .fake-content .ph-box.title {
+    height: 18px;
+    background: var(--ink-100);
+    margin-bottom: 18px;
+  }
+  .ph-card {
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    margin-bottom: 10px;
+  }
+  .ph-card .ph-line {
+    height: 10px;
+    background: var(--ink-100);
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .ph-card .ph-line.short { width: 50%; }
+
+  /* OLD NAV (6 tabs) */
+  .nav-old {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 76px;
+    background: white;
+    border-top: 1px solid var(--ink-100);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 0 6px 10px;
+  }
+  .nav-old .ni {
+    flex: 1;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--ink-500);
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .nav-old .ni .em {
+    font-size: 18px;
+  }
+  .nav-old .ni.active {
+    color: var(--coral);
+  }
+  .nav-old .ni.active .em {
+    filter: drop-shadow(0 2px 4px rgba(255,107,107,.4));
+  }
+
+  /* NEW NAV (4 tabs + central FAB) */
+  .nav-new {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 76px;
+    background: white;
+    border-top: 1px solid var(--ink-100);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 0 14px 12px;
+  }
+  .nav-new .ni {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--ink-500); font-size: 11px; font-weight: 600;
+    cursor: pointer;
+    position: relative;
+  }
+  .nav-new .ni.active { color: var(--coral); }
+  .nav-new .ni.active::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    width: 32px; height: 3px;
+    background: var(--coral);
+    border-radius: 100px;
+  }
+  .nav-new .ni svg { width: 22px; height: 22px; }
+
+  .central-fab {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--coral), #ff8a5b);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 300;
+    box-shadow: 0 8px 22px rgba(255,107,107,.45);
+    margin-top: -32px;
+    border: 4px solid white;
+  }
+  .central-fab-label {
+    font-size: 10px;
+    color: var(--coral);
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .nav-new .central-wrap {
+    display: flex; flex-direction: column;
+    align-items: center;
+  }
+
+  /* COMPARISON CALLOUT */
+  .callout {
+    margin-top: 22px;
+    width: 360px;
+    background: white;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  }
+  .callout h4 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .callout.bad h4 { color: #b91c1c; }
+  .callout.good h4 { color: var(--green); }
+  .callout ul {
+    padding-left: 0; list-style: none;
+  }
+  .callout li {
+    font-size: 13px; color: var(--ink-700);
+    line-height: 1.5;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--ink-100);
+    display: flex; gap: 8px;
+  }
+  .callout li:last-child { border-bottom: 0; }
+  .callout li::before {
+    content: "•";
+    color: var(--ink-300);
+    flex-shrink: 0;
+  }
+  .callout.bad li::before { color: #b91c1c; content: "✕"; font-weight: 800; }
+  .callout.good li::before { color: var(--green); content: "✓"; font-weight: 800; }
+
+  /* TABS MAP */
+  .tabs-map {
+    width: calc(720px + 32px);
+    max-width: 100%;
+    margin: 0 auto 40px;
+    background: white;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+  }
+  .tabs-map h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    margin-bottom: 18px;
+    color: var(--ink-900);
+  }
+  .map-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--ink-100);
+  }
+  .map-row:last-child { border: 0; }
+  .map-row .pill {
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    background: var(--ink-100);
+    color: var(--ink-700);
+    border-radius: 100px;
+    font-size: 12px; font-weight: 700;
+  }
+  .map-row .arrow {
+    color: var(--ink-300);
+    font-weight: 700;
+  }
+  .map-row .pill.new {
+    background: var(--coral); color: white;
+  }
+  .map-row .why {
+    flex: 1;
+    font-size: 13px;
+    color: var(--ink-500);
+    margin-left: 8px;
+  }
+
+  /* NOTES below */
+  .notes-wrap {
+    display: flex; justify-content: center;
+    padding: 0 20px 80px;
+  }
+  .note-card {
+    width: 720px;
+    max-width: 100%;
+    background: white;
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    border-left: 4px solid var(--teal);
+  }
+  .note-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #3dbdb4;
+    margin-bottom: 8px;
+  }
+  .note-card ul { padding-left: 18px; }
+  .note-card li { font-size: 13px; color: var(--ink-700); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Bottom Nav — antes vs depois</h1>
+  <p>De 6 tabs com peso visual igual pra 4 tabs estruturadas + FAB central pra primary action.</p>
+</div>
+
+<div class="stage">
+
+  <!-- OLD -->
+  <div class="col">
+    <div class="label-pill bad">Antes · 6 tabs</div>
+    <h2>O que tem hoje</h2>
+    <p class="sub">Tudo no mesmo nível, sem hierarquia.</p>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="fake-content">
+          <div class="ph-box title"></div>
+          <div class="ph-box"></div>
+          <div class="ph-box short"></div>
+          <div style="height: 16px"></div>
+          <div class="ph-card">
+            <div class="ph-line"></div>
+            <div class="ph-line short"></div>
+          </div>
+          <div class="ph-card">
+            <div class="ph-line"></div>
+            <div class="ph-line short"></div>
+          </div>
+        </div>
+
+        <nav class="nav-old">
+          <div class="ni active"><span class="em">🏠</span><span>Início</span></div>
+          <div class="ni"><span class="em">📌</span><span>Fixos</span></div>
+          <div class="ni"><span class="em">💳</span><span>Parcelas</span></div>
+          <div class="ni"><span class="em">📊</span><span>Análise</span></div>
+          <div class="ni"><span class="em">🎯</span><span>Metas</span></div>
+          <div class="ni"><span class="em">👤</span><span>Perfil</span></div>
+        </nav>
+      </div>
+    </div>
+
+    <div class="callout bad">
+      <h4>Problemas</h4>
+      <ul>
+        <li>6 tabs = cada uma com ~16% da atenção. Nenhuma se destaca.</li>
+        <li>"Fixos" e "Parcelas" disputam espaço em tabs separados quando ambos são "despesas".</li>
+        <li>Nenhum atalho pra primary action: cadastrar gasto exige navegar.</li>
+        <li>Tab "Metas" raramente usada ocupa real estate igual à mais usada.</li>
+        <li>Tap targets pequenos (~50px wide em 360px) — borderline acessível.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- NEW -->
+  <div class="col">
+    <div class="label-pill good">Proposta · 4 + FAB</div>
+    <h2>O que vamos fazer</h2>
+    <p class="sub">Estrutura clara, FAB pra ação principal.</p>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="fake-content">
+          <div class="ph-box title"></div>
+          <div class="ph-box"></div>
+          <div class="ph-box short"></div>
+          <div style="height: 16px"></div>
+          <div class="ph-card">
+            <div class="ph-line"></div>
+            <div class="ph-line short"></div>
+          </div>
+          <div class="ph-card">
+            <div class="ph-line"></div>
+            <div class="ph-line short"></div>
+          </div>
+        </div>
+
+        <nav class="nav-new">
+          <div class="ni active">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 9v12h5v-7h6v7h5V9z"/></svg>
+            <span>Início</span>
+          </div>
+          <div class="ni">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <span>Gastos</span>
+          </div>
+          <div class="central-wrap">
+            <div class="central-fab">+</div>
+          </div>
+          <div class="ni">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            <span>Análise</span>
+          </div>
+          <div class="ni">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21c0-3 3-5 6-5s6 2 6 5M14 21c0-3 3-5 6-5"/></svg>
+            <span>Casal</span>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <div class="callout good">
+      <h4>Por quê funciona</h4>
+      <ul>
+        <li>4 destinos: cada um pega ~25% da atenção. Mental model mais simples.</li>
+        <li>FAB central coral = primary action sempre 1 tap distante de qualquer tela.</li>
+        <li>"Gastos" unifica fixos + parcelados + avulsos numa lista filtrável (mockup 02).</li>
+        <li>SVG icons consistentes (stroke 2px) substituem emojis — mais limpo, profissional.</li>
+        <li>Indicador ativo (linha coral acima) é sutil mas claro.</li>
+        <li>Tap targets ~72px wide (4 cabem confortavelmente em 360px).</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- TABS MAP -->
+<div style="display: flex; justify-content: center; padding: 20px;">
+  <div class="tabs-map">
+    <h3>🗺️ Mapeamento das tabs (de 6 → 4)</h3>
+
+    <div class="map-row">
+      <div class="pill">🏠 Início</div>
+      <div class="arrow">→</div>
+      <div class="pill new">🏠 Início</div>
+      <div class="why">Mantém. Mas conteúdo redesenhado (mockup 01) com hero "quem deve" no topo.</div>
+    </div>
+
+    <div class="map-row">
+      <div class="pill">📌 Fixos</div>
+      <div class="arrow">→</div>
+      <div class="pill new">💸 Gastos</div>
+      <div class="why">Funde com Parcelas e adiciona avulsos. Filtros por chip ("Fixos" / "Parcelados" / "Avulsos").</div>
+    </div>
+
+    <div class="map-row">
+      <div class="pill">💳 Parcelas</div>
+      <div class="arrow">→</div>
+      <div class="pill new">💸 Gastos</div>
+      <div class="why">Mesma tela "Gastos" com filtro "Parcelados". Detalhe aprofundado em /gastos/parcelados (mockup 04).</div>
+    </div>
+
+    <div class="map-row">
+      <div class="pill">📊 Análise</div>
+      <div class="arrow">→</div>
+      <div class="pill new">📈 Análise</div>
+      <div class="why">Mantém. Gráficos do mês, evolução, comparativos. Sem mudança de escopo.</div>
+    </div>
+
+    <div class="map-row">
+      <div class="pill">🎯 Metas</div>
+      <div class="arrow">→</div>
+      <div class="pill new">💑 Casal</div>
+      <div class="why">Vira sub-aba dentro de "Casal" (perfil compartilhado). Não merece tab própria.</div>
+    </div>
+
+    <div class="map-row">
+      <div class="pill">👤 Perfil</div>
+      <div class="arrow">→</div>
+      <div class="pill new">💑 Casal</div>
+      <div class="why">Funde. "Casal" agrupa: composição, metas, configurações de divisão, perfis dos dois.</div>
+    </div>
+
+    <div class="map-row">
+      <div class="pill" style="background: transparent; color: var(--ink-500);">(nada)</div>
+      <div class="arrow">→</div>
+      <div class="pill new">+ FAB central</div>
+      <div class="why"><b>NOVO.</b> Botão flutuante coral. Tap abre bottom sheet "Novo gasto" (mockup 03). Sempre acessível.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="notes-wrap">
+  <div class="note-card">
+    <h3>🎯 Princípios da decisão</h3>
+    <ul>
+      <li><b>Lei de Hick:</b> menos opções = decisão mais rápida. 4 tabs &lt; 6 tabs.</li>
+      <li><b>Fitts:</b> FAB central tem ótimo tap target (56px) e fica numa zona neutral (não no canto difícil de alcançar com polegar).</li>
+      <li><b>Hierarquia:</b> primary action (cadastrar) merece o destaque do FAB. Tabs são exploration, não action.</li>
+      <li><b>Coerência interna:</b> ícones todos SVG stroke 2px, mesmo estilo (Lucide-like). Padronização.</li>
+      <li><b>Indicador ativo discreto:</b> linha coral 3px acima do ícone — sinaliza estado sem ofuscar.</li>
+      <li><b>Mobile-first mantido:</b> 4 tabs cabem confortáveis em 320px-480px. Em desktop, pode virar sidebar (nav-rail) seguindo as mesmas 4 entradas.</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

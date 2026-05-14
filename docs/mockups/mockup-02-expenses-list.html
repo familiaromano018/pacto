@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Casal no Azul — Lista de Despesas (Mockup 02)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #FF6B6B;
+    --teal: #4ECDC4;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --ink-900: #0f1419;
+    --ink-700: #2d3748;
+    --ink-500: #64748b;
+    --ink-300: #cbd5e1;
+    --ink-100: #f1f5f9;
+    --ink-50:  #f8fafc;
+    --bg:      #f3f4f6;
+    --white:   #ffffff;
+    --green:   #10b981;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: linear-gradient(135deg, #faf5ff 0%, #f0fdfa 50%, #fff7ed 100%);
+    min-height: 100vh; color: var(--ink-900);
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    display: flex; justify-content: center;
+    padding: 40px 20px 80px; gap: 40px;
+    flex-wrap: wrap;
+  }
+  .phone {
+    width: 420px; max-width: 100%;
+    background: var(--bg);
+    border-radius: 40px;
+    padding: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.15), 0 0 0 8px #1a1a1a;
+    position: relative;
+  }
+  .phone::before {
+    content: ""; position: absolute;
+    top: 22px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 24px; background: #1a1a1a;
+    border-radius: 0 0 14px 14px; z-index: 10;
+  }
+  .screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden; position: relative;
+    height: 820px;
+    overflow-y: auto; scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* ============ HEADER ============ */
+  .status-bar {
+    height: 44px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+    font-size: 14px; font-weight: 600;
+  }
+  .header-top {
+    padding: 4px 20px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-top h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px; font-weight: 800; color: var(--ink-900);
+  }
+  .header-top .icon-btn {
+    width: 38px; height: 38px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    cursor: pointer; color: var(--ink-700);
+  }
+  .header-top .icon-btn + .icon-btn { margin-left: 8px; }
+  .header-top .right-actions { display: flex; }
+
+  /* ============ SEARCH ============ */
+  .search {
+    margin: 0 20px 12px;
+    background: white;
+    border-radius: 14px;
+    padding: 11px 14px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .search svg { color: var(--ink-500); flex-shrink: 0; }
+  .search input {
+    border: 0; outline: 0; flex: 1;
+    font-size: 14px; font-family: inherit;
+    color: var(--ink-900);
+    background: transparent;
+  }
+  .search input::placeholder { color: var(--ink-500); }
+  .search .clear {
+    width: 22px; height: 22px;
+    background: var(--ink-100);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-500);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* ============ CHIPS FILTER ============ */
+  .chips {
+    display: flex; gap: 8px;
+    padding: 0 20px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 100px;
+    background: white;
+    color: var(--ink-700);
+    font-size: 13px; font-weight: 600;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.03);
+  }
+  .chip.active {
+    background: var(--ink-900);
+    color: white;
+  }
+  .chip.ana { border-color: var(--coral); color: var(--coral); }
+  .chip.pedro { border-color: var(--teal); color: var(--teal); }
+  .chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .chip.ana .dot { background: var(--coral); }
+  .chip.pedro .dot { background: var(--teal); }
+
+  /* ============ TOTAL BAR ============ */
+  .total-bar {
+    margin: 0 20px 14px;
+    background: white;
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .total-bar .info {
+    display: flex; flex-direction: column;
+  }
+  .total-bar .lbl {
+    font-size: 11px; color: var(--ink-500);
+    text-transform: uppercase; letter-spacing: .5px; font-weight: 600;
+  }
+  .total-bar .val {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px; font-weight: 800;
+  }
+  .total-bar .count {
+    background: var(--ink-100);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-700);
+  }
+  .sort-btn {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--ink-700);
+    font-weight: 600;
+    background: var(--ink-100);
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  /* ============ GROUP HEADER ============ */
+  .group {
+    margin: 0 20px;
+  }
+  .group-header {
+    padding: 14px 4px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .group-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ink-500);
+  }
+  .group-header .total {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--ink-700);
+  }
+
+  /* ============ ROW ============ */
+  .group-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    position: relative;
+    cursor: pointer;
+  }
+  .row + .row { border-top: 1px solid var(--ink-100); }
+  .row .emoji {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    background: var(--ink-50);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .row .info { flex: 1; min-width: 0; }
+  .row .desc {
+    font-size: 14px; font-weight: 600;
+    color: var(--ink-900);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .row .meta {
+    font-size: 12px; color: var(--ink-500);
+    margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .row .payer {
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .payer-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 8px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .payer-dot.ana { background: var(--coral); }
+  .payer-dot.pedro { background: var(--teal); }
+  .payer-dot.casal {
+    background: linear-gradient(135deg, var(--coral) 50%, var(--teal) 50%);
+  }
+  .tag {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+  }
+  .tag.fixo { background: #ede9fe; color: var(--purple); }
+  .tag.parc { background: #fee2e2; color: #b91c1c; }
+  .tag.avulso { background: #d1fae5; color: #047857; }
+  .row .val-col {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .row .val {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--ink-900);
+  }
+  .row .extra {
+    font-size: 10px; color: var(--ink-500);
+    margin-top: 2px;
+  }
+
+  /* ============ FAB & NAV ============ */
+  .fab {
+    position: absolute;
+    bottom: 92px; right: 22px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--coral), #ff8a5b);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 300;
+    box-shadow: 0 10px 25px rgba(255,107,107,.45);
+    cursor: pointer; z-index: 20;
+    border: 4px solid #fafafa;
+  }
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 76px;
+    background: white;
+    border-top: 1px solid var(--ink-100);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 0 14px 12px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: var(--ink-500); font-size: 11px; font-weight: 600;
+  }
+  .nav-item.active { color: var(--coral); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* ============ EMPTY STATE PHONE (right side) ============ */
+  .phone-empty .screen { background: var(--bg); }
+  .empty-wrap {
+    height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 0 36px;
+    text-align: center;
+  }
+  .empty-illus {
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef3c7, #fce7f3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 80px;
+    margin-bottom: 24px;
+  }
+  .empty-wrap h2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px; font-weight: 800;
+    color: var(--ink-900);
+    margin-bottom: 8px;
+  }
+  .empty-wrap p {
+    font-size: 14px; color: var(--ink-500);
+    line-height: 1.5;
+    margin-bottom: 22px;
+  }
+  .empty-wrap button {
+    background: linear-gradient(135deg, var(--coral), #ff8a5b);
+    color: white;
+    border: 0;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-size: 15px; font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(255,107,107,.4);
+  }
+  .empty-tip {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--ink-500);
+  }
+  .empty-tip code {
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--coral);
+    font-family: monospace;
+  }
+
+  /* ============ NOTES ============ */
+  .notes { width: 420px; max-width: 100%; }
+  .note-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    border-left: 4px solid var(--teal);
+  }
+  .note-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #3dbdb4;
+    margin-bottom: 8px;
+  }
+  .note-card p { font-size: 13px; color: var(--ink-700); line-height: 1.5; }
+  .note-card ul { margin-top: 8px; padding-left: 18px; }
+  .note-card li { font-size: 13px; color: var(--ink-700); line-height: 1.6; }
+
+  /* ============ LABEL ABOVE PHONE ============ */
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; }
+  .phone-label {
+    background: var(--ink-900);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px; font-weight: 700;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ============ PHONE: LISTA CHEIA ============ -->
+  <div class="phone-wrap">
+    <div class="phone-label">Lista cheia</div>
+    <div class="phone">
+      <div class="screen">
+
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="font-size:11px;color:var(--ink-500)">• • • •</span>
+        </div>
+
+        <header class="header-top">
+          <h1>Gastos</h1>
+          <div class="right-actions">
+            <div class="icon-btn" title="Filtros">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+            </div>
+            <div class="icon-btn" title="Calendário">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+            </div>
+          </div>
+        </header>
+
+        <!-- SEARCH -->
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+          <input placeholder="Buscar mercado, iFood, aluguel..." />
+        </div>
+
+        <!-- CHIPS -->
+        <div class="chips">
+          <div class="chip active">Todos · 47</div>
+          <div class="chip ana"><span class="dot"></span>Ana</div>
+          <div class="chip pedro"><span class="dot"></span>Pedro</div>
+          <div class="chip">💑 Casal</div>
+          <div class="chip">📌 Fixos</div>
+          <div class="chip">💳 Parcelados</div>
+        </div>
+
+        <!-- TOTAL BAR -->
+        <div class="total-bar">
+          <div class="info">
+            <div class="lbl">Filtrado</div>
+            <div class="val">R$ 5.823,40</div>
+          </div>
+          <div class="sort-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+            Mais recente
+          </div>
+        </div>
+
+        <!-- GROUP: MAIO -->
+        <div class="group">
+          <div class="group-header">
+            <h3>Maio · esta semana</h3>
+            <div class="total">R$ 482,40</div>
+          </div>
+          <div class="group-card">
+
+            <div class="row">
+              <div class="emoji">🛒</div>
+              <div class="info">
+                <div class="desc">Mercado Pão de Açúcar</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot ana">A</span> Ana</span> · hoje
+                  <span class="tag avulso">avulso</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 287,50</div>
+                <div class="extra">casal · ÷2</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="emoji">🍕</div>
+              <div class="info">
+                <div class="desc">iFood — jantar 6ª</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot pedro">P</span> Pedro</span> · ontem
+                  <span class="tag avulso">avulso</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 89,90</div>
+                <div class="extra">casal · ÷2</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="emoji">⛽</div>
+              <div class="info">
+                <div class="desc">Posto Shell — tanque</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot ana">A</span> Ana</span> · 2 dias
+                  <span class="tag avulso">avulso</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 105,00</div>
+                <div class="extra">pessoal</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- GROUP: PARCELAS -->
+        <div class="group">
+          <div class="group-header">
+            <h3>Parcelas em aberto</h3>
+            <div class="total">R$ 893,00</div>
+          </div>
+          <div class="group-card">
+
+            <div class="row">
+              <div class="emoji">🛋️</div>
+              <div class="info">
+                <div class="desc">Sofá Tok&Stok 3/12</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot pedro">P</span> Pedro</span> · dia 10
+                  <span class="tag parc">parcela</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 425,00</div>
+                <div class="extra">casal · 9 restam</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="emoji">📱</div>
+              <div class="info">
+                <div class="desc">iPhone 14 — 8/10</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot ana">A</span> Ana</span> · dia 15
+                  <span class="tag parc">parcela</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 468,00</div>
+                <div class="extra">pessoal · 2 restam</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- GROUP: FIXOS -->
+        <div class="group">
+          <div class="group-header">
+            <h3>Fixos do mês</h3>
+            <div class="total">R$ 3.240,00</div>
+          </div>
+          <div class="group-card">
+
+            <div class="row">
+              <div class="emoji">🏠</div>
+              <div class="info">
+                <div class="desc">Aluguel</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot ana">A</span> Ana</span> · todo dia 5
+                  <span class="tag fixo">fixo</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 2.450,00</div>
+                <div class="extra">casal · ÷2</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="emoji">💡</div>
+              <div class="info">
+                <div class="desc">Luz — Enel</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot casal">C</span> Casal</span> · todo dia 8
+                  <span class="tag fixo">fixo</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 189,00</div>
+                <div class="extra">casal · ÷2</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="emoji">📺</div>
+              <div class="info">
+                <div class="desc">Netflix + Spotify</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot pedro">P</span> Pedro</span> · todo dia 12
+                  <span class="tag fixo">fixo</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 64,90</div>
+                <div class="extra">casal · ÷2</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="emoji">🐕</div>
+              <div class="info">
+                <div class="desc">Pet shop — banho mensal</div>
+                <div class="meta">
+                  <span class="payer"><span class="payer-dot ana">A</span> Ana</span> · todo dia 20
+                  <span class="tag fixo">fixo</span>
+                </div>
+              </div>
+              <div class="val-col">
+                <div class="val">R$ 120,00</div>
+                <div class="extra">casal · ÷2</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div style="height: 110px"></div>
+
+        <!-- FAB & NAV -->
+        <div class="fab">+</div>
+        <nav class="bottom-nav">
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 9v12h5v-7h6v7h5V9z"/></svg>
+            <span>Início</span>
+          </div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <span>Gastos</span>
+          </div>
+          <div style="width:60px"></div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            <span>Análise</span>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21c0-3 3-5 6-5s6 2 6 5M14 21c0-3 3-5 6-5"/></svg>
+            <span>Casal</span>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PHONE: EMPTY STATE ============ -->
+  <div class="phone-wrap">
+    <div class="phone-label">Empty state</div>
+    <div class="phone phone-empty">
+      <div class="screen">
+
+        <div class="status-bar">
+          <span>9:41</span>
+          <span style="font-size:11px;color:var(--ink-500)">• • • •</span>
+        </div>
+
+        <header class="header-top">
+          <h1>Gastos</h1>
+        </header>
+
+        <div class="empty-wrap" style="height: calc(100% - 130px)">
+          <div class="empty-illus">🪙</div>
+          <h2>Cofrinho vazio (ainda)</h2>
+          <p>Bora começar a registrar a primeira despesa? A planilha fica MUITO mais leve quando não esquece nada.</p>
+          <button>+ Lançar primeiro gasto</button>
+          <div class="empty-tip">dica: usa o atalho <code>⌘ + N</code> no desktop</div>
+        </div>
+
+        <div class="fab">+</div>
+        <nav class="bottom-nav">
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 4 9v12h5v-7h6v7h5V9z"/></svg>
+            <span>Início</span>
+          </div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            <span>Gastos</span>
+          </div>
+          <div style="width:60px"></div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+            <span>Análise</span>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 21c0-3 3-5 6-5s6 2 6 5M14 21c0-3 3-5 6-5"/></svg>
+            <span>Casal</span>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ NOTES ============ -->
+  <div class="notes">
+    <div class="note-card">
+      <h3>🔍 Estratégia de densidade</h3>
+      <ul>
+        <li><b>Agrupamento contextual</b>: "esta semana" / "parcelas em aberto" / "fixos do mês" — usuário escaneia por categoria mental, não por data crua.</li>
+        <li><b>Cada grupo tem total</b> no header, então a soma é óbvia sem precisar somar mentalmente.</li>
+        <li><b>Row densa</b> (~62px altura): emoji + desc + pagador-dot + valor + tag tipo + meta extra. Cabem ~10 itens visíveis sem scroll.</li>
+      </ul>
+    </div>
+    <div class="note-card" style="border-color: var(--coral);">
+      <h3>🎯 Filtros & busca</h3>
+      <ul>
+        <li><b>Chips horizontais scrolláveis</b>: Todos · Ana · Pedro · Casal · Fixos · Parcelados. Ana/Pedro com border colorido = visual identity de cada pessoa.</li>
+        <li><b>Payer-dot</b> de 14px com inicial — micro avatar inline. Casal = dot split coral/teal.</li>
+        <li><b>Total bar persistente</b> reflete o filtro atual em tempo real (R$ 5.823 → muda conforme filtra).</li>
+        <li><b>Sort button</b> à direita do total bar (mais recente / valor / categoria).</li>
+      </ul>
+    </div>
+    <div class="note-card" style="border-color: var(--amber);">
+      <h3>🪙 Empty state</h3>
+      <p>Ilustração com emoji grande em círculo gradient (pastel rosa-âmbar). Copy brincalhão mantém tom. CTA primário coral, secundário inline com keyboard shortcut tip — esse detalhe sinaliza app de gente que usa.</p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
