@@ -10,12 +10,12 @@ interface Props {
 }
 
 /**
- * Banner discreto no topo do app quando faltam ≤ 5 dias do trial.
- * Some quando faltam mais que 5 dias (não polui a UI cedo demais).
+ * Banner sempre visível durante o trial. Muda de tom conforme aproxima do fim:
+ *  - > 7 dias: azul calmo (informativo)
+ *  - 3 a 7 dias: laranja (atenção)
+ *  - 0 a 2 dias: vermelho (urgente)
  */
 export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
-  if (daysRemaining > 5) return null
-
   function openCheckout() {
     if (typeof window === 'undefined') return
     const params = new URLSearchParams()
@@ -33,11 +33,19 @@ export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
       ? 'Falta 1 dia do trial'
       : `Faltam ${daysRemaining} dias do trial`
 
+  // Cor variando conforme urgência
+  const tone =
+    daysRemaining <= 2
+      ? { bg: 'rgba(220,38,38,0.18)', bg2: 'rgba(220,38,38,0.06)', border: 'rgba(220,38,38,0.4)', accent: '#dc2626', icon: '⚠️' }
+      : daysRemaining <= 7
+      ? { bg: 'rgba(245,124,0,0.18)', bg2: 'rgba(245,124,0,0.06)', border: 'rgba(245,124,0,0.4)', accent: '#f57c00', icon: '⏰' }
+      : { bg: 'rgba(91,141,255,0.18)', bg2: 'rgba(91,141,255,0.06)', border: 'rgba(91,141,255,0.3)', accent: '#5b8dff', icon: '⏳' }
+
   return (
     <div
       style={{
-        background: 'linear-gradient(90deg, rgba(91,141,255,0.18) 0%, rgba(91,141,255,0.08) 100%)',
-        borderBottom: '1px solid rgba(91,141,255,0.3)',
+        background: `linear-gradient(90deg, ${tone.bg} 0%, ${tone.bg2} 100%)`,
+        borderBottom: `1px solid ${tone.border}`,
         padding: '10px 16px',
         display: 'flex',
         alignItems: 'center',
@@ -53,12 +61,12 @@ export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
           color: 'var(--color-text-heading)',
         }}
       >
-        ⏳ {label}
+        {tone.icon} {label}
       </span>
       <button
         onClick={openCheckout}
         style={{
-          background: '#5b8dff',
+          background: tone.accent,
           color: '#fff',
           border: 'none',
           padding: '6px 12px',
