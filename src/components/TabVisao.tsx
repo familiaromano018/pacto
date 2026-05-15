@@ -213,7 +213,7 @@ export default function TabVisao({
 
           {/* ── Donut formas de pagamento ── */}
           {sortedMethods.length > 0 && (() => {
-            const methodTotal = Array.from(cur.byMethod.values()).reduce((s, v) => s + v, 0)
+            const methodTotal = sortedMethods.reduce((s, [, v]) => s + v, 0)
             const naoInformadoTotal = cur.byMethod.get('naoInformado') ?? 0
             const allUnknown = methodTotal > 0 && naoInformadoTotal === methodTotal
             return (
@@ -230,6 +230,7 @@ export default function TabVisao({
                 />
                 {allUnknown && (
                   <div
+                    role="note"
                     style={{
                       marginTop: 12,
                       padding: '10px 12px',
