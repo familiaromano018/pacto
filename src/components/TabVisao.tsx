@@ -185,7 +185,7 @@ export default function TabVisao({
                 label: cat,
                 value: val,
                 color: PALETTE[i % PALETTE.length],
-                emoji: categoryEmoji(cat, customCategories),
+                icon: categoryEmoji(cat, customCategories),
               }))}
               total={totalForChart}
             />
@@ -257,10 +257,11 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 }
 
 function DonutChart({
-  data, total,
+  data, total, centerLabel,
 }: {
-  data: { label: string; value: number; color: string; emoji: string }[]
+  data: { label: string; value: number; color: string; icon: React.ReactNode }[]
   total: number
+  centerLabel?: string
 }) {
   const size = 140
   const stroke = 22
@@ -328,7 +329,7 @@ function DonutChart({
             letterSpacing: '0.1em',
           }}
         >
-          CATEGORIAS
+          {centerLabel ?? 'CATEGORIAS'}
         </text>
       </svg>
 
@@ -353,7 +354,20 @@ function DonutChart({
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 13, flexShrink: 0 }}>{d.emoji}</span>
+            <span
+              aria-hidden
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 16,
+                height: 16,
+                color: d.color,
+                flexShrink: 0,
+              }}
+            >
+              {d.icon}
+            </span>
             <span
               style={{
                 fontSize: 12,
