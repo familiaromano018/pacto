@@ -27,7 +27,7 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethodKey, string> = {
 export const PAYMENT_METHOD_COLOR: Record<PaymentMethodKey, string> = {
   pix: 'var(--color-success)',
   credito: 'var(--color-brand)',
-  debito: 'var(--color-person-a)',
+  debito: 'var(--color-brand-emphasis)',
   dinheiro: 'var(--color-person-b)',
   boleto: 'var(--color-installment)',
   transferencia: 'var(--color-fixed)',
