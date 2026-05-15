@@ -5,6 +5,7 @@ import { tokens } from '@/lib/tokens'
 import { formatBRL, parseMonthKey, shiftMonth, monthLabel } from '@/lib/format'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import { categoryEmoji } from '@/lib/categories'
+import { paymentMethodKey, type PaymentMethodKey } from '@/lib/payment'
 import type { Expense, FixedCost, Installment, CustomCategory } from './types'
 
 interface Props {
@@ -47,6 +48,7 @@ export default function TabVisao({
     const byCategory = new Map<string, number>()
     const byPerson = { A: 0, B: 0, casalA: 0, casalB: 0 }
     const byDay = new Map<number, number>()  // só pros avulsos
+    const byMethod = new Map<PaymentMethodKey, number>()
     let total = 0
 
     monthExpenses.forEach((e) => {
@@ -58,6 +60,8 @@ export default function TabVisao({
       else byPerson.casalB += e.amount
       const day = new Date(e.createdAt).getDate()
       byDay.set(day, (byDay.get(day) ?? 0) + e.amount)
+      const pmk = paymentMethodKey(e.paymentMethod)
+      byMethod.set(pmk, (byMethod.get(pmk) ?? 0) + e.amount)
     })
     monthFixed.forEach((f) => {
       total += f.amount
@@ -67,6 +71,8 @@ export default function TabVisao({
       else if (f.paidBy === 'A') byPerson.casalA += f.amount
       else byPerson.casalB += f.amount
       byDay.set(1, (byDay.get(1) ?? 0) + f.amount)
+      const pmk = paymentMethodKey(f.paymentMethod)
+      byMethod.set(pmk, (byMethod.get(pmk) ?? 0) + f.amount)
     })
     monthInst.forEach((i) => {
       total += i.parcelaMensal
@@ -76,9 +82,11 @@ export default function TabVisao({
       else if (i.paidBy === 'A') byPerson.casalA += i.parcelaMensal
       else byPerson.casalB += i.parcelaMensal
       byDay.set(1, (byDay.get(1) ?? 0) + i.parcelaMensal)
+      const pmk = paymentMethodKey(i.paymentMethod)
+      byMethod.set(pmk, (byMethod.get(pmk) ?? 0) + i.parcelaMensal)
     })
 
-    return { total, byCategory, byPerson, byDay }
+    return { total, byCategory, byPerson, byDay, byMethod }
   }
 
   const cur = useMemo(() => computeMonth(monthKey), [monthKey, expenses, fixedCosts, installments])
@@ -93,6 +101,12 @@ export default function TabVisao({
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
   }, [cur.byCategory])
+
+  const sortedMethods = useMemo(() => {
+    return Array.from(cur.byMethod.entries())
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])
+  }, [cur.byMethod])
 
   const totalForChart = sortedCategories.reduce((s, [, v]) => s + v, 0)
 
