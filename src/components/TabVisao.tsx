@@ -5,7 +5,13 @@ import { tokens } from '@/lib/tokens'
 import { formatBRL, parseMonthKey, shiftMonth, monthLabel } from '@/lib/format'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import { categoryEmoji } from '@/lib/categories'
-import { paymentMethodKey, type PaymentMethodKey } from '@/lib/payment'
+import {
+  paymentMethodKey,
+  type PaymentMethodKey,
+  PAYMENT_METHOD_LABEL,
+  PAYMENT_METHOD_COLOR,
+  PaymentMethodIcon,
+} from '@/lib/payment'
 import type { Expense, FixedCost, Installment, CustomCategory } from './types'
 
 interface Props {
@@ -204,6 +210,42 @@ export default function TabVisao({
               total={totalForChart}
             />
           </ChartCard>
+
+          {/* ── Donut formas de pagamento ── */}
+          {sortedMethods.length > 0 && (() => {
+            const methodTotal = Array.from(cur.byMethod.values()).reduce((s, v) => s + v, 0)
+            const naoInformadoTotal = cur.byMethod.get('naoInformado') ?? 0
+            const allUnknown = methodTotal > 0 && naoInformadoTotal === methodTotal
+            return (
+              <ChartCard title="Por forma de pagamento">
+                <DonutChart
+                  centerLabel="MÉTODOS"
+                  data={sortedMethods.map(([key]) => ({
+                    label: PAYMENT_METHOD_LABEL[key],
+                    value: cur.byMethod.get(key) ?? 0,
+                    color: PAYMENT_METHOD_COLOR[key],
+                    icon: <PaymentMethodIcon method={key} size={14} />,
+                  }))}
+                  total={methodTotal}
+                />
+                {allUnknown && (
+                  <div
+                    style={{
+                      marginTop: 12,
+                      padding: '10px 12px',
+                      background: tokens.color.bg_app,
+                      borderRadius: 10,
+                      fontSize: 12,
+                      color: tokens.color.text_muted,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Edite seus gastos pra escolher a forma de pagamento e ver a distribuição.
+                  </div>
+                )}
+              </ChartCard>
+            )
+          })()}
 
           {/* ── Barras A vs B ── */}
           <ChartCard title="Por pessoa">
