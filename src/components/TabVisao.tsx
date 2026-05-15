@@ -5,6 +5,13 @@ import { tokens } from '@/lib/tokens'
 import { formatBRL, parseMonthKey, shiftMonth, monthLabel } from '@/lib/format'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import { categoryEmoji } from '@/lib/categories'
+import {
+  paymentMethodKey,
+  type PaymentMethodKey,
+  PAYMENT_METHOD_LABEL,
+  PAYMENT_METHOD_COLOR,
+  PaymentMethodIcon,
+} from '@/lib/payment'
 import type { Expense, FixedCost, Installment, CustomCategory } from './types'
 
 interface Props {
@@ -47,6 +54,7 @@ export default function TabVisao({
     const byCategory = new Map<string, number>()
     const byPerson = { A: 0, B: 0, casalA: 0, casalB: 0 }
     const byDay = new Map<number, number>()  // só pros avulsos
+    const byMethod = new Map<PaymentMethodKey, number>()
     let total = 0
 
     monthExpenses.forEach((e) => {
@@ -58,6 +66,8 @@ export default function TabVisao({
       else byPerson.casalB += e.amount
       const day = new Date(e.createdAt).getDate()
       byDay.set(day, (byDay.get(day) ?? 0) + e.amount)
+      const pmk = paymentMethodKey(e.paymentMethod)
+      byMethod.set(pmk, (byMethod.get(pmk) ?? 0) + e.amount)
     })
     monthFixed.forEach((f) => {
       total += f.amount
@@ -67,6 +77,8 @@ export default function TabVisao({
       else if (f.paidBy === 'A') byPerson.casalA += f.amount
       else byPerson.casalB += f.amount
       byDay.set(1, (byDay.get(1) ?? 0) + f.amount)
+      const pmk = paymentMethodKey(f.paymentMethod)
+      byMethod.set(pmk, (byMethod.get(pmk) ?? 0) + f.amount)
     })
     monthInst.forEach((i) => {
       total += i.parcelaMensal
@@ -76,9 +88,11 @@ export default function TabVisao({
       else if (i.paidBy === 'A') byPerson.casalA += i.parcelaMensal
       else byPerson.casalB += i.parcelaMensal
       byDay.set(1, (byDay.get(1) ?? 0) + i.parcelaMensal)
+      const pmk = paymentMethodKey(i.paymentMethod)
+      byMethod.set(pmk, (byMethod.get(pmk) ?? 0) + i.parcelaMensal)
     })
 
-    return { total, byCategory, byPerson, byDay }
+    return { total, byCategory, byPerson, byDay, byMethod }
   }
 
   const cur = useMemo(() => computeMonth(monthKey), [monthKey, expenses, fixedCosts, installments])
@@ -93,6 +107,12 @@ export default function TabVisao({
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
   }, [cur.byCategory])
+
+  const sortedMethods = useMemo(() => {
+    return Array.from(cur.byMethod.entries())
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])
+  }, [cur.byMethod])
 
   const totalForChart = sortedCategories.reduce((s, [, v]) => s + v, 0)
 
@@ -185,11 +205,48 @@ export default function TabVisao({
                 label: cat,
                 value: val,
                 color: PALETTE[i % PALETTE.length],
-                emoji: categoryEmoji(cat, customCategories),
+                icon: categoryEmoji(cat, customCategories),
               }))}
               total={totalForChart}
             />
           </ChartCard>
+
+          {/* ── Donut formas de pagamento ── */}
+          {sortedMethods.length > 0 && (() => {
+            const methodTotal = sortedMethods.reduce((s, [, v]) => s + v, 0)
+            const naoInformadoTotal = cur.byMethod.get('naoInformado') ?? 0
+            const allUnknown = methodTotal > 0 && naoInformadoTotal === methodTotal
+            return (
+              <ChartCard title="Por forma de pagamento">
+                <DonutChart
+                  centerLabel="MÉTODOS"
+                  data={sortedMethods.map(([key]) => ({
+                    label: PAYMENT_METHOD_LABEL[key],
+                    value: cur.byMethod.get(key) ?? 0,
+                    color: PAYMENT_METHOD_COLOR[key],
+                    icon: <PaymentMethodIcon method={key} size={14} />,
+                  }))}
+                  total={methodTotal}
+                />
+                {allUnknown && (
+                  <div
+                    role="note"
+                    style={{
+                      marginTop: 12,
+                      padding: '10px 12px',
+                      background: tokens.color.bg_app,
+                      borderRadius: 10,
+                      fontSize: 12,
+                      color: tokens.color.text_muted,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Edite seus gastos pra escolher a forma de pagamento e ver a distribuição.
+                  </div>
+                )}
+              </ChartCard>
+            )
+          })()}
 
           {/* ── Barras A vs B ── */}
           <ChartCard title="Por pessoa">
@@ -257,10 +314,11 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 }
 
 function DonutChart({
-  data, total,
+  data, total, centerLabel,
 }: {
-  data: { label: string; value: number; color: string; emoji: string }[]
+  data: { label: string; value: number; color: string; icon: React.ReactNode }[]
   total: number
+  centerLabel?: string
 }) {
   const size = 140
   const stroke = 22
@@ -328,7 +386,7 @@ function DonutChart({
             letterSpacing: '0.1em',
           }}
         >
-          CATEGORIAS
+          {centerLabel ?? 'CATEGORIAS'}
         </text>
       </svg>
 
@@ -353,7 +411,20 @@ function DonutChart({
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 13, flexShrink: 0 }}>{d.emoji}</span>
+            <span
+              aria-hidden
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 16,
+                height: 16,
+                color: d.color,
+                flexShrink: 0,
+              }}
+            >
+              {d.icon}
+            </span>
             <span
               style={{
                 fontSize: 12,
