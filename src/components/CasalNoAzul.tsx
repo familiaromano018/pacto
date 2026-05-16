@@ -79,7 +79,17 @@ function AuthedShell({ userId }: { userId: string }) {
   const [monthKey, setMonthKey] = useState(currentMonthKey())
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editing, setEditing] = useState<EditTarget | null>(null)
+  const [pendingMesFilter, setPendingMesFilter] = useState<{ category?: string; payment?: string } | null>(null)
   const toast = useToast()
+
+  function handleDrillTo(target: { kind: 'category' | 'method'; key: string }) {
+    if (target.kind === 'category') {
+      setPendingMesFilter({ category: target.key })
+    } else {
+      setPendingMesFilter({ payment: target.key })
+    }
+    setTab('mes')
+  }
 
   // Carrega coupleId inicial
   useEffect(() => {
@@ -481,6 +491,7 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts}
             installments={installments}
             customCategories={customCategories}
+            onDrillTo={handleDrillTo}
           />
         )}
 
@@ -501,6 +512,8 @@ function AuthedShell({ userId }: { userId: string }) {
             onCloseMonth={closeMonth}
             onExportPDF={() => exportPDF()}
             isClosed={isCurrentMonthClosed}
+            pendingFilter={pendingMesFilter}
+            onConsumePendingFilter={() => setPendingMesFilter(null)}
           />
         )}
 
