@@ -450,6 +450,20 @@ export default function TabMes({
         </div>
       )}
 
+      {/* Contador (só com cat/pay ativos) */}
+      {feed.length > 0 && (categoryFilter !== 'all' || paymentFilter !== 'all') && (
+        <div
+          style={{
+            fontSize: tokens.primitive.fontSize.sm,
+            color: tokens.color.text_muted,
+            marginBottom: tokens.primitive.space[8],
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Mostrando <strong style={{ color: tokens.color.text_heading, fontWeight: 700 }}>{filtered.length}</strong> de {feed.length} itens · <strong style={{ color: tokens.color.text_heading, fontWeight: 700 }}>{formatBRL(filtered.reduce((s, e) => s + e.amount, 0))}</strong>
+        </div>
+      )}
+
       {/* Feed por dia */}
       {filtered.length === 0 && feed.length > 0 && (
         <div
