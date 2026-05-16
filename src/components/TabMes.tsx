@@ -1,12 +1,19 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, formatRelativeDay, currentMonthKey, parseMonthKey } from '@/lib/format'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import { Card } from './ui'
 import FeedRow from './FeedRow'
 import type { Expense, FixedCost, Installment, FeedEntry, CustomCategory } from './types'
+import {
+  paymentMethodKey,
+  PAYMENT_METHOD_LABEL,
+  PAYMENT_METHOD_ORDER,
+  type PaymentMethodKey,
+} from '@/lib/payment'
+import { categoryEmoji } from '@/lib/categories'
 
 interface Props {
   nameA: string
@@ -38,6 +45,13 @@ export default function TabMes({
 }: Props) {
   const [filter, setFilter] = useState<FilterId>('all')
   const [query, setQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [paymentFilter, setPaymentFilter] = useState<PaymentMethodKey | 'all'>('all')
+
+  useEffect(() => {
+    setCategoryFilter('all')
+    setPaymentFilter('all')
+  }, [monthKey])
 
   const isCurrentMonth = monthKey === currentMonthKey()
   const monthInfo = parseMonthKey(monthKey)
