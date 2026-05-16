@@ -115,6 +115,45 @@ export default function TabMes({
     return entries.sort((a, b) => b.date - a.date)
   }, [expenses, fixedCosts, installments, monthKey, monthInfo.year, monthInfo.month, isFutureMonth])
 
+  // Base pros dropdowns: feed filtrado SÓ por pessoa + busca (não por cat/pay).
+  // Cada dropdown lista o que existe sob os filtros externos a ele,
+  // mas não desaparece quando o user escolhe uma opção própria.
+  const baseForOptions = useMemo(() => {
+    let r = feed
+    if (filter !== 'all') {
+      r = r.filter((e) => filter === 'casal' ? e.scope === 'casal' : e.scope === filter)
+    }
+    const q = query.trim().toLowerCase()
+    if (q) {
+      r = r.filter((e) =>
+        e.desc.toLowerCase().includes(q) ||
+        e.category.toLowerCase().includes(q),
+      )
+    }
+    return r
+  }, [feed, filter, query])
+
+  const categoryOptions = useMemo(() => {
+    const counts = new Map<string, number>()
+    baseForOptions.forEach((e) => {
+      counts.set(e.category, (counts.get(e.category) ?? 0) + 1)
+    })
+    return Array.from(counts.entries())
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => a.category.localeCompare(b.category, 'pt-BR'))
+  }, [baseForOptions])
+
+  const paymentOptions = useMemo(() => {
+    const counts = new Map<PaymentMethodKey, number>()
+    baseForOptions.forEach((e) => {
+      const k = paymentMethodKey(e.paymentMethod)
+      counts.set(k, (counts.get(k) ?? 0) + 1)
+    })
+    return PAYMENT_METHOD_ORDER
+      .filter((k) => (counts.get(k) ?? 0) > 0)
+      .map((k) => ({ key: k, count: counts.get(k) ?? 0 }))
+  }, [baseForOptions])
+
   const filtered = useMemo(() => {
     let r = feed
     if (filter !== 'all') {
