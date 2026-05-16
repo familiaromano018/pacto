@@ -390,6 +390,66 @@ export default function TabMes({
         </div>
       )}
 
+      {/* Filtros: categoria + pagamento */}
+      {feed.length > 0 && (categoryOptions.length > 0 || paymentOptions.length > 0) && (
+        <div
+          style={{
+            display: 'flex',
+            gap: tokens.primitive.space[3],
+            marginBottom: tokens.primitive.space[8],
+            overflowX: 'auto',
+            paddingBottom: 2,
+            alignItems: 'center',
+          }}
+        >
+          <FilterSelect
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            placeholder="📂 Categoria"
+            allLabel="Todas as categorias"
+            options={categoryOptions.map(({ category, count }) => ({
+              value: category,
+              label: `${categoryEmoji(category, customCategories)} ${category} (${count})`,
+            }))}
+            active={categoryFilter !== 'all'}
+          />
+          <FilterSelect
+            value={paymentFilter}
+            onChange={(v) => setPaymentFilter(v as PaymentMethodKey | 'all')}
+            placeholder="💳 Pagamento"
+            allLabel="Todas as formas"
+            options={paymentOptions.map(({ key, count }) => ({
+              value: key,
+              label: `${PAYMENT_METHOD_LABEL[key]} (${count})`,
+            }))}
+            active={paymentFilter !== 'all'}
+          />
+          {(categoryFilter !== 'all' || paymentFilter !== 'all') && (
+            <button
+              onClick={() => { setCategoryFilter('all'); setPaymentFilter('all') }}
+              aria-label="Limpar filtros"
+              style={{
+                background: 'transparent',
+                border: `1px solid ${tokens.color.border_subtle}`,
+                color: tokens.color.text_secondary,
+                borderRadius: 999,
+                width: 32,
+                height: 32,
+                cursor: 'pointer',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Feed por dia */}
       {filtered.length === 0 && feed.length > 0 && (
         <div
@@ -810,6 +870,56 @@ function EmptyHero({
         </button>
       )}
     </div>
+  )
+}
+
+function FilterSelect({
+  value, onChange, placeholder, allLabel, options, active,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  allLabel: string
+  options: { value: string; label: string }[]
+  active: boolean
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={placeholder}
+      style={{
+        background: active ? tokens.color.bg_elevated : 'transparent',
+        color: active ? tokens.color.text_heading : tokens.color.text_secondary,
+        border: `1px solid ${active ? tokens.color.border_default : tokens.color.border_subtle}`,
+        borderRadius: 999,
+        padding: '8px 28px 8px 14px',
+        fontSize: 13,
+        fontWeight: 600,
+        fontFamily: 'inherit',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        transition: tokens.motion.interaction,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        backgroundImage:
+          `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='${
+            active ? '%231b1f24' : '%2364748b'
+          }' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 10px center',
+        maxWidth: 180,
+        textOverflow: 'ellipsis',
+        flexShrink: 0,
+      }}
+    >
+      <option value="all">{active ? allLabel : placeholder}</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
   )
 }
 
