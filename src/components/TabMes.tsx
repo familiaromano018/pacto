@@ -34,6 +34,8 @@ interface Props {
   onCloseMonth: () => void
   onExportPDF: () => void
   isClosed: boolean
+  pendingFilter?: { category?: string; payment?: string } | null
+  onConsumePendingFilter?: () => void
 }
 
 type FilterId = 'all' | 'casal' | 'A' | 'B'
@@ -42,6 +44,7 @@ export default function TabMes({
   nameA, nameB, incomeA, incomeB, method,
   monthKey, expenses, fixedCosts, installments, customCategories,
   onRemoveExpense, onEditExpense, onEditFixed, onEditInstallment, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
+  pendingFilter, onConsumePendingFilter,
 }: Props) {
   const [filter, setFilter] = useState<FilterId>('all')
   const [query, setQuery] = useState('')
@@ -52,6 +55,13 @@ export default function TabMes({
     setCategoryFilter('all')
     setPaymentFilter('all')
   }, [monthKey])
+
+  useEffect(() => {
+    if (!pendingFilter) return
+    if (pendingFilter.category) setCategoryFilter(pendingFilter.category)
+    if (pendingFilter.payment) setPaymentFilter(pendingFilter.payment as PaymentMethodKey | 'all')
+    onConsumePendingFilter?.()
+  }, [pendingFilter, onConsumePendingFilter])
 
   const isCurrentMonth = monthKey === currentMonthKey()
   const monthInfo = parseMonthKey(monthKey)

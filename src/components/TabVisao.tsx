@@ -22,6 +22,7 @@ interface Props {
   fixedCosts: FixedCost[]
   installments: Installment[]
   customCategories: CustomCategory[]
+  onDrillTo?: (target: { kind: 'category' | 'method'; key: string }) => void
 }
 
 const PALETTE = [
@@ -35,7 +36,7 @@ const PALETTE = [
 ]
 
 export default function TabVisao({
-  nameA, nameB, monthKey, expenses, fixedCosts, installments, customCategories,
+  nameA, nameB, monthKey, expenses, fixedCosts, installments, customCategories, onDrillTo,
 }: Props) {
   const monthInfo = parseMonthKey(monthKey)
   const prevMonthKey = shiftMonth(monthKey, -1)
@@ -206,6 +207,7 @@ export default function TabVisao({
                 value: val,
                 color: PALETTE[i % PALETTE.length],
                 icon: categoryEmoji(cat, customCategories),
+                onSelect: onDrillTo ? () => onDrillTo({ kind: 'category', key: cat }) : undefined,
               }))}
               total={totalForChart}
             />
@@ -225,6 +227,7 @@ export default function TabVisao({
                     value: cur.byMethod.get(key) ?? 0,
                     color: PAYMENT_METHOD_COLOR[key],
                     icon: <PaymentMethodIcon method={key} size={14} />,
+                    onSelect: onDrillTo ? () => onDrillTo({ kind: 'method', key }) : undefined,
                   }))}
                   total={methodTotal}
                 />
@@ -316,7 +319,7 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
 function DonutChart({
   data, total, centerLabel,
 }: {
-  data: { label: string; value: number; color: string; icon: React.ReactNode }[]
+  data: { label: string; value: number; color: string; icon: React.ReactNode; onSelect?: () => void }[]
   total: number
   centerLabel?: string
 }) {
@@ -391,17 +394,32 @@ function DonutChart({
       </svg>
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        {data.map((d, i) => (
-          <div
-            key={d.label}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '5px 0',
-              borderBottom: i < data.length - 1 ? `1px solid ${tokens.color.border_subtle}` : 'none',
-            }}
-          >
+        {data.map((d, i) => {
+          const clickable = !!d.onSelect
+          return (
+            <div
+              key={d.label}
+              role={clickable ? 'button' : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              onClick={clickable ? d.onSelect : undefined}
+              onKeyDown={clickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); d.onSelect?.() } } : undefined}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '5px 0',
+                borderBottom: i < data.length - 1 ? `1px solid ${tokens.color.border_subtle}` : 'none',
+                cursor: clickable ? 'pointer' : 'default',
+                background: 'transparent',
+                border: 'none',
+                width: '100%',
+                fontFamily: 'inherit',
+                textAlign: 'left',
+                transition: 'background 120ms ease',
+              }}
+              onMouseEnter={clickable ? (e) => { e.currentTarget.style.background = tokens.color.bg_app } : undefined}
+              onMouseLeave={clickable ? (e) => { e.currentTarget.style.background = 'transparent' } : undefined}
+            >
             <span
               aria-hidden
               style={{
@@ -448,8 +466,9 @@ function DonutChart({
             >
               {((d.value / total) * 100).toFixed(0)}%
             </span>
-          </div>
-        ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
