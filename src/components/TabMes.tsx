@@ -120,6 +120,12 @@ export default function TabMes({
     if (filter !== 'all') {
       r = r.filter((e) => filter === 'casal' ? e.scope === 'casal' : e.scope === filter)
     }
+    if (categoryFilter !== 'all') {
+      r = r.filter((e) => e.category === categoryFilter)
+    }
+    if (paymentFilter !== 'all') {
+      r = r.filter((e) => paymentMethodKey(e.paymentMethod) === paymentFilter)
+    }
     const q = query.trim().toLowerCase()
     if (q) {
       r = r.filter((e) =>
@@ -128,7 +134,7 @@ export default function TabMes({
       )
     }
     return r
-  }, [feed, filter, query])
+  }, [feed, filter, categoryFilter, paymentFilter, query])
 
   // ── Totais
   const totalMes = feed.reduce((s, e) => s + e.amount, 0)
