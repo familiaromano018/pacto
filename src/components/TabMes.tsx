@@ -1,12 +1,19 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, formatRelativeDay, currentMonthKey, parseMonthKey } from '@/lib/format'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import { Card } from './ui'
 import FeedRow from './FeedRow'
 import type { Expense, FixedCost, Installment, FeedEntry, CustomCategory } from './types'
+import {
+  paymentMethodKey,
+  PAYMENT_METHOD_LABEL,
+  PAYMENT_METHOD_ORDER,
+  type PaymentMethodKey,
+} from '@/lib/payment'
+import { categoryEmoji } from '@/lib/categories'
 
 interface Props {
   nameA: string
@@ -38,6 +45,13 @@ export default function TabMes({
 }: Props) {
   const [filter, setFilter] = useState<FilterId>('all')
   const [query, setQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [paymentFilter, setPaymentFilter] = useState<PaymentMethodKey | 'all'>('all')
+
+  useEffect(() => {
+    setCategoryFilter('all')
+    setPaymentFilter('all')
+  }, [monthKey])
 
   const isCurrentMonth = monthKey === currentMonthKey()
   const monthInfo = parseMonthKey(monthKey)
@@ -101,7 +115,10 @@ export default function TabMes({
     return entries.sort((a, b) => b.date - a.date)
   }, [expenses, fixedCosts, installments, monthKey, monthInfo.year, monthInfo.month, isFutureMonth])
 
-  const filtered = useMemo(() => {
+  // Base pros dropdowns: feed filtrado SÓ por pessoa + busca (não por cat/pay).
+  // Cada dropdown lista o que existe sob os filtros externos a ele,
+  // mas não desaparece quando o user escolhe uma opção própria.
+  const baseForOptions = useMemo(() => {
     let r = feed
     if (filter !== 'all') {
       r = r.filter((e) => filter === 'casal' ? e.scope === 'casal' : e.scope === filter)
@@ -115,6 +132,48 @@ export default function TabMes({
     }
     return r
   }, [feed, filter, query])
+
+  const categoryOptions = useMemo(() => {
+    const counts = new Map<string, number>()
+    baseForOptions.forEach((e) => {
+      counts.set(e.category, (counts.get(e.category) ?? 0) + 1)
+    })
+    return Array.from(counts.entries())
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => a.category.localeCompare(b.category, 'pt-BR'))
+  }, [baseForOptions])
+
+  const paymentOptions = useMemo(() => {
+    const counts = new Map<PaymentMethodKey, number>()
+    baseForOptions.forEach((e) => {
+      const k = paymentMethodKey(e.paymentMethod)
+      counts.set(k, (counts.get(k) ?? 0) + 1)
+    })
+    return PAYMENT_METHOD_ORDER
+      .filter((k) => (counts.get(k) ?? 0) > 0)
+      .map((k) => ({ key: k, count: counts.get(k) ?? 0 }))
+  }, [baseForOptions])
+
+  const filtered = useMemo(() => {
+    let r = feed
+    if (filter !== 'all') {
+      r = r.filter((e) => filter === 'casal' ? e.scope === 'casal' : e.scope === filter)
+    }
+    if (categoryFilter !== 'all') {
+      r = r.filter((e) => e.category === categoryFilter)
+    }
+    if (paymentFilter !== 'all') {
+      r = r.filter((e) => paymentMethodKey(e.paymentMethod) === paymentFilter)
+    }
+    const q = query.trim().toLowerCase()
+    if (q) {
+      r = r.filter((e) =>
+        e.desc.toLowerCase().includes(q) ||
+        e.category.toLowerCase().includes(q),
+      )
+    }
+    return r
+  }, [feed, filter, categoryFilter, paymentFilter, query])
 
   // ── Totais
   const totalMes = feed.reduce((s, e) => s + e.amount, 0)
@@ -331,6 +390,80 @@ export default function TabMes({
         </div>
       )}
 
+      {/* Filtros: categoria + pagamento */}
+      {feed.length > 0 && (categoryOptions.length > 0 || paymentOptions.length > 0) && (
+        <div
+          style={{
+            display: 'flex',
+            gap: tokens.primitive.space[3],
+            marginBottom: tokens.primitive.space[8],
+            overflowX: 'auto',
+            paddingBottom: 2,
+            alignItems: 'center',
+          }}
+        >
+          <FilterSelect
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            placeholder="📂 Categoria"
+            allLabel="Todas as categorias"
+            options={categoryOptions.map(({ category, count }) => ({
+              value: category,
+              label: `${categoryEmoji(category, customCategories)} ${category} (${count})`,
+            }))}
+            active={categoryFilter !== 'all'}
+          />
+          <FilterSelect
+            value={paymentFilter}
+            onChange={(v) => setPaymentFilter(v as PaymentMethodKey | 'all')}
+            placeholder="💳 Pagamento"
+            allLabel="Todas as formas"
+            options={paymentOptions.map(({ key, count }) => ({
+              value: key,
+              label: `${PAYMENT_METHOD_LABEL[key]} (${count})`,
+            }))}
+            active={paymentFilter !== 'all'}
+          />
+          {(categoryFilter !== 'all' || paymentFilter !== 'all') && (
+            <button
+              onClick={() => { setCategoryFilter('all'); setPaymentFilter('all') }}
+              aria-label="Limpar filtros"
+              style={{
+                background: 'transparent',
+                border: `1px solid ${tokens.color.border_subtle}`,
+                color: tokens.color.text_secondary,
+                borderRadius: 999,
+                width: 32,
+                height: 32,
+                cursor: 'pointer',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Contador (só com cat/pay ativos) */}
+      {feed.length > 0 && (categoryFilter !== 'all' || paymentFilter !== 'all') && (
+        <div
+          style={{
+            fontSize: tokens.primitive.fontSize.sm,
+            color: tokens.color.text_muted,
+            marginBottom: tokens.primitive.space[8],
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          Mostrando <strong style={{ color: tokens.color.text_heading, fontWeight: 700 }}>{filtered.length}</strong> de {feed.length} itens · <strong style={{ color: tokens.color.text_heading, fontWeight: 700 }}>{formatBRL(filtered.reduce((s, e) => s + e.amount, 0))}</strong>
+        </div>
+      )}
+
       {/* Feed por dia */}
       {filtered.length === 0 && feed.length > 0 && (
         <div
@@ -339,9 +472,34 @@ export default function TabMes({
             color: tokens.color.text_muted,
             padding: `${tokens.primitive.space[16]} 0`,
             fontSize: tokens.primitive.fontSize.md,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
           }}
         >
-          Nenhum gasto pra esse filtro 🌵
+          <div>Nenhum gasto bate com esses filtros 🌵</div>
+          <button
+            onClick={() => {
+              setFilter('all')
+              setCategoryFilter('all')
+              setPaymentFilter('all')
+              setQuery('')
+            }}
+            style={{
+              background: tokens.color.bg_card,
+              color: tokens.color.text_heading,
+              border: `1px solid ${tokens.color.border_default}`,
+              borderRadius: 10,
+              padding: '10px 18px',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+            }}
+          >
+            Limpar filtros
+          </button>
         </div>
       )}
 
@@ -751,6 +909,56 @@ function EmptyHero({
         </button>
       )}
     </div>
+  )
+}
+
+function FilterSelect({
+  value, onChange, placeholder, allLabel, options, active,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  allLabel: string
+  options: { value: string; label: string }[]
+  active: boolean
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-label={placeholder}
+      style={{
+        background: active ? tokens.color.bg_elevated : 'transparent',
+        color: active ? tokens.color.text_heading : tokens.color.text_secondary,
+        border: `1px solid ${active ? tokens.color.border_default : tokens.color.border_subtle}`,
+        borderRadius: 999,
+        padding: '8px 28px 8px 14px',
+        fontSize: 13,
+        fontWeight: 600,
+        fontFamily: 'inherit',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        transition: tokens.motion.interaction,
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        backgroundImage:
+          `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='${
+            active ? '%231b1f24' : '%2364748b'
+          }' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 10px center',
+        maxWidth: 180,
+        textOverflow: 'ellipsis',
+        flexShrink: 0,
+      }}
+    >
+      <option value="all">{active ? allLabel : placeholder}</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
   )
 }
 
