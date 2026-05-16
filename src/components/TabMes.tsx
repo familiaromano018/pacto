@@ -472,9 +472,34 @@ export default function TabMes({
             color: tokens.color.text_muted,
             padding: `${tokens.primitive.space[16]} 0`,
             fontSize: tokens.primitive.fontSize.md,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
           }}
         >
-          Nenhum gasto pra esse filtro 🌵
+          <div>Nenhum gasto bate com esses filtros 🌵</div>
+          <button
+            onClick={() => {
+              setFilter('all')
+              setCategoryFilter('all')
+              setPaymentFilter('all')
+              setQuery('')
+            }}
+            style={{
+              background: tokens.color.bg_card,
+              color: tokens.color.text_heading,
+              border: `1px solid ${tokens.color.border_default}`,
+              borderRadius: 10,
+              padding: '10px 18px',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+            }}
+          >
+            Limpar filtros
+          </button>
         </div>
       )}
 
