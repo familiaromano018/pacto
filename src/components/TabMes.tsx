@@ -84,6 +84,7 @@ export default function TabMes({
         paidBy: e.paidBy, scope: e.scope, category: e.category,
         date: e.createdAt,
         paymentMethod: e.paymentMethod,
+        createdBy: e.createdBy,
       })
     })
 
@@ -103,6 +104,7 @@ export default function TabMes({
         date: new Date(monthInfo.year, monthInfo.month - 1, day).getTime(),
         sublabel: f.dueDay ? `vence dia ${f.dueDay}` : 'recorrente',
         paymentMethod: f.paymentMethod,
+        createdBy: f.createdBy,
       })
     })
 
@@ -118,6 +120,7 @@ export default function TabMes({
           date: new Date(monthInfo.year, monthInfo.month - 1, day).getTime(),
           sublabel: `${elapsed + 1}/${i.totalParcelas}${i.dueDay ? ` · dia ${i.dueDay}` : ''}`,
           paymentMethod: i.paymentMethod,
+          createdBy: i.createdBy,
         })
       }
     })

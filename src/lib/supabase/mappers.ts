@@ -24,6 +24,7 @@ export function expenseFromRow(r: ExpenseRow): Expense {
     createdAt: isoToTs(r.created_at),
     monthKey: r.month_key,
     paymentMethod: r.payment_method ?? undefined,
+    createdBy: r.created_by ?? undefined,
   }
 }
 export function expenseToRow(
@@ -34,7 +35,7 @@ export function expenseToRow(
   return {
     id: e.id,
     couple_id: coupleId,
-    created_by: userId,
+    created_by: e.createdBy ?? userId,
     desc_text: e.desc,
     amount: e.amount,
     paid_by: e.paidBy,
@@ -60,6 +61,7 @@ export function fixedFromRow(r: FixedCostRow): FixedCost {
     paymentMethod: r.payment_method ?? undefined,
     dueDay: r.due_day ?? undefined,
     frequency: r.frequency ?? 'monthly',
+    createdBy: r.created_by ?? undefined,
   }
 }
 export function fixedToRow(
@@ -70,7 +72,7 @@ export function fixedToRow(
   return {
     id: f.id,
     couple_id: coupleId,
-    created_by: userId,
+    created_by: f.createdBy ?? userId,
     desc_text: f.desc,
     amount: f.amount,
     paid_by: f.paidBy,
@@ -99,6 +101,7 @@ export function installmentFromRow(r: InstallmentRow): Installment {
     startedAt: isoToTs(r.started_at),
     paymentMethod: r.payment_method ?? undefined,
     dueDay: r.due_day ?? undefined,
+    createdBy: r.created_by ?? undefined,
   }
 }
 export function installmentToRow(
@@ -109,7 +112,7 @@ export function installmentToRow(
   return {
     id: i.id,
     couple_id: coupleId,
-    created_by: userId,
+    created_by: i.createdBy ?? userId,
     desc_text: i.desc,
     total_amount: i.totalAmount,
     total_parcelas: i.totalParcelas,

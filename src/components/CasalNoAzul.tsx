@@ -564,6 +564,7 @@ function AuthedShell({ userId }: { userId: string }) {
         nameB={nameB}
         monthKey={monthKey}
         customCategories={customCategories}
+        currentUserId={userId}
         editing={editing}
         onAddExpense={(e) => {
           upsertExpense(e)

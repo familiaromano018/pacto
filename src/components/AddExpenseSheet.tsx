@@ -16,6 +16,8 @@ interface Props {
   nameB: string
   monthKey: string
   customCategories: CustomCategory[]
+  /** id do usuário logado — usado pra setar createdBy em novas entidades */
+  currentUserId: string
   /** se passado, abre em modo edit. Aceita os 3 tipos. */
   editing?: EditTarget | null
   onAddExpense: (e: Expense) => void
@@ -29,7 +31,7 @@ interface Props {
 }
 
 export default function AddExpenseSheet({
-  open, onClose, nameA, nameB, monthKey, customCategories,
+  open, onClose, nameA, nameB, monthKey, customCategories, currentUserId,
   editing,
   onAddExpense, onAddFixed, onAddInstallment, onAddCategory,
   onRemoveExpense, onRemoveFixed, onRemoveInstallment,
@@ -133,6 +135,7 @@ export default function AddExpenseSheet({
     if (kind === 'avulso') {
       const preservedCreatedAt = editing?.kind === 'avulso' ? editing.expense.createdAt : Date.now()
       const preservedMonthKey = editing?.kind === 'avulso' ? editing.expense.monthKey : (monthKey || currentMonthKey())
+      const preservedCreatedBy = editing?.kind === 'avulso' ? editing.expense.createdBy : currentUserId
       onAddExpense({
         id: sameTypeId ?? newId(),
         desc: desc.trim(), amount: value,
@@ -140,10 +143,12 @@ export default function AddExpenseSheet({
         createdAt: preservedCreatedAt,
         monthKey: preservedMonthKey,
         paymentMethod: pm,
+        createdBy: preservedCreatedBy,
       })
     } else if (kind === 'fixo') {
       const preservedCreatedAt = editing?.kind === 'fixo' ? editing.fixed.createdAt : Date.now()
       const preservedActive = editing?.kind === 'fixo' ? editing.fixed.active : true
+      const preservedCreatedBy = editing?.kind === 'fixo' ? editing.fixed.createdBy : currentUserId
       onAddFixed({
         id: sameTypeId ?? newId(),
         desc: desc.trim(), amount: value,
@@ -153,11 +158,13 @@ export default function AddExpenseSheet({
         paymentMethod: pm,
         dueDay: dueDayClamped,
         frequency,
+        createdBy: preservedCreatedBy,
       })
     } else {
       const total = parseInt(parcelas)
       const paid = Math.min(parseInt(parcelasPagas) || 0, total - 1)
       const preservedStartedAt = editing?.kind === 'parcela' ? editing.installment.startedAt : Date.now()
+      const preservedCreatedBy = editing?.kind === 'parcela' ? editing.installment.createdBy : currentUserId
       onAddInstallment({
         id: sameTypeId ?? newId(),
         desc: desc.trim(),
@@ -169,6 +176,7 @@ export default function AddExpenseSheet({
         startedAt: preservedStartedAt,
         paymentMethod: pm,
         dueDay: dueDayClamped,
+        createdBy: preservedCreatedBy,
       })
     }
     setJustSavedValue(value)
