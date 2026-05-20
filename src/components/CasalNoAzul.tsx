@@ -84,6 +84,7 @@ function AuthedShell({ userId }: { userId: string }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editing, setEditing] = useState<EditTarget | null>(null)
   const [pendingMesFilter, setPendingMesFilter] = useState<{ category?: string; payment?: string } | null>(null)
+  const [pendingCount, setPendingCount] = useState(0)
   const toast = useToast()
 
   function handleDrillTo(target: { kind: 'category' | 'method'; key: string }) {
@@ -179,6 +180,33 @@ function AuthedShell({ userId }: { userId: string }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coupleId])
+
+  // ── Pending change_requests endereçadas a esse user (badge no bottom nav) ──
+  useEffect(() => {
+    if (!coupleId || !userId) {
+      setPendingCount(0)
+      return
+    }
+    const sb = supabase()
+    let cancelled = false
+    async function load() {
+      const { count } = await sb
+        .from('change_requests')
+        .select('*', { count: 'exact', head: true })
+        .eq('couple_id', coupleId!)
+        .eq('requested_to', userId)
+        .eq('status', 'pending')
+      if (!cancelled) setPendingCount(count ?? 0)
+    }
+    load().catch(() => {})
+    const ch = sb
+      .channel(`pacto:${coupleId}:badge`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'change_requests', filter: `couple_id=eq.${coupleId}` }, () => {
+        load().catch(() => {})
+      })
+      .subscribe()
+    return () => { cancelled = true; sb.removeChannel(ch) }
+  }, [coupleId, userId])
 
   // Cloud sync engine — só roda quando coupleId tá setado
   useCloudSync({
@@ -754,6 +782,8 @@ function AuthedShell({ userId }: { userId: string }) {
             customCategories={customCategories}
             coupleCode={coupleCode}
             partnerJoined={partnerJoined}
+            coupleId={coupleId ?? null}
+            currentUserId={userId}
             onUpdate={updateConfig}
             onSignOut={handleSignOut}
             onExportMonth={exportPDF}
@@ -766,7 +796,7 @@ function AuthedShell({ userId }: { userId: string }) {
         <FAB onClick={() => setSheetOpen(true)} pulse={totalMes === 0} />
       )}
 
-      <BottomNav tab={tab} onTab={setTab} onOpenAdd={() => setSheetOpen(true)} />
+      <BottomNav tab={tab} onTab={setTab} onOpenAdd={() => setSheetOpen(true)} pendingCount={pendingCount} />
 
       <InstallModal />
       <DailyTipModal coupleId={coupleId ?? null} />
@@ -924,8 +954,8 @@ function FAB({ onClick, pulse }: { onClick: () => void; pulse: boolean }) {
 
 // ── BottomNav ──────────────────────────────────────────────────────────────────
 function BottomNav({
-  tab, onTab,
-}: { tab: TabId; onTab: (t: TabId) => void; onOpenAdd: () => void }) {
+  tab, onTab, pendingCount,
+}: { tab: TabId; onTab: (t: TabId) => void; onOpenAdd: () => void; pendingCount?: number }) {
   return (
     <div
       style={{
@@ -962,6 +992,7 @@ function BottomNav({
                 padding: `${tokens.primitive.space[2]} 0`,
                 fontFamily: 'inherit',
                 color: active ? tokens.color.brand : tokens.color.text_secondary,
+                position: 'relative',
               }}
             >
               <span
@@ -977,6 +1008,30 @@ function BottomNav({
               >
                 {t.icon}
               </span>
+              {t.id === 'config' && pendingCount && pendingCount > 0 && (
+                <span
+                  aria-label={`${pendingCount} pendentes`}
+                  style={{
+                    position: 'absolute',
+                    top: 4,
+                    right: '28%',
+                    background: tokens.color.danger,
+                    color: '#fff',
+                    fontSize: 9,
+                    fontWeight: 800,
+                    minWidth: 14,
+                    height: 14,
+                    borderRadius: 7,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 4px',
+                    lineHeight: 1,
+                  }}
+                >
+                  {pendingCount}
+                </span>
+              )}
               <span
                 style={{
                   fontSize: tokens.primitive.fontSize['2xs'],
