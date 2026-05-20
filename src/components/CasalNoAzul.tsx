@@ -10,6 +10,7 @@ import Setup from './Setup'
 import LoginScreen from './LoginScreen'
 import PaywallScreen from './PaywallScreen'
 import TrialBanner from './TrialBanner'
+import TrialWelcomeModal from './TrialWelcomeModal'
 import InstallModal from './InstallModal'
 import DailyTipModal from './DailyTipModal'
 import MonthHeader from './MonthHeader'
@@ -711,7 +712,14 @@ function AuthedShell({ userId }: { userId: string }) {
       }}
     >
       {sub.status === 'trial' && (
-        <TrialBanner daysRemaining={sub.daysRemaining} coupleCode={coupleCode} />
+        <>
+          <TrialWelcomeModal
+            daysRemaining={sub.daysRemaining}
+            coupleId={coupleId}
+            coupleCode={coupleCode}
+          />
+          <TrialBanner daysRemaining={sub.daysRemaining} coupleCode={coupleCode} />
+        </>
       )}
       <MonthHeader
         nameA={nameA}
