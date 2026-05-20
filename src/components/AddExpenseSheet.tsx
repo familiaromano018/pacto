@@ -107,6 +107,13 @@ export default function AddExpenseSheet({
     ? value / parseInt(parcelas)
     : null
 
+  const editingExpense = editing?.kind === 'avulso' ? editing.expense : null
+  const editingFixed = editing?.kind === 'fixo' ? editing.fixed : null
+  const editingInstallment = editing?.kind === 'parcela' ? editing.installment : null
+  const editingTarget = editingExpense || editingFixed || editingInstallment
+  const editingCreatedBy = editingTarget?.createdBy
+  const isEditingOther = !!editing && !!editingCreatedBy && editingCreatedBy !== currentUserId
+
   function submit() {
     if (!desc.trim()) return setError('Falta a descrição')
     if (!(value > 0)) return setError('Valor tem que ser maior que zero')
@@ -179,6 +186,12 @@ export default function AddExpenseSheet({
         createdBy: preservedCreatedBy,
       })
     }
+    // Pra cross-user edit, parent já mostra toast "Pedido enviado pra aprovação";
+    // então fecha direto sem o splash "Adicionado ✓".
+    if (isEditingOther) {
+      onClose()
+      return
+    }
     setJustSavedValue(value)
     setTimeout(() => onClose(), 950)
   }
@@ -217,6 +230,21 @@ export default function AddExpenseSheet({
             margin: `0 auto ${tokens.primitive.space[10]}`,
           }}
         />
+
+        {isEditingOther && justSavedValue == null && (
+          <div style={{
+            fontSize: 12,
+            color: tokens.color.text_muted,
+            padding: '10px 16px',
+            background: 'rgba(245,124,0,0.10)',
+            borderBottom: `1px solid rgba(245,124,0,0.30)`,
+            borderRadius: 8,
+            marginBottom: tokens.primitive.space[8],
+            lineHeight: 1.4,
+          }}>
+            ⚠️ Esse gasto foi registrado pelo seu parceiro. Mudanças materiais (valor, categoria, scope, mês) precisam da aprovação dele(a).
+          </div>
+        )}
 
         {justSavedValue != null && (
           <div
@@ -739,7 +767,10 @@ export default function AddExpenseSheet({
           {isEditing && editing && (
             <button
               onClick={() => {
-                if (typeof window !== 'undefined' && !window.confirm('Excluir este lançamento?')) return
+                const confirmMsg = isEditingOther
+                  ? 'Pedir remoção desse lançamento ao parceiro?'
+                  : 'Excluir este lançamento?'
+                if (typeof window !== 'undefined' && !window.confirm(confirmMsg)) return
                 if (editing.kind === 'avulso') onRemoveExpense?.(editing.expense.id)
                 else if (editing.kind === 'fixo') onRemoveFixed?.(editing.fixed.id)
                 else if (editing.kind === 'parcela') onRemoveInstallment?.(editing.installment.id)
@@ -747,9 +778,9 @@ export default function AddExpenseSheet({
               }}
               style={{
                 flex: 1,
-                background: `${tokens.color.danger}14`,
-                color: tokens.color.danger,
-                border: `1.5px solid ${tokens.color.danger}55`,
+                background: isEditingOther ? 'rgba(245,124,0,0.14)' : `${tokens.color.danger}14`,
+                color: isEditingOther ? '#f57c00' : tokens.color.danger,
+                border: `1.5px solid ${isEditingOther ? 'rgba(245,124,0,0.55)' : `${tokens.color.danger}55`}`,
                 borderRadius: tokens.component.button.radius.md,
                 padding: `${tokens.primitive.space[6]} 0`,
                 fontWeight: tokens.primitive.fontWeight.extrabold,
@@ -758,7 +789,7 @@ export default function AddExpenseSheet({
                 cursor: 'pointer',
               }}
             >
-              Excluir
+              {isEditingOther ? 'Pedir remover' : 'Excluir'}
             </button>
           )}
           <button
@@ -778,7 +809,7 @@ export default function AddExpenseSheet({
               transition: tokens.motion.interaction,
             }}
           >
-            {isEditing ? 'Salvar ✓' : 'Adicionar ✓'}
+            {isEditingOther ? 'Pedir alteração' : isEditing ? 'Salvar ✓' : 'Adicionar ✓'}
           </button>
         </div>
         </>

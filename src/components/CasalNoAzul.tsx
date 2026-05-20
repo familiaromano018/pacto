@@ -716,6 +716,7 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts}
             installments={installments}
             customCategories={customCategories}
+            currentUserId={userId}
             onRemoveExpense={removeExpense}
             onEditExpense={startEditExpense}
             onEditFixed={startEditFixed}
@@ -735,6 +736,7 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts} setFixedCosts={updateFixed}
             installments={installments} setInstallments={updateInstallments}
             customCategories={customCategories}
+            currentUserId={userId}
             onOpenAdd={() => { setEditing(null); setSheetOpen(true) }}
             onEditFixed={startEditFixed}
             onEditInstallment={startEditInstallment}
@@ -779,16 +781,30 @@ function AuthedShell({ userId }: { userId: string }) {
         currentUserId={userId}
         editing={editing}
         onAddExpense={(e) => {
+          const existing = expenses.find((x) => x.id === e.id)
+          const isCrossUser = !!existing && !!existing.createdBy && existing.createdBy !== userId
           upsertExpense(e)
-          toast.show(editing?.kind === 'avulso' ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
+          // Toast só quando a mudança foi aplicada direto (own-edit ou novo).
+          // Cross-user vira pedido — upsertExpense já mostra o toast "Pedido enviado".
+          if (!isCrossUser || !existing) {
+            toast.show(editing?.kind === 'avulso' ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
+          }
         }}
         onAddFixed={(f) => {
+          const existing = fixedCosts.find((x) => x.id === f.id)
+          const isCrossUser = !!existing && !!existing.createdBy && existing.createdBy !== userId
           upsertFixed(f)
-          toast.show(editing?.kind === 'fixo' ? 'Custo fixo atualizado ✓' : 'Custo fixo criado ✓')
+          if (!isCrossUser || !existing) {
+            toast.show(editing?.kind === 'fixo' ? 'Custo fixo atualizado ✓' : 'Custo fixo criado ✓')
+          }
         }}
         onAddInstallment={(i) => {
+          const existing = installments.find((x) => x.id === i.id)
+          const isCrossUser = !!existing && !!existing.createdBy && existing.createdBy !== userId
           upsertInstallment(i)
-          toast.show(editing?.kind === 'parcela' ? 'Parcelado atualizado ✓' : 'Parcelado criado ✓')
+          if (!isCrossUser || !existing) {
+            toast.show(editing?.kind === 'parcela' ? 'Parcelado atualizado ✓' : 'Parcelado criado ✓')
+          }
         }}
         onRemoveExpense={removeExpense}
         onRemoveFixed={removeFixed}

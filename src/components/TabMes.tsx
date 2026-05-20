@@ -26,6 +26,7 @@ interface Props {
   fixedCosts: FixedCost[]
   installments: Installment[]
   customCategories: CustomCategory[]
+  currentUserId: string
   onRemoveExpense: (id: string) => void
   onEditExpense: (id: string) => void
   onEditFixed: (id: string) => void
@@ -42,7 +43,7 @@ type FilterId = 'all' | 'casal' | 'A' | 'B'
 
 export default function TabMes({
   nameA, nameB, incomeA, incomeB, method,
-  monthKey, expenses, fixedCosts, installments, customCategories,
+  monthKey, expenses, fixedCosts, installments, customCategories, currentUserId,
   onRemoveExpense, onEditExpense, onEditFixed, onEditInstallment, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
   pendingFilter, onConsumePendingFilter,
 }: Props) {
@@ -537,6 +538,7 @@ export default function TabMes({
               nameA={nameA}
               nameB={nameB}
               customCategories={customCategories}
+              currentUserId={currentUserId}
               onRemove={e.kind === 'avulso' ? () => onRemoveExpense(e.sourceId) : undefined}
               onEdit={
                 e.kind === 'avulso' ? () => onEditExpense(e.sourceId)

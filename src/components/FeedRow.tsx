@@ -11,6 +11,7 @@ interface Props {
   nameA: string
   nameB: string
   customCategories?: CustomCategory[]
+  currentUserId?: string
   onRemove?: () => void
   onEdit?: () => void
 }
@@ -21,8 +22,9 @@ const KIND_META: Record<FeedEntry['kind'], { label: string; color: string }> = {
   parcela: { label: 'Parcela',   color: 'var(--color-installment)' },
 }
 
-export default function FeedRow({ entry, nameA, nameB, customCategories = [], onRemove, onEdit }: Props) {
+export default function FeedRow({ entry, nameA, nameB, customCategories = [], currentUserId, onRemove, onEdit }: Props) {
   const meta = KIND_META[entry.kind]
+  const isOwn = !currentUserId || !entry.createdBy || entry.createdBy === currentUserId
   const payerName =
     entry.scope === 'A' ? nameA :
     entry.scope === 'B' ? nameB :
@@ -135,11 +137,11 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], on
         {onRemove && (
           <button
             onClick={(e) => { e.stopPropagation(); onRemove() }}
-            aria-label="Remover"
+            aria-label={isOwn ? 'Remover' : 'Pedir remoção'}
             style={{
-              background: `${tokens.color.danger}14`,
-              border: `1px solid ${tokens.color.danger}55`,
-              color: tokens.color.danger,
+              background: isOwn ? `${tokens.color.danger}14` : 'rgba(245,124,0,0.14)',
+              border: `1px solid ${isOwn ? `${tokens.color.danger}55` : 'rgba(245,124,0,0.55)'}`,
+              color: isOwn ? tokens.color.danger : '#f57c00',
               cursor: 'pointer',
               fontSize: tokens.primitive.fontSize.xs,
               fontWeight: tokens.primitive.fontWeight.bold,
@@ -150,7 +152,7 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], on
               letterSpacing: '0.02em',
             }}
           >
-            remover
+            {isOwn ? 'remover' : 'pedir remover'}
           </button>
         )}
       </div>
