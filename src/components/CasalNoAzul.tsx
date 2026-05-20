@@ -27,6 +27,9 @@ import { getCurrentCoupleId, getCoupleRow } from '@/lib/supabase/couple'
 import { useCloudSync } from '@/lib/sync/useCloudSync'
 import { enqueue, drainQueue, clearQueue } from '@/lib/sync/queue'
 import { useSubscription } from '@/lib/subscription/useSubscription'
+import { classify } from '@/lib/changes/classify'
+import { createChangeRequest } from '@/lib/changes/request'
+import { logSoftChange } from '@/lib/changes/history'
 import { fixedAppearsInMonth } from '@/lib/fixed'
 import type {
   Expense, FixedCost, Installment, Goal, ClosedMonth, CustomCategory, EditTarget,
@@ -73,6 +76,7 @@ function AuthedShell({ userId }: { userId: string }) {
   const [coupleId, setCoupleId] = useState<string | null | undefined>(undefined)
   const [coupleCode, setCoupleCode] = useState<string | null>(null)
   const [partnerJoined, setPartnerJoined] = useState(false)
+  const [partnerUserId, setPartnerUserId] = useState<string | null>(null)
 
   // ── UI state (ephemeral) ──
   const [tab, setTab] = useState<TabId>('mes')
@@ -80,6 +84,7 @@ function AuthedShell({ userId }: { userId: string }) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editing, setEditing] = useState<EditTarget | null>(null)
   const [pendingMesFilter, setPendingMesFilter] = useState<{ category?: string; payment?: string } | null>(null)
+  const [pendingCount, setPendingCount] = useState(0)
   const toast = useToast()
 
   function handleDrillTo(target: { kind: 'category' | 'method'; key: string }) {
@@ -108,6 +113,7 @@ function AuthedShell({ userId }: { userId: string }) {
     if (!coupleId) {
       setCoupleCode(null)
       setPartnerJoined(false)
+      setPartnerUserId(null)
       return
     }
     const sb = supabase()
@@ -136,13 +142,25 @@ function AuthedShell({ userId }: { userId: string }) {
       if (cancelled) return
       setPartnerJoined((count ?? 0) >= 2)
     }
+    async function loadPartner() {
+      const { data } = await sb
+        .from('members')
+        .select('user_id')
+        .eq('couple_id', coupleId!)
+        .neq('user_id', userId)
+        .maybeSingle()
+      if (cancelled) return
+      setPartnerUserId(data?.user_id ?? null)
+    }
     loadCouple().catch(() => {})
     loadMembers().catch(() => {})
+    loadPartner().catch(() => {})
 
     const ch = sb
       .channel(`pacto:${coupleId}:meta`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'members', filter: `couple_id=eq.${coupleId}` }, () => {
         loadMembers().catch(() => {})
+        loadPartner().catch(() => {})
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'couples', filter: `id=eq.${coupleId}` }, (payload) => {
         const row = payload.new as { name_a?: string; name_b?: string; income_a?: string; income_b?: string; method?: '50/50' | 'proporcional'; code?: string }
@@ -162,6 +180,33 @@ function AuthedShell({ userId }: { userId: string }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coupleId])
+
+  // ── Pending change_requests endereçadas a esse user (badge no bottom nav) ──
+  useEffect(() => {
+    if (!coupleId || !userId) {
+      setPendingCount(0)
+      return
+    }
+    const sb = supabase()
+    let cancelled = false
+    async function load() {
+      const { count } = await sb
+        .from('change_requests')
+        .select('*', { count: 'exact', head: true })
+        .eq('couple_id', coupleId!)
+        .eq('requested_to', userId)
+        .eq('status', 'pending')
+      if (!cancelled) setPendingCount(count ?? 0)
+    }
+    load().catch(() => {})
+    const ch = sb
+      .channel(`pacto:${coupleId}:badge`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'change_requests', filter: `couple_id=eq.${coupleId}` }, () => {
+        load().catch(() => {})
+      })
+      .subscribe()
+    return () => { cancelled = true; sb.removeChannel(ch) }
+  }, [coupleId, userId])
 
   // Cloud sync engine — só roda quando coupleId tá setado
   useCloudSync({
@@ -188,21 +233,90 @@ function AuthedShell({ userId }: { userId: string }) {
   }
 
   // ── Expense ──
-  function upsertExpense(e: Expense) {
-    setExpenses((prev) => {
-      const i = prev.findIndex((x) => x.id === e.id)
-      if (i === -1) return [...prev, e]
-      const copy = prev.slice()
-      copy[i] = e
-      return copy
-    })
-    enqueue({ table: 'expenses', op: 'upsert', payload: e })
-    pushDrain()
+  async function upsertExpense(e: Expense) {
+    const existing = expenses.find((x) => x.id === e.id)
+    const isOwn = !existing || (existing.createdBy ?? e.createdBy) === userId
+
+    // New OR own → direct
+    if (!existing || isOwn) {
+      setExpenses((prev) => {
+        const i = prev.findIndex((x) => x.id === e.id)
+        if (i === -1) return [...prev, e]
+        const copy = prev.slice()
+        copy[i] = e
+        return copy
+      })
+      enqueue({ table: 'expenses', op: 'upsert', payload: e })
+      pushDrain()
+      return
+    }
+
+    // Cross-user → classify
+    const route = classify(existing, e)
+    if (route === 'no-op') return
+
+    if (route === 'soft') {
+      setExpenses((prev) => {
+        const i = prev.findIndex((x) => x.id === e.id)
+        if (i === -1) return [...prev, e]
+        const copy = prev.slice()
+        copy[i] = e
+        return copy
+      })
+      enqueue({ table: 'expenses', op: 'upsert', payload: e })
+      pushDrain()
+      if (coupleId) {
+        await logSoftChange({
+          coupleId,
+          targetTable: 'expenses',
+          targetId: e.id,
+          changedBy: userId,
+          prevValue: existing as any,
+          newValue: e as any,
+        }).catch(() => {})
+      }
+      return
+    }
+
+    // strict
+    if (coupleId && existing.createdBy) {
+      await createChangeRequest({
+        coupleId,
+        targetTable: 'expenses',
+        targetId: e.id,
+        requestedBy: userId,
+        requestedTo: existing.createdBy,
+        action: 'edit',
+        payload: e as any,
+      }).catch(() => {})
+      toast.show('Pedido enviado pra aprovação do parceiro')
+    }
   }
-  function removeExpense(id: string) {
-    setExpenses((prev) => prev.filter((x) => x.id !== id))
-    enqueue({ table: 'expenses', op: 'delete', payload: { id } })
-    pushDrain()
+  async function removeExpense(id: string) {
+    const existing = expenses.find((x) => x.id === id)
+    if (!existing) return
+    const isOwn = (existing.createdBy ?? null) === userId
+
+    if (isOwn) {
+      setExpenses((prev) => prev.filter((x) => x.id !== id))
+      enqueue({ table: 'expenses', op: 'delete', payload: { id } })
+      pushDrain()
+      return
+    }
+
+    // Cross-user delete → strict
+    if (coupleId && existing.createdBy) {
+      await createChangeRequest({
+        coupleId,
+        targetTable: 'expenses',
+        targetId: id,
+        requestedBy: userId,
+        requestedTo: existing.createdBy,
+        action: 'delete',
+        payload: null,
+      }).catch(() => {})
+      toast.show('Pedido de remoção enviado pra aprovação')
+    }
   }
   function startEditExpense(id: string) {
     const e = expenses.find((x) => x.id === id)
@@ -222,33 +336,159 @@ function AuthedShell({ userId }: { userId: string }) {
     setEditing({ kind: 'parcela', installment: i })
     setSheetOpen(true)
   }
-  function removeFixed(id: string) {
-    setFixedCosts((prev) => prev.filter((x) => x.id !== id))
-    enqueue({ table: 'fixed_costs', op: 'delete', payload: { id } })
-    pushDrain()
+  async function removeFixed(id: string) {
+    const existing = fixedCosts.find((x) => x.id === id)
+    if (!existing) return
+    const isOwn = (existing.createdBy ?? null) === userId
+
+    if (isOwn) {
+      setFixedCosts((prev) => prev.filter((x) => x.id !== id))
+      enqueue({ table: 'fixed_costs', op: 'delete', payload: { id } })
+      pushDrain()
+      return
+    }
+
+    if (coupleId && existing.createdBy) {
+      await createChangeRequest({
+        coupleId,
+        targetTable: 'fixed_costs',
+        targetId: id,
+        requestedBy: userId,
+        requestedTo: existing.createdBy,
+        action: 'delete',
+        payload: null,
+      }).catch(() => {})
+      toast.show('Pedido de remoção enviado pra aprovação')
+    }
   }
-  function removeInstallment(id: string) {
-    setInstallments((prev) => prev.filter((x) => x.id !== id))
-    enqueue({ table: 'installments', op: 'delete', payload: { id } })
-    pushDrain()
+  async function removeInstallment(id: string) {
+    const existing = installments.find((x) => x.id === id)
+    if (!existing) return
+    const isOwn = (existing.createdBy ?? null) === userId
+
+    if (isOwn) {
+      setInstallments((prev) => prev.filter((x) => x.id !== id))
+      enqueue({ table: 'installments', op: 'delete', payload: { id } })
+      pushDrain()
+      return
+    }
+
+    if (coupleId && existing.createdBy) {
+      await createChangeRequest({
+        coupleId,
+        targetTable: 'installments',
+        targetId: id,
+        requestedBy: userId,
+        requestedTo: existing.createdBy,
+        action: 'delete',
+        payload: null,
+      }).catch(() => {})
+      toast.show('Pedido de remoção enviado pra aprovação')
+    }
   }
-  function upsertFixed(f: FixedCost) {
-    setFixedCosts((prev) => {
-      const i = prev.findIndex((x) => x.id === f.id)
-      if (i === -1) return [...prev, f]
-      const copy = prev.slice(); copy[i] = f; return copy
-    })
-    enqueue({ table: 'fixed_costs', op: 'upsert', payload: f })
-    pushDrain()
+  async function upsertFixed(f: FixedCost) {
+    const existing = fixedCosts.find((x) => x.id === f.id)
+    const isOwn = !existing || (existing.createdBy ?? f.createdBy) === userId
+
+    if (!existing || isOwn) {
+      setFixedCosts((prev) => {
+        const i = prev.findIndex((x) => x.id === f.id)
+        if (i === -1) return [...prev, f]
+        const copy = prev.slice(); copy[i] = f; return copy
+      })
+      enqueue({ table: 'fixed_costs', op: 'upsert', payload: f })
+      pushDrain()
+      return
+    }
+
+    const route = classify(existing, f)
+    if (route === 'no-op') return
+
+    if (route === 'soft') {
+      setFixedCosts((prev) => {
+        const i = prev.findIndex((x) => x.id === f.id)
+        if (i === -1) return [...prev, f]
+        const copy = prev.slice(); copy[i] = f; return copy
+      })
+      enqueue({ table: 'fixed_costs', op: 'upsert', payload: f })
+      pushDrain()
+      if (coupleId) {
+        await logSoftChange({
+          coupleId,
+          targetTable: 'fixed_costs',
+          targetId: f.id,
+          changedBy: userId,
+          prevValue: existing as any,
+          newValue: f as any,
+        }).catch(() => {})
+      }
+      return
+    }
+
+    if (coupleId && existing.createdBy) {
+      await createChangeRequest({
+        coupleId,
+        targetTable: 'fixed_costs',
+        targetId: f.id,
+        requestedBy: userId,
+        requestedTo: existing.createdBy,
+        action: 'edit',
+        payload: f as any,
+      }).catch(() => {})
+      toast.show('Pedido enviado pra aprovação do parceiro')
+    }
   }
-  function upsertInstallment(i: Installment) {
-    setInstallments((prev) => {
-      const idx = prev.findIndex((x) => x.id === i.id)
-      if (idx === -1) return [...prev, i]
-      const copy = prev.slice(); copy[idx] = i; return copy
-    })
-    enqueue({ table: 'installments', op: 'upsert', payload: i })
-    pushDrain()
+  async function upsertInstallment(i: Installment) {
+    const existing = installments.find((x) => x.id === i.id)
+    const isOwn = !existing || (existing.createdBy ?? i.createdBy) === userId
+
+    if (!existing || isOwn) {
+      setInstallments((prev) => {
+        const idx = prev.findIndex((x) => x.id === i.id)
+        if (idx === -1) return [...prev, i]
+        const copy = prev.slice(); copy[idx] = i; return copy
+      })
+      enqueue({ table: 'installments', op: 'upsert', payload: i })
+      pushDrain()
+      return
+    }
+
+    const route = classify(existing, i)
+    if (route === 'no-op') return
+
+    if (route === 'soft') {
+      setInstallments((prev) => {
+        const idx = prev.findIndex((x) => x.id === i.id)
+        if (idx === -1) return [...prev, i]
+        const copy = prev.slice(); copy[idx] = i; return copy
+      })
+      enqueue({ table: 'installments', op: 'upsert', payload: i })
+      pushDrain()
+      if (coupleId) {
+        await logSoftChange({
+          coupleId,
+          targetTable: 'installments',
+          targetId: i.id,
+          changedBy: userId,
+          prevValue: existing as any,
+          newValue: i as any,
+        }).catch(() => {})
+      }
+      return
+    }
+
+    if (coupleId && existing.createdBy) {
+      await createChangeRequest({
+        coupleId,
+        targetTable: 'installments',
+        targetId: i.id,
+        requestedBy: userId,
+        requestedTo: existing.createdBy,
+        action: 'edit',
+        payload: i as any,
+      }).catch(() => {})
+      toast.show('Pedido enviado pra aprovação do parceiro')
+    }
   }
 
   // ── Diff-and-enqueue setter factory ──
@@ -329,7 +569,7 @@ function AuthedShell({ userId }: { userId: string }) {
       setMethod('50/50')
       setExpenses([]); setInstallments([]); setFixedCosts([])
       setGoals([]); setClosedMonths([]); setCustomCategories([])
-      setCoupleId(null); setCoupleCode(null); setPartnerJoined(false)
+      setCoupleId(null); setCoupleCode(null); setPartnerJoined(false); setPartnerUserId(null)
       setMonthKey(currentMonthKey())
       setTab('mes')
     })
@@ -504,6 +744,7 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts}
             installments={installments}
             customCategories={customCategories}
+            currentUserId={userId}
             onRemoveExpense={removeExpense}
             onEditExpense={startEditExpense}
             onEditFixed={startEditFixed}
@@ -523,6 +764,7 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts} setFixedCosts={updateFixed}
             installments={installments} setInstallments={updateInstallments}
             customCategories={customCategories}
+            currentUserId={userId}
             onOpenAdd={() => { setEditing(null); setSheetOpen(true) }}
             onEditFixed={startEditFixed}
             onEditInstallment={startEditInstallment}
@@ -540,6 +782,8 @@ function AuthedShell({ userId }: { userId: string }) {
             customCategories={customCategories}
             coupleCode={coupleCode}
             partnerJoined={partnerJoined}
+            coupleId={coupleId ?? null}
+            currentUserId={userId}
             onUpdate={updateConfig}
             onSignOut={handleSignOut}
             onExportMonth={exportPDF}
@@ -552,7 +796,7 @@ function AuthedShell({ userId }: { userId: string }) {
         <FAB onClick={() => setSheetOpen(true)} pulse={totalMes === 0} />
       )}
 
-      <BottomNav tab={tab} onTab={setTab} onOpenAdd={() => setSheetOpen(true)} />
+      <BottomNav tab={tab} onTab={setTab} onOpenAdd={() => setSheetOpen(true)} pendingCount={pendingCount} />
 
       <InstallModal />
       <DailyTipModal coupleId={coupleId ?? null} />
@@ -564,18 +808,33 @@ function AuthedShell({ userId }: { userId: string }) {
         nameB={nameB}
         monthKey={monthKey}
         customCategories={customCategories}
+        currentUserId={userId}
         editing={editing}
         onAddExpense={(e) => {
+          const existing = expenses.find((x) => x.id === e.id)
+          const isCrossUser = !!existing && !!existing.createdBy && existing.createdBy !== userId
           upsertExpense(e)
-          toast.show(editing?.kind === 'avulso' ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
+          // Toast só quando a mudança foi aplicada direto (own-edit ou novo).
+          // Cross-user vira pedido — upsertExpense já mostra o toast "Pedido enviado".
+          if (!isCrossUser || !existing) {
+            toast.show(editing?.kind === 'avulso' ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓')
+          }
         }}
         onAddFixed={(f) => {
+          const existing = fixedCosts.find((x) => x.id === f.id)
+          const isCrossUser = !!existing && !!existing.createdBy && existing.createdBy !== userId
           upsertFixed(f)
-          toast.show(editing?.kind === 'fixo' ? 'Custo fixo atualizado ✓' : 'Custo fixo criado ✓')
+          if (!isCrossUser || !existing) {
+            toast.show(editing?.kind === 'fixo' ? 'Custo fixo atualizado ✓' : 'Custo fixo criado ✓')
+          }
         }}
         onAddInstallment={(i) => {
+          const existing = installments.find((x) => x.id === i.id)
+          const isCrossUser = !!existing && !!existing.createdBy && existing.createdBy !== userId
           upsertInstallment(i)
-          toast.show(editing?.kind === 'parcela' ? 'Parcelado atualizado ✓' : 'Parcelado criado ✓')
+          if (!isCrossUser || !existing) {
+            toast.show(editing?.kind === 'parcela' ? 'Parcelado atualizado ✓' : 'Parcelado criado ✓')
+          }
         }}
         onRemoveExpense={removeExpense}
         onRemoveFixed={removeFixed}
@@ -695,8 +954,8 @@ function FAB({ onClick, pulse }: { onClick: () => void; pulse: boolean }) {
 
 // ── BottomNav ──────────────────────────────────────────────────────────────────
 function BottomNav({
-  tab, onTab,
-}: { tab: TabId; onTab: (t: TabId) => void; onOpenAdd: () => void }) {
+  tab, onTab, pendingCount,
+}: { tab: TabId; onTab: (t: TabId) => void; onOpenAdd: () => void; pendingCount?: number }) {
   return (
     <div
       style={{
@@ -733,6 +992,7 @@ function BottomNav({
                 padding: `${tokens.primitive.space[2]} 0`,
                 fontFamily: 'inherit',
                 color: active ? tokens.color.brand : tokens.color.text_secondary,
+                position: 'relative',
               }}
             >
               <span
@@ -748,6 +1008,30 @@ function BottomNav({
               >
                 {t.icon}
               </span>
+              {t.id === 'config' && pendingCount && pendingCount > 0 && (
+                <span
+                  aria-label={`${pendingCount} pendentes`}
+                  style={{
+                    position: 'absolute',
+                    top: 4,
+                    right: '28%',
+                    background: tokens.color.danger,
+                    color: '#fff',
+                    fontSize: 9,
+                    fontWeight: 800,
+                    minWidth: 14,
+                    height: 14,
+                    borderRadius: 7,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 4px',
+                    lineHeight: 1,
+                  }}
+                >
+                  {pendingCount}
+                </span>
+              )}
               <span
                 style={{
                   fontSize: tokens.primitive.fontSize['2xs'],

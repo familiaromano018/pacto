@@ -19,6 +19,7 @@ export interface Expense {
   createdAt: number
   monthKey: string
   paymentMethod?: PaymentMethod
+  createdBy?: string
 }
 
 export interface Installment {
@@ -34,6 +35,7 @@ export interface Installment {
   startedAt: number
   paymentMethod?: PaymentMethod
   dueDay?: number
+  createdBy?: string
 }
 
 export interface FixedCost {
@@ -49,6 +51,7 @@ export interface FixedCost {
   dueDay?: number
   /** Default 'monthly'. Define a cada quantos meses o custo aparece. */
   frequency?: 'monthly' | 'bimonthly' | 'quarterly' | 'semiannual' | 'annual'
+  createdBy?: string
 }
 
 export interface Goal {
@@ -97,4 +100,40 @@ export interface FeedEntry {
   date: number
   sublabel?: string
   paymentMethod?: PaymentMethod
+  createdBy?: string
+}
+
+// ── Authorization ──
+
+export type ChangeAction = 'edit' | 'delete'
+export type ChangeRequestStatus = 'pending' | 'approved' | 'denied' | 'expired' | 'withdrawn'
+export type ChangeTargetTable = 'expenses' | 'fixed_costs' | 'installments'
+
+export interface ChangeRequest {
+  id: string
+  coupleId: string
+  targetTable: ChangeTargetTable
+  targetId: string
+  requestedBy: string
+  requestedTo: string
+  action: ChangeAction
+  payload: Record<string, any> | null
+  status: ChangeRequestStatus
+  createdAt: number
+  resolvedAt: number | null
+  expiresAt: number
+}
+
+export interface ChangeHistoryEntry {
+  id: string
+  coupleId: string
+  targetTable: ChangeTargetTable
+  targetId: string
+  changedBy: string
+  prevValue: Record<string, any>
+  newValue: Record<string, any>
+  isSoft: boolean
+  canUndoUntil: number
+  undone: boolean
+  createdAt: number
 }

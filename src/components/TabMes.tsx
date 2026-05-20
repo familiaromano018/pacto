@@ -26,6 +26,7 @@ interface Props {
   fixedCosts: FixedCost[]
   installments: Installment[]
   customCategories: CustomCategory[]
+  currentUserId: string
   onRemoveExpense: (id: string) => void
   onEditExpense: (id: string) => void
   onEditFixed: (id: string) => void
@@ -42,7 +43,7 @@ type FilterId = 'all' | 'casal' | 'A' | 'B'
 
 export default function TabMes({
   nameA, nameB, incomeA, incomeB, method,
-  monthKey, expenses, fixedCosts, installments, customCategories,
+  monthKey, expenses, fixedCosts, installments, customCategories, currentUserId,
   onRemoveExpense, onEditExpense, onEditFixed, onEditInstallment, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
   pendingFilter, onConsumePendingFilter,
 }: Props) {
@@ -84,6 +85,7 @@ export default function TabMes({
         paidBy: e.paidBy, scope: e.scope, category: e.category,
         date: e.createdAt,
         paymentMethod: e.paymentMethod,
+        createdBy: e.createdBy,
       })
     })
 
@@ -103,6 +105,7 @@ export default function TabMes({
         date: new Date(monthInfo.year, monthInfo.month - 1, day).getTime(),
         sublabel: f.dueDay ? `vence dia ${f.dueDay}` : 'recorrente',
         paymentMethod: f.paymentMethod,
+        createdBy: f.createdBy,
       })
     })
 
@@ -118,6 +121,7 @@ export default function TabMes({
           date: new Date(monthInfo.year, monthInfo.month - 1, day).getTime(),
           sublabel: `${elapsed + 1}/${i.totalParcelas}${i.dueDay ? ` · dia ${i.dueDay}` : ''}`,
           paymentMethod: i.paymentMethod,
+          createdBy: i.createdBy,
         })
       }
     })
@@ -534,6 +538,7 @@ export default function TabMes({
               nameA={nameA}
               nameB={nameB}
               customCategories={customCategories}
+              currentUserId={currentUserId}
               onRemove={e.kind === 'avulso' ? () => onRemoveExpense(e.sourceId) : undefined}
               onEdit={
                 e.kind === 'avulso' ? () => onEditExpense(e.sourceId)

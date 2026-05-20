@@ -15,6 +15,7 @@ interface Props {
   fixedCosts: FixedCost[]
   installments: Installment[]
   customCategories: CustomCategory[]
+  currentUserId: string
   setFixedCosts: React.Dispatch<React.SetStateAction<FixedCost[]>>
   setInstallments: React.Dispatch<React.SetStateAction<Installment[]>>
   onOpenAdd: () => void
@@ -25,7 +26,7 @@ interface Props {
 type SubView = 'fixos' | 'parcelados'
 
 export default function TabRecorrentes({
-  nameA, nameB, fixedCosts, installments, customCategories,
+  nameA, nameB, fixedCosts, installments, customCategories, currentUserId,
   setFixedCosts, setInstallments, onOpenAdd, onEditFixed, onEditInstallment,
 }: Props) {
   const [sub, setSub] = useState<SubView>('fixos')
@@ -79,6 +80,7 @@ export default function TabRecorrentes({
           nameA={nameA} nameB={nameB}
           fixedCosts={fixedCosts} setFixedCosts={setFixedCosts}
           customCategories={customCategories}
+          currentUserId={currentUserId}
           onOpenAdd={onOpenAdd}
           onEditFixed={onEditFixed}
         />
@@ -87,6 +89,7 @@ export default function TabRecorrentes({
           nameA={nameA} nameB={nameB}
           installments={installments} setInstallments={setInstallments}
           customCategories={customCategories}
+          currentUserId={currentUserId}
           onOpenAdd={onOpenAdd}
           onEditInstallment={onEditInstallment}
         />
@@ -98,11 +101,12 @@ export default function TabRecorrentes({
 // ───────────────────────────────────────────────────────────────────────────────
 
 function FixosView({
-  nameA, nameB, fixedCosts, setFixedCosts, customCategories, onOpenAdd, onEditFixed,
+  nameA, nameB, fixedCosts, setFixedCosts, customCategories, currentUserId, onOpenAdd, onEditFixed,
 }: {
   nameA: string; nameB: string
   fixedCosts: FixedCost[]
   customCategories: CustomCategory[]
+  currentUserId: string
   setFixedCosts: React.Dispatch<React.SetStateAction<FixedCost[]>>
   onOpenAdd: () => void
   onEditFixed?: (id: string) => void
@@ -147,6 +151,7 @@ function FixosView({
               nameA={nameA}
               nameB={nameB}
               customCategories={customCategories}
+              currentUserId={currentUserId}
               onToggle={() => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, active: !x.active } : x))}
               onRemove={() => setFixedCosts((prev) => prev.filter((x) => x.id !== f.id))}
               onUpdate={(patch) => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, ...patch } : x))}
@@ -166,6 +171,7 @@ function FixosView({
               nameA={nameA}
               nameB={nameB}
               customCategories={customCategories}
+              currentUserId={currentUserId}
               muted
               onToggle={() => setFixedCosts((prev) => prev.map((x) => x.id === f.id ? { ...x, active: !x.active } : x))}
               onRemove={() => setFixedCosts((prev) => prev.filter((x) => x.id !== f.id))}
@@ -180,15 +186,17 @@ function FixosView({
 }
 
 function FixedCard({
-  fixed, nameA, nameB, customCategories, muted, onToggle, onRemove, onUpdate, onClickRow,
+  fixed, nameA, nameB, customCategories, currentUserId, muted, onToggle, onRemove, onUpdate, onClickRow,
 }: {
   fixed: FixedCost; nameA: string; nameB: string
   customCategories: CustomCategory[]
+  currentUserId: string
   muted?: boolean
   onToggle: () => void; onRemove: () => void
   onUpdate: (patch: Partial<FixedCost>) => void
   onClickRow?: () => void
 }) {
+  const isOwn = !fixed.createdBy || fixed.createdBy === currentUserId
   const [editing, setEditing] = useState(false)
   const [desc, setDesc] = useState(fixed.desc)
   const [amount, setAmount] = useState(String(fixed.amount))
@@ -314,10 +322,11 @@ function FixedCard({
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onRemove() }}
+                aria-label={isOwn ? 'Remover' : 'Pedir remoção'}
                 style={{
-                  background: `${tokens.color.danger}14`,
-                  border: `1px solid ${tokens.color.danger}55`,
-                  color: tokens.color.danger,
+                  background: isOwn ? `${tokens.color.danger}14` : 'rgba(245,124,0,0.14)',
+                  border: `1px solid ${isOwn ? `${tokens.color.danger}55` : 'rgba(245,124,0,0.55)'}`,
+                  color: isOwn ? tokens.color.danger : '#f57c00',
                   fontSize: tokens.primitive.fontSize.xs,
                   fontWeight: tokens.primitive.fontWeight.bold,
                   fontFamily: 'inherit',
@@ -327,7 +336,7 @@ function FixedCard({
                   letterSpacing: '0.02em',
                 }}
               >
-                remover
+                {isOwn ? 'remover' : 'pedir remover'}
               </button>
             </div>
           </div>
@@ -340,11 +349,12 @@ function FixedCard({
 // ───────────────────────────────────────────────────────────────────────────────
 
 function ParcelasView({
-  nameA, nameB, installments, setInstallments, customCategories, onOpenAdd, onEditInstallment,
+  nameA, nameB, installments, setInstallments, customCategories, currentUserId, onOpenAdd, onEditInstallment,
 }: {
   nameA: string; nameB: string
   installments: Installment[]
   customCategories: CustomCategory[]
+  currentUserId: string
   setInstallments: React.Dispatch<React.SetStateAction<Installment[]>>
   onOpenAdd: () => void
   onEditInstallment?: (id: string) => void
@@ -413,6 +423,7 @@ function ParcelasView({
               nameA={nameA}
               nameB={nameB}
               customCategories={customCategories}
+              currentUserId={currentUserId}
               onPay={() => payOne(i.id)}
               onUnpay={() => unpayOne(i.id)}
               onRemove={() => remove(i.id)}
@@ -507,14 +518,16 @@ function ParcelasView({
 }
 
 function InstallmentCard({
-  inst, nameA, nameB, customCategories, onPay, onUnpay, onRemove, onUpdate, onClickRow,
+  inst, nameA, nameB, customCategories, currentUserId, onPay, onUnpay, onRemove, onUpdate, onClickRow,
 }: {
   inst: Installment; nameA: string; nameB: string
   customCategories: CustomCategory[]
+  currentUserId: string
   onPay: () => void; onUnpay: () => void; onRemove: () => void
   onUpdate: (patch: Partial<Installment>) => void
   onClickRow?: () => void
 }) {
+  const isOwn = !inst.createdBy || inst.createdBy === currentUserId
   const pct = (inst.paidParcelas / inst.totalParcelas) * 100
   const remaining = inst.parcelaMensal * (inst.totalParcelas - inst.paidParcelas)
 
@@ -694,10 +707,11 @@ function InstallmentCard({
         )}
         <button
           onClick={(e) => { e.stopPropagation(); onRemove() }}
+          aria-label={isOwn ? 'Remover' : 'Pedir remoção'}
           style={{
-            background: `${tokens.color.danger}14`,
-            color: tokens.color.danger,
-            border: `1.5px solid ${tokens.color.danger}55`,
+            background: isOwn ? `${tokens.color.danger}14` : 'rgba(245,124,0,0.14)',
+            color: isOwn ? tokens.color.danger : '#f57c00',
+            border: `1.5px solid ${isOwn ? `${tokens.color.danger}55` : 'rgba(245,124,0,0.55)'}`,
             borderRadius: tokens.primitive.radius.md,
             padding: `${tokens.primitive.space[5]} ${tokens.primitive.space[7]}`,
             fontWeight: tokens.primitive.fontWeight.bold,
@@ -706,7 +720,7 @@ function InstallmentCard({
             cursor: 'pointer',
           }}
         >
-          remover
+          {isOwn ? 'remover' : 'pedir remover'}
         </button>
       </div>
     </div>

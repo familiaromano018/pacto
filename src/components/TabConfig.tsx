@@ -5,6 +5,7 @@ import { tokens } from '@/lib/tokens'
 import { formatBRL, monthLabel } from '@/lib/format'
 import { Avatar, Card, Inp, Lbl } from './ui'
 import InstallPrompt from './InstallPrompt'
+import PendingRequestsCard from './PendingRequestsCard'
 import type { ClosedMonth, CustomCategory } from './types'
 
 interface Props {
@@ -17,6 +18,8 @@ interface Props {
   customCategories: CustomCategory[]
   coupleCode: string | null
   partnerJoined: boolean
+  coupleId: string | null
+  currentUserId: string
   onUpdate: (patch: {
     nameA?: string; nameB?: string
     incomeA?: string; incomeB?: string
@@ -29,7 +32,7 @@ interface Props {
 
 export default function TabConfig({
   nameA, nameB, incomeA, incomeB, method, closedMonths, customCategories,
-  coupleCode, partnerJoined,
+  coupleCode, partnerJoined, coupleId, currentUserId,
   onUpdate, onSignOut, onExportMonth, onRemoveCategory,
 }: Props) {
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
@@ -55,6 +58,14 @@ export default function TabConfig({
 
   return (
     <>
+      {coupleId && (
+        <PendingRequestsCard
+          coupleId={coupleId}
+          currentUserId={currentUserId}
+          partnerName="Parceiro(a)"
+        />
+      )}
+
       {/* Instalar como app (esconde se já tá instalado ou não suportado) */}
       <InstallPrompt />
 
