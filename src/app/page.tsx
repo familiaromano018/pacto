@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Logo, LogoMark } from '@/components/Logo'
+import SmartCTA from '@/components/landing/SmartCTA'
 
 export const metadata = {
   title: 'Pacto — Mais do que números, um acordo entre vocês',
@@ -84,20 +85,7 @@ function Nav() {
           <a href="#problema" style={navLinkStyle}>O problema</a>
           <a href="#como" style={navLinkStyle}>Como funciona</a>
           <a href="#preco" style={navLinkStyle}>Preço</a>
-          <Link
-            href="/app"
-            style={{
-              background: '#5b8dff',
-              color: '#fff',
-              padding: '9px 18px',
-              borderRadius: 10,
-              fontWeight: 600,
-              fontSize: 13,
-              textDecoration: 'none',
-            }}
-          >
-            Começar grátis
-          </Link>
+          <SmartCTA variant="nav" />
         </nav>
       </div>
     </header>
@@ -199,22 +187,7 @@ function Hero() {
             flexWrap: 'wrap',
           }}
         >
-          <Link
-            href="/app"
-            style={{
-              background: '#5b8dff',
-              color: '#fff',
-              padding: '16px 30px',
-              borderRadius: 12,
-              fontWeight: 700,
-              fontSize: 15,
-              textDecoration: 'none',
-              boxShadow: '0 12px 28px rgba(91,141,255,0.4)',
-              letterSpacing: '0.01em',
-            }}
-          >
-            Começar grátis →
-          </Link>
+          <SmartCTA variant="primary" />
           <a
             href="#como"
             style={{
@@ -959,24 +932,7 @@ function Pricing() {
               <Li>Histórico de meses</Li>
               <Li>Sem cobranças surpresa</Li>
             </ul>
-            <Link
-              href="/app"
-              style={{
-                display: 'block',
-                background: 'rgba(255,255,255,0.06)',
-                color: '#fff',
-                padding: '14px 0',
-                borderRadius: 12,
-                fontWeight: 600,
-                fontSize: 14,
-                textDecoration: 'none',
-                textAlign: 'center',
-                marginTop: 28,
-                border: '1px solid rgba(255,255,255,0.1)',
-              }}
-            >
-              Começar grátis
-            </Link>
+            <SmartCTA variant="pricing-outlined" />
           </div>
 
           <div
@@ -1021,24 +977,7 @@ function Pricing() {
               <Li>Suporte por e-mail</Li>
               <Li>Cancele quando quiser</Li>
             </ul>
-            <Link
-              href="/app"
-              style={{
-                display: 'block',
-                background: '#5b8dff',
-                color: '#fff',
-                padding: '14px 0',
-                borderRadius: 12,
-                fontWeight: 700,
-                fontSize: 14,
-                textDecoration: 'none',
-                textAlign: 'center',
-                marginTop: 28,
-                boxShadow: '0 8px 24px rgba(91,141,255,0.35)',
-              }}
-            >
-              Começar agora
-            </Link>
+            <SmartCTA variant="pricing-filled" />
           </div>
         </div>
       </div>
@@ -1208,23 +1147,9 @@ function FinalCTA() {
         <p style={{ fontSize: 18, color: '#a0a3ad', marginTop: 20, lineHeight: 1.55 }}>
           Comecem o pacto hoje. Em 5 minutos vocês têm clareza pra resto da vida a dois.
         </p>
-        <Link
-          href="/app"
-          style={{
-            display: 'inline-block',
-            background: '#5b8dff',
-            color: '#fff',
-            padding: '16px 32px',
-            borderRadius: 12,
-            fontWeight: 700,
-            fontSize: 16,
-            textDecoration: 'none',
-            marginTop: 32,
-            boxShadow: '0 14px 32px rgba(91,141,255,0.45)',
-          }}
-        >
-          Comece o pacto · grátis
-        </Link>
+        <div style={{ marginTop: 32 }}>
+          <SmartCTA variant="final" />
+        </div>
         <div style={{ fontSize: 12, color: '#71747e', marginTop: 14 }}>
           Sem cartão. Sem pegadinha.
         </div>
