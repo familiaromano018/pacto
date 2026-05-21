@@ -786,9 +786,13 @@ function Features() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            // 4 cards: força 2×2 no desktop (min 380px por card) e 1 col no mobile
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
             gap: 20,
             marginTop: 56,
+            maxWidth: 820,
+            marginLeft: 'auto',
+            marginRight: 'auto',
           }}
         >
           {items.map((it) => (
