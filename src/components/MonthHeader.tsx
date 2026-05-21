@@ -57,11 +57,36 @@ export default function MonthHeader({
           </div>
         </div>
 
+        <a
+          href="/ajuda"
+          aria-label="Ajuda"
+          style={{
+            marginLeft: 'auto',
+            background: tokens.color.bg_card,
+            border: `1px solid ${tokens.color.border_subtle}`,
+            cursor: 'pointer',
+            padding: 8,
+            width: 32,
+            height: 32,
+            color: tokens.color.text_secondary,
+            fontFamily: 'inherit',
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: 15,
+            textDecoration: 'none',
+            marginRight: 6,
+          }}
+        >
+          ?
+        </a>
+
         <button
           onClick={onOpenConfig}
           aria-label="Configurações"
           style={{
-            marginLeft: 'auto',
             background: tokens.color.bg_card,
             border: `1px solid ${tokens.color.border_subtle}`,
             cursor: 'pointer',

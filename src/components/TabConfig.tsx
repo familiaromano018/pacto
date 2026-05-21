@@ -421,6 +421,41 @@ export default function TabConfig({
         )}
       </Card>
 
+      {/* Ajuda */}
+      <Card>
+        <h3
+          style={{
+            fontFamily: tokens.primitive.fontFamily.display,
+            fontWeight: tokens.primitive.fontWeight.extrabold,
+            fontSize: tokens.primitive.fontSize.xl,
+            color: tokens.color.text_heading,
+            marginBottom: tokens.primitive.space[4],
+          }}
+        >
+          Ajuda
+        </h3>
+        <a
+          href="/ajuda"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'transparent',
+            color: '#5b8dff',
+            border: `1.5px solid #5b8dff33`,
+            borderRadius: tokens.primitive.radius.md,
+            padding: `${tokens.primitive.space[5]} ${tokens.primitive.space[8]}`,
+            fontWeight: tokens.primitive.fontWeight.bold,
+            fontSize: tokens.primitive.fontSize.md,
+            textDecoration: 'none',
+            fontFamily: 'inherit',
+          }}
+        >
+          <span>Centro de ajuda</span>
+          <span style={{ fontSize: 18 }}>→</span>
+        </a>
+      </Card>
+
       {/* Sair */}
       <Card style={{ border: `1.5px solid ${tokens.color.danger}33` }}>
         <h3

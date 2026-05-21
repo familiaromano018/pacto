@@ -971,6 +971,20 @@ function FAQ() {
             </details>
           ))}
         </div>
+
+        <div style={{ textAlign: 'center', marginTop: 36 }}>
+          <a
+            href="/ajuda"
+            style={{
+              color: '#5b8dff',
+              textDecoration: 'none',
+              fontSize: 15,
+              fontWeight: 600,
+            }}
+          >
+            Já é usuário? Ver guia completo →
+          </a>
+        </div>
       </div>
     </section>
   )
