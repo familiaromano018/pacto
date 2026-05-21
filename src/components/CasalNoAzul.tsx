@@ -696,11 +696,10 @@ function AuthedShell({ userId }: { userId: string }) {
     )
   }
 
-  // Gate de assinatura: enquanto carrega SEM cache otimista, mostra splash.
-  // Se cache diz hasAccess=true, deixa entrar direto no app (evita flash do paywall).
-  // Quando o RPC retorna, sub.loading vira false; aí o gate real abaixo decide.
-  if (sub.loading && !sub.hasAccess) return <Splash />
-  if (!sub.loading && !sub.hasAccess) {
+  // Gate de assinatura: sempre Splash enquanto loading (evita flash do PaywallScreen).
+  // O cache otimista no useSubscription mantém hasAccess=true caso RPC dê erro temporário.
+  if (sub.loading) return <Splash />
+  if (!sub.hasAccess) {
     return <PaywallScreen status={sub.status} coupleCode={coupleCode} />
   }
 
