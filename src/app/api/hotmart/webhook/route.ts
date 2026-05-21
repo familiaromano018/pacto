@@ -102,8 +102,16 @@ export async function POST(req: NextRequest) {
     buyer_email: email,
   })
   if (lookupErr) {
-    console.error('[hotmart-webhook] lookup error', lookupErr)
-    return NextResponse.json({ error: 'lookup failed' }, { status: 500 })
+    console.error('[hotmart-webhook] lookup error', JSON.stringify(lookupErr))
+    return NextResponse.json({
+      error: 'lookup failed',
+      detail: {
+        message: lookupErr.message,
+        code: lookupErr.code,
+        details: lookupErr.details,
+        hint: lookupErr.hint,
+      },
+    }, { status: 500 })
   }
   if (!coupleId) {
     // Email não bateu com nenhum user/couple. Pode ser que o user ainda não fez login,
