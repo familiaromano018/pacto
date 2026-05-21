@@ -187,7 +187,7 @@ export default function InstallModal() {
               lineHeight: 1.55,
             }}
           >
-            No iPhone, instalar como app só funciona pelo <strong>Safari</strong>. Abra <code style={{ background: tokens.color.bg_card, padding: '1px 6px', borderRadius: 4 }}>pacto-beta.vercel.app</code> no Safari pra continuar.
+            No iPhone, instalar como app só funciona pelo <strong>Safari</strong>. Abra <code style={{ background: tokens.color.bg_card, padding: '1px 6px', borderRadius: 4 }}>pacto-app.tec.br</code> no Safari pra continuar.
           </div>
         )}
 
