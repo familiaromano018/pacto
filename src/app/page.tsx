@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function LandingPage() {
   return (
-    <main style={{ background: '#0b0b10', color: '#f4f4f6', minHeight: '100vh', overflow: 'hidden' }}>
+    <main style={{ background: '#0b0b10', color: '#f4f4f6', minHeight: '100vh', overflowX: 'clip' }}>
       <Nav />
       <Hero />
       <ProblemStats />
