@@ -2,8 +2,13 @@ import Link from 'next/link'
 import { Logo, LogoMark } from '@/components/Logo'
 
 export const metadata = {
-  title: 'Pacto — Uma casa merece paz',
-  description: 'Casa em paz começa nas contas. 53% dos brasileiros brigam por dinheiro. Vocês não precisam.',
+  title: 'Pacto — Mais do que números, um acordo entre vocês',
+  description: 'Combine uma vez. Viva todo dia. O app que organiza as finanças do casal sem briga — porque casas em paz começam nas contas.',
+  openGraph: {
+    title: 'Pacto — Mais do que números, um acordo entre vocês',
+    description: 'Combine uma vez. Viva todo dia. Finanças do casal sem briga.',
+    type: 'website',
+  },
 }
 
 export default function LandingPage() {
@@ -12,6 +17,7 @@ export default function LandingPage() {
       <Nav />
       <Hero />
       <ProblemStats />
+      <ThreePillars />
       <HowItWorks />
       <Comparison />
       <Features />
@@ -50,16 +56,30 @@ function Nav() {
         }}
       >
         <LogoMark size={26} />
-        <span
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            letterSpacing: '0.2em',
-            color: '#f4f4f6',
-          }}
-        >
-          PACTO
-        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: '0.2em',
+              color: '#f4f4f6',
+              lineHeight: 1,
+            }}
+          >
+            PACTO
+          </span>
+          <span
+            style={{
+              fontSize: 8,
+              fontWeight: 600,
+              letterSpacing: '0.18em',
+              color: '#5b8dff',
+              lineHeight: 1,
+            }}
+          >
+            FINANÇAS · DIÁLOGO · PROPÓSITO
+          </span>
+        </div>
         <nav style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22 }}>
           <a href="#problema" style={navLinkStyle}>O problema</a>
           <a href="#como" style={navLinkStyle}>Como funciona</a>
@@ -119,57 +139,55 @@ function Hero() {
       />
 
       <div style={{ position: 'relative', maxWidth: 880, margin: '0 auto' }}>
-        <div style={{ marginBottom: 28 }}>
+        <div style={{ marginBottom: 16 }}>
           <Logo size={72} wordColor="#f4f4f6" />
+        </div>
+
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.32em',
+            color: '#5b8dff',
+            textTransform: 'uppercase',
+            marginBottom: 36,
+          }}
+        >
+          Finanças · Diálogo · Propósito
         </div>
 
         <h1
           style={{
-            fontSize: 'clamp(38px, 6vw, 64px)',
-            fontWeight: 700,
-            letterSpacing: '-0.025em',
-            lineHeight: 1.05,
+            fontSize: 'clamp(42px, 7vw, 72px)',
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.02,
             color: '#fff',
             margin: 0,
           }}
         >
-          Casa em paz começa<br />
+          Combine uma vez.<br />
           <span
             style={{
-              background: 'linear-gradient(135deg, #c5c8cf 0%, #d4af6a 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
+              color: '#5b8dff',
             }}
           >
-            nas contas.
+            Viva todo dia.
           </span>
         </h1>
 
         <p
           style={{
-            fontSize: 18,
+            fontSize: 19,
             color: '#a0a3ad',
-            marginTop: 22,
-            maxWidth: 580,
-            margin: '22px auto 0',
+            marginTop: 28,
+            maxWidth: 600,
+            margin: '28px auto 0',
             lineHeight: 1.55,
+            fontWeight: 400,
           }}
         >
-          <strong style={{ color: '#fff', fontWeight: 600 }}>53% dos brasileiros</strong> brigam com o parceiro por causa de dinheiro. Vocês não precisam.
-        </p>
-
-        <p
-          style={{
-            fontSize: 16,
-            color: '#a0a3ad',
-            marginTop: 16,
-            maxWidth: 560,
-            margin: '16px auto 0',
-            lineHeight: 1.55,
-          }}
-        >
-          Pacto registra cada gasto, divide do jeito que vocês combinaram, e fecha o mês com saldo claro. Sem palpite. Sem memória seletiva. Sem ressentimento acumulando.
+          Mais do que números, um <strong style={{ color: '#fff', fontWeight: 600 }}>acordo entre vocês</strong>. O Pacto organiza as finanças do casal e devolve clareza pra conversa mais difícil da vida a dois.
         </p>
 
         <div
@@ -186,15 +204,16 @@ function Hero() {
             style={{
               background: '#5b8dff',
               color: '#fff',
-              padding: '15px 28px',
+              padding: '16px 30px',
               borderRadius: 12,
               fontWeight: 700,
               fontSize: 15,
               textDecoration: 'none',
               boxShadow: '0 12px 28px rgba(91,141,255,0.4)',
+              letterSpacing: '0.01em',
             }}
           >
-            Comece o pacto · grátis
+            Começar grátis →
           </Link>
           <a
             href="#como"
@@ -292,27 +311,18 @@ function Hero() {
 // ─────────────────────────────────────────────────────────────── PROBLEM STATS ──
 
 function ProblemStats() {
-  const stats = [
+  const wrongs = [
     {
-      headline: '74%',
-      label: 'dos casais que dividem despesas',
-      sub: 'discutem sobre dinheiro 3+ vezes por semana.',
-      source: 'Estudo BR 2024',
-      accent: '#5b8dff',
+      title: 'Dividir tudo meio a meio.',
+      desc: 'Parece justo, mas ignora realidades diferentes. Quem ganha menos sangra. Quem ganha mais não percebe.',
     },
     {
-      headline: '63%',
-      label: 'das mulheres sofrem desgaste emocional',
-      sub: 'quando precisam arcar com metade ou mais das despesas.',
-      source: 'Estudo BR 2024',
-      accent: '#d4af6a',
+      title: 'Um paga tudo, o outro nada.',
+      desc: 'Gera dependência, ressentimento e desequilíbrio. O dinheiro vira poder — e poder não combina com casal.',
     },
     {
-      headline: '49%',
-      label: 'já esconderam algo financeiro',
-      sub: 'do parceiro. A briga começa antes da briga.',
-      source: 'Serasa · Opinion Box, mai/2025',
-      accent: '#a78bfa',
+      title: 'Cada um paga o que quer.',
+      desc: 'Sem planejamento, só conflitos aumentam. No fim do mês, ninguém sabe quem deve a quem.',
     },
   ]
 
@@ -320,75 +330,249 @@ function ProblemStats() {
     <section id="problema" style={{ padding: '110px 24px', background: '#0b0b10' }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
         <SectionHeader
-          kicker="O problema"
-          title="Não é briga. É falta de combinado."
-          sub="Casal sem método tenta resolver na conversa, e conversa vira ressentimento. Os números mostram que isso é regra, não exceção."
+          kicker="Você reconhece esse cenário?"
+          title="3 jeitos errados de dividir conta de casal."
+          sub="A maioria dos casais usa um destes três métodos. Os três têm o mesmo problema: criam atrito em vez de combinar."
+        />
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 20,
+            marginTop: 56,
+          }}
+        >
+          {wrongs.map((w, i) => (
+            <div
+              key={i}
+              style={{
+                background: '#16161c',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 20,
+                padding: '32px 28px',
+                position: 'relative',
+              }}
+            >
+              <div
+                aria-hidden
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: 'rgba(91,141,255,0.12)',
+                  border: '1.5px solid rgba(91,141,255,0.5)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#5b8dff',
+                  fontWeight: 800,
+                  fontSize: 22,
+                  marginBottom: 20,
+                }}
+              >
+                ✕
+              </div>
+              <div
+                style={{
+                  fontSize: 19,
+                  color: '#f4f4f6',
+                  fontWeight: 700,
+                  marginBottom: 10,
+                  lineHeight: 1.3,
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {w.title}
+              </div>
+              <div
+                style={{
+                  fontSize: 14.5,
+                  color: '#a0a3ad',
+                  lineHeight: 1.6,
+                }}
+              >
+                {w.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            marginTop: 64,
+            padding: '32px 28px',
+            background: 'linear-gradient(135deg, rgba(91,141,255,0.10) 0%, rgba(91,141,255,0.02) 100%)',
+            border: '1px solid rgba(91,141,255,0.25)',
+            borderRadius: 20,
+            textAlign: 'center',
+            maxWidth: 720,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.2em',
+              color: '#5b8dff',
+              textTransform: 'uppercase',
+              marginBottom: 14,
+            }}
+          >
+            O jeito certo
+          </div>
+          <div
+            style={{
+              fontSize: 'clamp(22px, 3vw, 28px)',
+              color: '#fff',
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.3,
+            }}
+          >
+            Combinar uma vez. Registrar tudo.<br />
+            Fechar o mês em paz.
+          </div>
+          <div
+            style={{
+              fontSize: 15,
+              color: '#a0a3ad',
+              marginTop: 12,
+              lineHeight: 1.55,
+            }}
+          >
+            É isso que o Pacto faz.
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────── THREE PILLARS ──
+
+function ThreePillars() {
+  const pillars = [
+    {
+      label: 'Finanças',
+      title: 'Números claros.',
+      desc: 'Rateio automático, custos fixos, parcelados e fechamento mensal — tudo na palma da mão. Sem planilha. Sem esquecimento.',
+      icon: '○',
+    },
+    {
+      label: 'Diálogo',
+      title: 'Conversa fácil.',
+      desc: 'Quando os dois veem os mesmos números em tempo real, a conversa muda. De acusação pra acordo. De memória pra fato.',
+      icon: '◐',
+    },
+    {
+      label: 'Propósito',
+      title: 'Relação forte.',
+      desc: 'Metas a dois, projetos em comum, decisões compartilhadas. Dinheiro deixa de ser desgaste e vira ferramenta de construção.',
+      icon: '●',
+    },
+  ]
+
+  return (
+    <section style={{ padding: '110px 24px', background: '#13131a' }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+        <SectionHeader
+          kicker="O método Pacto"
+          title="3 pilares pra um casal financeiramente saudável."
+          sub="Não é só sobre o app. É sobre a relação que vocês querem construir."
         />
 
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 20,
+            gap: 24,
             marginTop: 56,
           }}
         >
-          {stats.map((s) => (
+          {pillars.map((p, i) => (
             <div
-              key={s.headline}
+              key={p.label}
               style={{
-                background: '#16161c',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 20,
-                padding: '32px 28px',
+                background: 'linear-gradient(180deg, rgba(91,141,255,0.06) 0%, rgba(91,141,255,0.01) 100%)',
+                border: '1px solid rgba(91,141,255,0.15)',
+                borderRadius: 22,
+                padding: '36px 30px',
+                position: 'relative',
+                overflow: 'hidden',
               }}
             >
               <div
                 style={{
-                  fontSize: 72,
-                  fontWeight: 800,
-                  color: s.accent,
-                  letterSpacing: '-0.03em',
+                  fontSize: 56,
+                  color: '#5b8dff',
                   lineHeight: 1,
+                  marginBottom: 24,
+                  fontWeight: 300,
                 }}
+                aria-hidden
               >
-                {s.headline}
-              </div>
-              <div
-                style={{
-                  fontSize: 16,
-                  color: '#f4f4f6',
-                  fontWeight: 600,
-                  marginTop: 14,
-                  lineHeight: 1.35,
-                }}
-              >
-                {s.label}
-              </div>
-              <div
-                style={{
-                  fontSize: 14,
-                  color: '#a0a3ad',
-                  marginTop: 6,
-                  lineHeight: 1.5,
-                }}
-              >
-                {s.sub}
+                {p.icon}
               </div>
               <div
                 style={{
                   fontSize: 11,
-                  color: '#71747e',
-                  marginTop: 18,
+                  fontWeight: 700,
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  fontWeight: 600,
+                  color: '#5b8dff',
+                  marginBottom: 14,
                 }}
               >
-                {s.source}
+                0{i + 1} · {p.label}
+              </div>
+              <div
+                style={{
+                  fontSize: 24,
+                  color: '#fff',
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em',
+                  marginBottom: 14,
+                  lineHeight: 1.2,
+                }}
+              >
+                {p.title}
+              </div>
+              <div
+                style={{
+                  fontSize: 15,
+                  color: '#a0a3ad',
+                  lineHeight: 1.6,
+                }}
+              >
+                {p.desc}
               </div>
             </div>
           ))}
+        </div>
+
+        <div
+          style={{
+            marginTop: 64,
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 'clamp(20px, 2.5vw, 24px)',
+              fontStyle: 'italic',
+              color: '#d4d6dd',
+              fontWeight: 400,
+              lineHeight: 1.4,
+              maxWidth: 640,
+              margin: '0 auto',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            &ldquo;Organizar não é só sobre números. É sobre acordos, confiança e tranquilidade todos os dias.&rdquo;
+          </div>
         </div>
       </div>
     </section>
@@ -1010,18 +1194,19 @@ function FinalCTA() {
         <LogoMark size={48} />
         <h2
           style={{
-            fontSize: 'clamp(32px, 5vw, 48px)',
-            fontWeight: 700,
+            fontSize: 'clamp(34px, 5.5vw, 52px)',
+            fontWeight: 800,
             color: '#fff',
-            letterSpacing: '-0.025em',
-            lineHeight: 1.1,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.05,
             marginTop: 24,
           }}
         >
-          Vocês não vão ser<br />uma estatística.
+          Casa em paz começa<br />
+          <span style={{ color: '#5b8dff' }}>nas contas.</span>
         </h2>
-        <p style={{ fontSize: 17, color: '#a0a3ad', marginTop: 18, lineHeight: 1.55 }}>
-          Comecem o pacto. Em 5 minutos vocês têm clareza pra resto da vida.
+        <p style={{ fontSize: 18, color: '#a0a3ad', marginTop: 20, lineHeight: 1.55 }}>
+          Comecem o pacto hoje. Em 5 minutos vocês têm clareza pra resto da vida a dois.
         </p>
         <Link
           href="/app"
