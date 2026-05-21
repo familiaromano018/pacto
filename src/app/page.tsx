@@ -779,7 +779,7 @@ function Features() {
     <section style={{ padding: '110px 24px', background: '#13131a' }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
         <SectionHeader
-          kicker="O que vem na caixa"
+          kicker="O que vocês ganham"
           title="Tudo que vocês precisam pra parar de brigar."
         />
 
