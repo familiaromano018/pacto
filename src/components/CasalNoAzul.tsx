@@ -696,9 +696,11 @@ function AuthedShell({ userId }: { userId: string }) {
     )
   }
 
-  // Gate de assinatura: enquanto carrega, mostra splash; sem acesso, mostra paywall
-  if (sub.loading) return <Splash />
-  if (!sub.hasAccess) {
+  // Gate de assinatura: enquanto carrega SEM cache otimista, mostra splash.
+  // Se cache diz hasAccess=true, deixa entrar direto no app (evita flash do paywall).
+  // Quando o RPC retorna, sub.loading vira false; aí o gate real abaixo decide.
+  if (sub.loading && !sub.hasAccess) return <Splash />
+  if (!sub.loading && !sub.hasAccess) {
     return <PaywallScreen status={sub.status} coupleCode={coupleCode} />
   }
 

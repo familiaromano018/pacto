@@ -23,8 +23,34 @@ const initial: SubscriptionState = {
   currentPeriodEnd: null,
 }
 
+// Cache otimista do hasAccess no localStorage: evita flash do PaywallScreen
+// enquanto o RPC carrega, pra quem já entrou com acesso premium/trial antes.
+const ACCESS_CACHE_KEY = 'pacto:has-access'
+
+function readCachedAccess(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    return localStorage.getItem(ACCESS_CACHE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeCachedAccess(has: boolean): void {
+  if (typeof window === 'undefined') return
+  try {
+    if (has) localStorage.setItem(ACCESS_CACHE_KEY, '1')
+    else localStorage.removeItem(ACCESS_CACHE_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function useSubscription(coupleId: string | null | undefined) {
-  const [state, setState] = useState<SubscriptionState>(initial)
+  const [state, setState] = useState<SubscriptionState>(() => ({
+    ...initial,
+    hasAccess: readCachedAccess(),
+  }))
 
   const refresh = useCallback(async () => {
     const sb = supabase()
@@ -46,9 +72,11 @@ export function useSubscription(coupleId: string | null | undefined) {
         }
       | null
     if (!row) {
+      writeCachedAccess(false)
       setState({ ...initial, loading: false })
       return
     }
+    writeCachedAccess(!!row.has_access)
     setState({
       loading: false,
       status: row.status,
@@ -62,6 +90,7 @@ export function useSubscription(coupleId: string | null | undefined) {
   useEffect(() => {
     if (coupleId === undefined) return
     if (coupleId === null) {
+      writeCachedAccess(false)
       setState({ ...initial, loading: false })
       return
     }
