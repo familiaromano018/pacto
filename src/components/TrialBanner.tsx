@@ -1,5 +1,7 @@
 'use client'
 
+import { trackPixel } from './MetaPixel'
+
 const HOTMART_CHECKOUT_URL =
   process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL ||
   'https://pay.hotmart.com/'
@@ -18,6 +20,7 @@ interface Props {
 export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
   function openCheckout() {
     if (typeof window === 'undefined') return
+    trackPixel('InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'Pacto Mensal' })
     const params = new URLSearchParams()
     if (coupleCode) params.set('off', coupleCode)
     const url = HOTMART_CHECKOUT_URL.includes('?')

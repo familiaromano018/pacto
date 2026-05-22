@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ToastProvider } from '@/components/Toast'
+import MetaPixel from '@/components/MetaPixel'
 
 export const metadata: Metadata = {
   title: 'Pacto — Uma casa merece paz',
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
+        <MetaPixel />
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

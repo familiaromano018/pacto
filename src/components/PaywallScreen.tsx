@@ -3,6 +3,7 @@
 import { Logo } from './Logo'
 import { signOut } from '@/lib/supabase/useSession'
 import type { SubscriptionStatus } from '@/lib/subscription/useSubscription'
+import { trackPixel } from './MetaPixel'
 
 interface Props {
   status: SubscriptionStatus | null
@@ -32,6 +33,7 @@ export default function PaywallScreen({ status, coupleCode }: Props) {
 
   function openCheckout() {
     if (typeof window === 'undefined') return
+    trackPixel('InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'Pacto Mensal' })
     const params = new URLSearchParams()
     if (coupleCode) params.set('off', coupleCode)
     const url = HOTMART_CHECKOUT_URL.includes('?')
