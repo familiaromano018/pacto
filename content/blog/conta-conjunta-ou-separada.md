@@ -3,6 +3,7 @@ title: "Conta conjunta ou separada? O que funciona pra cada casal"
 description: "Juntar tudo, manter separado ou fazer um modelo híbrido? Veja os prós e contras de cada um e como decidir sem brigar."
 date: "2026-05-29"
 category: "Organização"
+image: "/blog/conta-conjunta-ou-separada.png"
 ---
 
 "A gente junta tudo numa conta só ou cada um cuida da sua?" Essa é uma das primeiras decisões financeiras de qualquer casal — e uma das que mais geram dúvida. A boa notícia: não existe resposta universal. Existe a que combina com a confiança, a fase e o jeito de vocês.
