@@ -207,13 +207,26 @@ function Hero() {
 
         <div
           style={{
-            marginTop: 24,
-            fontSize: 12,
-            color: '#71747e',
-            letterSpacing: '0.04em',
+            marginTop: 26,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '10px 20px',
+            fontSize: 12.5,
+            color: '#8a8d97',
           }}
         >
-          Grátis por 14 dias · sem cartão · cancele quando quiser.
+          {[
+            'Grátis 14 dias · sem cartão',
+            'Seus dados ficam só entre vocês',
+            'Sem anúncios',
+            'Feito por um casal, pra casais',
+          ].map((t) => (
+            <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ color: '#5b8dff', fontWeight: 700 }}>✓</span>
+              {t}
+            </span>
+          ))}
         </div>
       </div>
 
