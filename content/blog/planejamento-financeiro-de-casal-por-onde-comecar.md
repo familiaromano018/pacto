@@ -3,6 +3,7 @@ title: "Planejamento financeiro de casal: por onde começar"
 description: "Um guia simples pra qualquer casal organizar o dinheiro a dois — dos primeiros combinados às metas de longo prazo, sem complicação."
 date: "2026-05-19"
 category: "Planejamento"
+image: "/blog/planejamento-financeiro-de-casal.png"
 ---
 
 Planejamento financeiro de casal parece coisa de planilha complicada, mas no fundo é só isso: **os dois sabendo pra onde o dinheiro vai e combinando o que fazer com ele.** Quem faz isso de forma simples e constante chega muito mais longe (e briga muito menos) do que quem só reage quando a conta aperta.
