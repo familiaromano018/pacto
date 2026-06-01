@@ -1,6 +1,7 @@
 'use client'
 
 import { trackPixel } from './MetaPixel'
+import { trackGA } from './GoogleAnalytics'
 
 const HOTMART_CHECKOUT_URL =
   process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL ||
@@ -21,6 +22,7 @@ export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
   function openCheckout() {
     if (typeof window === 'undefined') return
     trackPixel('InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'Pacto Mensal' })
+    trackGA('begin_checkout', { value: 29.90, currency: 'BRL', source: 'trial_banner' })
     const params = new URLSearchParams()
     if (coupleCode) params.set('off', coupleCode)
     const url = HOTMART_CHECKOUT_URL.includes('?')
