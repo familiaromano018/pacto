@@ -3,6 +3,7 @@ title: "Vai morar junto? O guia financeiro pra começar sem estresse"
 description: "Antes de dividir o aluguel, divida a conversa. O passo a passo financeiro pra quem vai morar junto e quer começar a vida a dois sem brigas de dinheiro."
 date: "2026-05-22"
 category: "Morar junto"
+image: "/blog/guia-morar-junto.png"
 ---
 
 Morar junto é um dos momentos mais empolgantes — e um dos que mais expõem diferenças financeiras que vocês nem sabiam que tinham. A maioria dos casais foca na mudança (móveis, localização, decoração) e esquece de combinar o básico: **como o dinheiro vai funcionar**. Este guia resolve isso antes de virar problema.
