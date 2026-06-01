@@ -85,6 +85,7 @@ function Nav() {
           <a href="#problema" style={navLinkStyle}>O problema</a>
           <a href="#como" style={navLinkStyle}>Como funciona</a>
           <a href="#preco" style={navLinkStyle}>Preço</a>
+          <Link href="/blog" style={navLinkStyle}>Blog</Link>
           <SmartCTA variant="nav" />
         </nav>
       </div>
