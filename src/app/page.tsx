@@ -154,13 +154,13 @@ function Hero() {
             margin: 0,
           }}
         >
-          Combine uma vez.<br />
+          As contas do casal,<br />
           <span
             style={{
               color: '#5b8dff',
             }}
           >
-            Viva todo dia.
+            sem a briga de quem pagou o quê.
           </span>
         </h1>
 
@@ -175,7 +175,7 @@ function Hero() {
             fontWeight: 400,
           }}
         >
-          Mais do que números, um <strong style={{ color: '#fff', fontWeight: 600 }}>acordo entre vocês</strong>. O Pacto organiza as finanças do casal e devolve clareza pra conversa mais difícil da vida a dois.
+          O Pacto organiza tudo que vocês dividem — aluguel, mercado, parcelas, metas — e mostra <strong style={{ color: '#fff', fontWeight: 600 }}>na hora quem deve quanto</strong> pra fechar o mês em paz. Do jeito que combina com vocês: 50/50, por renda, conta única ou por categorias.
         </p>
 
         <div
@@ -213,7 +213,7 @@ function Hero() {
             letterSpacing: '0.04em',
           }}
         >
-          Grátis pra testar. Sem cartão de crédito.
+          Grátis por 14 dias · sem cartão · cancele quando quiser.
         </div>
       </div>
 
@@ -754,23 +754,23 @@ function Cell({ v, brand }: { v: boolean | string; brand?: boolean }) {
 function Features() {
   const items = [
     {
-      title: 'Rateio justo, sem palpite',
-      desc: 'Combine 50/50 fixo ou proporcional à renda. Pacto calcula tudo sozinho. A balança da justiça financeira.',
+      title: '4 jeitos de dividir — do seu jeito',
+      desc: '50/50, proporcional à renda, conta 100% unificada ou divisão por categorias (você paga o aluguel, ela o mercado). Ainda dá pra definir uma mesada igual pra cada um gastar livre. O Pacto calcula o acerto sozinho.',
       icon: <IconScale />,
     },
     {
-      title: 'Extrato PDF do mês',
-      desc: 'No fim do mês, gere um PDF profissional com todas as despesas, totais por categoria e saldo final. Compartilhe ou guarde.',
-      icon: <IconDoc />,
-    },
-    {
-      title: 'Visão completa',
-      desc: 'Donut por categoria, comparação com mês anterior, comprometimento de renda. Tudo num só lugar.',
+      title: 'Entrou, saiu, sobrou',
+      desc: 'Não é só gasto: lance também as receitas (salário, freela, reembolso) e veja o balanço do mês fechar — quanto entrou, quanto saiu e quanto sobrou pra vocês.',
       icon: <IconChart />,
     },
     {
-      title: 'Recorrentes inteligentes',
-      desc: 'Aluguel, Netflix, academia, parcelado da geladeira. Cadastra uma vez, debita todo mês até quitar.',
+      title: 'Extrato PDF + visão do mês',
+      desc: 'Donut por categoria, comparação com o mês anterior, quanto cada um comprometeu da renda — e um PDF profissional pra guardar ou compartilhar.',
+      icon: <IconDoc />,
+    },
+    {
+      title: 'Recorrentes, parcelas e sync',
+      desc: 'Aluguel, Netflix, parcelado da geladeira: cadastra uma vez, debita todo mês até quitar. E tudo sincroniza nos dois celulares na hora — sem mandar print pro outro.',
       icon: <IconRepeat />,
     },
   ]
