@@ -3,6 +3,7 @@ title: "Como dividir as contas do casal: 4 métodos (e como escolher o seu)"
 description: "50/50, proporcional à renda, conta única ou por categorias? Veja os 4 jeitos de dividir as despesas a dois e qual combina com a sua relação."
 date: "2026-06-01"
 category: "Dividir contas"
+image: "/blog/como-dividir-as-contas.png"
 ---
 
 Não existe um jeito "certo" de dividir as contas do casal. Existe o jeito que faz **vocês dois** sentirem que é justo — e é isso que evita a briga. O problema é que a maioria dos casais nunca senta pra combinar isso de forma clara: vai no improviso, alguém paga mais sem perceber, e a conta emocional vai crescendo até virar discussão.

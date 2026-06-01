@@ -63,7 +63,7 @@ export default function BlogIndex() {
                 color: 'inherit',
               }}
             >
-              <BlogCover category={p.category} height={150} />
+              <BlogCover category={p.category} image={p.image} alt={p.title} height={150} />
               <div style={{ padding: '22px 26px 26px' }}>
                 <span
                   style={{

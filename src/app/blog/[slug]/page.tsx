@@ -15,7 +15,12 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   return {
     title: `${post.title} — Blog do Pacto`,
     description: post.description,
-    openGraph: { title: post.title, description: post.description, type: 'article' },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: 'article',
+      ...(post.image ? { images: [{ url: `https://pacto-app.tec.br${post.image}` }] } : {}),
+    },
   }
 }
 
@@ -60,7 +65,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         </div>
 
         <div style={{ marginTop: 28 }}>
-          <BlogCover category={post.category} height={220} radius={20} />
+          <BlogCover category={post.category} image={post.image} alt={post.title} height={240} radius={20} />
         </div>
 
         <div className="blog-prose" style={{ marginTop: 36 }} dangerouslySetInnerHTML={{ __html: post.html }} />

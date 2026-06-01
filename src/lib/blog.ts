@@ -11,6 +11,7 @@ export interface PostMeta {
   date: string // yyyy-mm-dd
   category: string
   readingMin: number
+  image?: string // caminho em /public, ex: /blog/arquivo.png (opcional)
 }
 export interface Post extends PostMeta {
   html: string
@@ -56,6 +57,7 @@ export function getPostMetas(): PostMeta[] {
         date: data.date ?? '',
         category: data.category ?? '',
         readingMin: readingMinutes(body),
+        image: data.image || undefined,
       }
     })
     .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -72,6 +74,7 @@ export function getPost(slug: string): Post | null {
     date: data.date ?? '',
     category: data.category ?? '',
     readingMin: readingMinutes(body),
+    image: data.image || undefined,
     html: marked.parse(body, { async: false }) as string,
   }
 }

@@ -18,7 +18,15 @@ export function blogCover(category: string) {
   return COVERS[category] ?? { gradient: 'linear-gradient(135deg,#1a1a44 0%,#2a1b5c 100%)', emoji: '💙' }
 }
 
-export function BlogCover({ category, height = 160, radius = 0 }: { category: string; height?: number; radius?: number }) {
+export function BlogCover({ category, height = 160, radius = 0, image, alt = '' }: { category: string; height?: number; radius?: number; image?: string; alt?: string }) {
+  if (image) {
+    return (
+      <div style={{ position: 'relative', height, borderRadius: radius, overflow: 'hidden' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+    )
+  }
   const c = blogCover(category)
   return (
     <div
