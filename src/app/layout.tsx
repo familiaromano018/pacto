@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  // Verificação do Google Search Console.
+  // Defina GOOGLE_SITE_VERIFICATION nas env vars da Vercel com o código que o
+  // Google fornece (o valor "content" da meta tag). Vazio = tag não renderiza.
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 }
 
 export const viewport: Viewport = {

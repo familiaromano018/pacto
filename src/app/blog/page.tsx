@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getPostMetas } from '@/lib/blog'
-import { BlogHeader, BlogFooter } from '@/components/blog/BlogChrome'
+import { BlogHeader, BlogFooter, BlogCover } from '@/components/blog/BlogChrome'
 
 export const metadata = {
   title: 'Blog do Pacto — Finanças de casal sem briga',
@@ -58,29 +58,32 @@ export default function BlogIndex() {
                 background: '#13131a',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: 20,
-                padding: '28px 26px',
+                overflow: 'hidden',
                 textDecoration: 'none',
                 color: 'inherit',
               }}
             >
-              <span
-                style={{
-                  display: 'inline-block',
-                  fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: '#5b8dff', background: 'rgba(91,141,255,0.12)',
-                  padding: '4px 10px', borderRadius: 999, marginBottom: 16,
-                }}
-              >
-                {p.category}
-              </span>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', lineHeight: 1.25, letterSpacing: '-0.01em', margin: 0 }}>
-                {p.title}
-              </h2>
-              <p style={{ fontSize: 14.5, color: '#a0a3ad', lineHeight: 1.6, marginTop: 12 }}>
-                {p.description}
-              </p>
-              <div style={{ fontSize: 12.5, color: '#71747e', marginTop: 18 }}>
-                {formatDate(p.date)} · {p.readingMin} min de leitura
+              <BlogCover category={p.category} height={150} />
+              <div style={{ padding: '22px 26px 26px' }}>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                    color: '#5b8dff', background: 'rgba(91,141,255,0.12)',
+                    padding: '4px 10px', borderRadius: 999, marginBottom: 16,
+                  }}
+                >
+                  {p.category}
+                </span>
+                <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', lineHeight: 1.25, letterSpacing: '-0.01em', margin: 0 }}>
+                  {p.title}
+                </h2>
+                <p style={{ fontSize: 14.5, color: '#a0a3ad', lineHeight: 1.6, marginTop: 12 }}>
+                  {p.description}
+                </p>
+                <div style={{ fontSize: 12.5, color: '#71747e', marginTop: 18 }}>
+                  {formatDate(p.date)} · {p.readingMin} min de leitura
+                </div>
               </div>
             </Link>
           ))}

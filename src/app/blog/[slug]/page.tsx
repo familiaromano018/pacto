@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import SmartCTA from '@/components/landing/SmartCTA'
 import { getAllSlugs, getPost } from '@/lib/blog'
-import { BlogHeader, BlogFooter } from '@/components/blog/BlogChrome'
+import { BlogHeader, BlogFooter, BlogCover } from '@/components/blog/BlogChrome'
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }))
@@ -57,6 +57,10 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
         </h1>
         <div style={{ fontSize: 13, color: '#71747e', marginTop: 16 }}>
           {formatDate(post.date)} · {post.readingMin} min de leitura
+        </div>
+
+        <div style={{ marginTop: 28 }}>
+          <BlogCover category={post.category} height={220} radius={20} />
         </div>
 
         <div className="blog-prose" style={{ marginTop: 36 }} dangerouslySetInnerHTML={{ __html: post.html }} />
