@@ -3,6 +3,7 @@ title: "Metas financeiras a dois: como sair do papel"
 description: "Viagem, casa própria, carro, reserva: como transformar sonhos do casal em metas concretas que realmente acontecem."
 date: "2026-05-10"
 category: "Metas"
+image: "/blog/metas-a-dois.png"
 ---
 
 Todo casal tem sonhos que dependem de dinheiro: a viagem, a casa própria, o carro, o casamento, a reserva. A diferença entre o casal que realiza e o que fica só falando quase nunca é quanto ganham — é se eles transformaram o sonho em **meta concreta** e acompanharam juntos.
