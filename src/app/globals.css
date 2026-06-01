@@ -58,28 +58,27 @@
   --color-brand-rgb: 91, 141, 255;
 }
 
-/* Tema light opcional (manter porta aberta) */
-@media (prefers-color-scheme: light) {
-  :root[data-theme='light'] {
-    --color-bg-app: #f7f7f8;
-    --color-bg-card: #ffffff;
-    --color-bg-card-muted: #fafafa;
-    --color-bg-overlay: rgba(0, 0, 0, 0.5);
-    --color-bg-elevated: #ffffff;
-    --color-text-heading: #18181c;
-    --color-text-body: #3f3f46;
-    --color-text-secondary: #6b6b75;
-    --color-text-muted: #9b9ba2;
-    --color-text-placeholder: #c5c5cb;
-    --color-text-disabled: #d4d4d9;
-    --color-border-default: #e6e6ea;
-    --color-border-subtle: #f0f0f3;
-    --color-border-divider: #f5f5f8;
-    --shadow-card: 0 8px 24px rgba(20, 20, 28, 0.06);
-    --shadow-sm: 0 2px 8px rgba(20, 20, 28, 0.04);
-    --shadow-header: 0 2px 12px rgba(20, 20, 28, 0.04);
-    --shadow-bottom-nav: 0 -8px 24px rgba(20, 20, 28, 0.06);
-  }
+/* Tema claro — aplicado sempre que data-theme='light' (controlado pelo botão na aba Casal) */
+:root[data-theme='light'] {
+  --color-bg-app: #f7f7f8;
+  --color-bg-card: #ffffff;
+  --color-bg-card-muted: #fafafa;
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+  --color-bg-elevated: #ffffff;
+  --color-text-primary: #18181c;
+  --color-text-heading: #18181c;
+  --color-text-body: #3f3f46;
+  --color-text-secondary: #6b6b75;
+  --color-text-muted: #9b9ba2;
+  --color-text-placeholder: #c5c5cb;
+  --color-text-disabled: #d4d4d9;
+  --color-border-default: #e6e6ea;
+  --color-border-subtle: #f0f0f3;
+  --color-border-divider: #f5f5f8;
+  --shadow-card: 0 8px 24px rgba(20, 20, 28, 0.06);
+  --shadow-sm: 0 2px 8px rgba(20, 20, 28, 0.04);
+  --shadow-header: 0 2px 12px rgba(20, 20, 28, 0.04);
+  --shadow-bottom-nav: 0 -8px 24px rgba(20, 20, 28, 0.06);
 }
 
 * {

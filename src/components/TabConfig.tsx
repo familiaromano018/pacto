@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, type CSSProperties } from 'react'
+import { useState, useEffect, type CSSProperties } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, monthLabel } from '@/lib/format'
 import { Avatar, Card, Inp, Lbl } from './ui'
+import { getTheme, setTheme, type Theme } from '@/lib/theme'
 import { allCategoryNames, categoryEmoji } from '@/lib/categories'
 import InstallPrompt from './InstallPrompt'
 import PendingRequestsCard from './PendingRequestsCard'
@@ -41,6 +42,9 @@ export default function TabConfig({
 }: Props) {
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [theme, setThemeState] = useState<Theme>('dark')
+  useEffect(() => { setThemeState(getTheme()) }, [])
+  function chooseTheme(t: Theme) { setTheme(t); setThemeState(t) }
 
   function copyCode() {
     if (!coupleCode) return
@@ -110,6 +114,58 @@ export default function TabConfig({
             <Lbl text={`Renda ${nameB}`} />
             <Inp placeholder="0,00" value={incomeB} onChange={(v) => onUpdate({ incomeB: v })} type="number" />
           </div>
+        </div>
+      </Card>
+
+      {/* Aparência — tema claro/escuro */}
+      <Card>
+        <h3
+          style={{
+            fontFamily: tokens.primitive.fontFamily.display,
+            fontWeight: tokens.primitive.fontWeight.extrabold,
+            fontSize: tokens.primitive.fontSize.xl,
+            color: tokens.color.text_heading,
+            marginBottom: tokens.primitive.space[5],
+          }}
+        >
+          Aparência
+        </h3>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 6,
+            padding: 4,
+            background: tokens.color.bg_app,
+            borderRadius: tokens.primitive.radius.lg,
+          }}
+        >
+          {([
+            { v: 'light' as const, l: '☀️ Claro' },
+            { v: 'dark' as const, l: '🌙 Escuro' },
+          ]).map((o) => {
+            const active = theme === o.v
+            return (
+              <button
+                key={o.v}
+                onClick={() => chooseTheme(o.v)}
+                style={{
+                  background: active ? tokens.color.brand : 'transparent',
+                  color: active ? tokens.color.text_onBrand : tokens.color.text_secondary,
+                  border: 'none',
+                  borderRadius: tokens.primitive.radius.md,
+                  padding: `${tokens.primitive.space[5]} 0`,
+                  fontSize: tokens.primitive.fontSize.lg,
+                  fontWeight: tokens.primitive.fontWeight.bold,
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  transition: tokens.motion.interaction,
+                }}
+              >
+                {o.l}
+              </button>
+            )
+          })}
         </div>
       </Card>
 
