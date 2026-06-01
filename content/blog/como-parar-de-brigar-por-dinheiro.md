@@ -3,6 +3,7 @@ title: "Como parar de brigar por dinheiro no relacionamento"
 description: "Dinheiro é uma das maiores causas de briga entre casais. Veja por que isso acontece e 5 passos práticos pra transformar a conversa."
 date: "2026-05-26"
 category: "Relacionamento"
+image: "/blog/como-parar-de-brigar-por-dinheiro.png"
 ---
 
 Dinheiro é, de longe, um dos temas que mais geram conflito em casais. E quase nunca a briga é sobre o dinheiro em si — é sobre o que ele representa: segurança, controle, valores, medo. Por isso "fazer as contas" sozinho não resolve. O que resolve é mudar a **forma como vocês conversam** sobre isso.
