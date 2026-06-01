@@ -58,7 +58,7 @@ export default function LoginScreen() {
             lineHeight: 1.5,
           }}
         >
-          Combinem as contas. Pacto cuida de quem deve quanto.
+          Combinem as contas. Pacto cuida do acerto e mantém vocês em equilíbrio.
           <br/>
           <span style={{ opacity: 0.65, fontSize: 11 }}>14 dias grátis. Sem cartão.</span>
         </p>

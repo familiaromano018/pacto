@@ -61,7 +61,7 @@ export async function getCoupleRow(coupleId: string): Promise<CoupleRow | null> 
  */
 export async function updateCoupleRow(
   coupleId: string,
-  patch: Partial<Pick<CoupleRow, 'name_a' | 'name_b' | 'income_a' | 'income_b' | 'method' | 'privacy_mode'>>,
+  patch: Partial<Pick<CoupleRow, 'name_a' | 'name_b' | 'income_a' | 'income_b' | 'method' | 'mesada' | 'category_split' | 'privacy_mode'>>,
 ) {
   const sb = supabase()
   const { error } = await sb.from('couples').update(patch).eq('id', coupleId)

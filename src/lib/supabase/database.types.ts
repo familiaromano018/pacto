@@ -6,7 +6,8 @@
 
 export type Scope = 'casal' | 'A' | 'B'
 export type PaidBy = 'A' | 'B'
-export type Method = '50/50' | 'proporcional'
+export type Method = '50/50' | 'proporcional' | 'unificada' | 'categorias'
+export type CategorySplit = Record<string, 'A' | 'B' | 'ambos'>
 export type PrivacyMode = 'open' | 'private'
 export type PaymentMethod = 'pix' | 'debito' | 'credito' | 'dinheiro' | 'boleto' | 'transferencia'
 
@@ -18,6 +19,8 @@ export interface CoupleRow {
   income_a: string
   income_b: string
   method: Method
+  mesada: string
+  category_split: CategorySplit | null
   privacy_mode: PrivacyMode
   created_at: string
   updated_at: string
@@ -41,6 +44,7 @@ export interface ExpenseRow {
   category: string
   payment_method: PaymentMethod | null
   month_key: string
+  type: 'expense' | 'income' | null
   created_at: string
   updated_at: string
 }

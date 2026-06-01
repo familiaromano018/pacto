@@ -1,0 +1,162 @@
+═══════════════════════════════════════════════════════════════════
+PROMPTS PARA CAPA DA AULA — PACTO
+Formato: 1920×1080 px (16:9, horizontal)
+Plataforma sugerida: ChatGPT (GPT Image), Midjourney, Nano Banana
+═══════════════════════════════════════════════════════════════════
+
+INSTRUÇÕES DE USO:
+1. Copia o prompt PRINCIPAL abaixo
+2. Cola na ferramenta de geração (ChatGPT etc.)
+3. Pede "1920x1080 pixels, formato 16:9"
+4. Se quiser variação, usa um dos 3 prompts alternativos no final
+
+
+═══════════════════════════════════════════════════════════════════
+🎯 PROMPT PRINCIPAL (RECOMENDADO)
+═══════════════════════════════════════════════════════════════════
+
+Crie uma capa horizontal 16:9 (1920×1080 pixels) para a aula "Pacto — Planejador Financeiro do Casal".
+
+ESTILO VISUAL:
+Design minimalista e moderno, estética premium fintech meets lifestyle. Inspiração: Apple keynote slides + Headspace + Wise. Composição limpa, alto contraste, profissional mas acolhedor. Iluminação suave e cinematográfica.
+
+PALETA DE CORES:
+Fundo em gradient de azul-marinho profundo (#0b1538) descendo para preto azulado (#070e26). Acentos em azul vibrante (#5b8dff) e branco. Sutil toque de coral/pêssego quente (#ff9c8a) em um único elemento, para criar contraste emocional sem poluir.
+
+COMPOSIÇÃO:
+Lado esquerdo (~55% da imagem): texto grande — TÍTULO "Pacto" em letras serifadas elegantes (tipo Playfair Display ou similar), peso bold, branco. Logo abaixo, em sans-serif moderno (tipo Inter, peso medium), o subtítulo "Manual do Casal — como organizar as finanças a dois sem briga". Em letras pequenas no canto, "pacto-beta.vercel.app".
+
+Lado direito (~45% da imagem): ilustração ou render 3D minimalista de um app de celular flutuando levemente, mostrando uma tela do Pacto com gráfico de pizza colorido (vermelho/teal/azul, simbolizando divisão de gastos do casal). Sombra suave abaixo. Ao lado do celular, dois pequenos círculos sobrepostos (símbolo de casal/parceria), um vermelho (#FF6B6B) e um teal (#4ECDC4), representando os dois parceiros.
+
+ATMOSFERA:
+Calmo, confiável, esperançoso. Sensação de "agora vai dar certo". Não financeiro frio nem romântico melado — equilibrado entre os dois. Vibe de "casa nova, café da manhã, planilha resolvida".
+
+ELEMENTOS DE DESIGN:
+- Linhas finas decorativas em azul claro saindo do canto inferior direito como ondas suaves (sutil, não dominante)
+- Pequenos pontos/estrelas brilhantes esparsas no fundo (efeito constelação muito sutil)
+- Espaço em branco generoso, sem aglomeração
+
+EVITAR:
+- Pessoas reais ou rostos (mantém abstrato e universal)
+- Símbolos óbvios de dinheiro tipo cifrão $ gigante, moedas, cédulas
+- Corações vermelhos kitsch
+- Casais clichês de stock photo
+- Texturas pesadas, gradientes berrantes
+- Mais de 3 cores principais
+
+TEXTO NA IMAGEM:
+"Pacto" (grande, serifado)
+"Manual do Casal" (médio, sans-serif)
+"Como organizar as finanças a dois sem briga." (pequeno, sans-serif, peso regular)
+"pacto-beta.vercel.app" (bem pequeno, canto)
+
+Formato final: 1920×1080 pixels, JPG ou PNG de alta qualidade, pronto pra Hotmart e thumbnail YouTube.
+
+
+═══════════════════════════════════════════════════════════════════
+🎨 VARIAÇÃO 1 — MAIS EMOCIONAL/ROMÂNTICA
+═══════════════════════════════════════════════════════════════════
+
+Capa horizontal 1920×1080 (16:9) para curso online "Pacto — Finanças do Casal Sem Briga".
+
+Estilo: ilustração editorial moderna, mood quente e acolhedor. Inspiração: capas do New Yorker + ilustrações do Spotify Wrapped.
+
+Cena: vista aérea estilizada de uma mesa de café da manhã para dois, em um apartamento à luz da manhã. Duas xícaras de café fumegantes (uma com leve borda vermelha, outra teal — sutis, não óbvias), um celular ligeiramente inclinado mostrando uma tela do app Pacto com gráficos coloridos, um caderno aberto com cálculos rabiscados, uma planta verde decorativa no canto. Tudo arrumado, harmônico.
+
+Texto sobreposto na parte superior esquerda:
+"Pacto"
+"Manual do Casal"
+em tipografia limpa, branca com sombra suave.
+
+Paleta: tons quentes de creme/madeira clara para a cena + acentos pontuais em azul-marinho do Pacto. Iluminação dourada de fim de tarde ou manhã cedo.
+
+Atmosfera: paz doméstica, intimidade tranquila, "domingo de manhã resolvido".
+
+Evitar: pessoas, mãos, faces. Mantenha foco nos objetos.
+
+1920×1080 px.
+
+
+═══════════════════════════════════════════════════════════════════
+🎨 VARIAÇÃO 2 — TECNOLÓGICA/FINTECH
+═══════════════════════════════════════════════════════════════════
+
+Capa horizontal 1920×1080 (16:9) — thumbnail premium para curso fintech.
+
+Estilo: render 3D limpo estilo Apple/Nubank/Wise. Glassmorphism, neumorfismo sutil, high-tech mas acessível.
+
+Centro da imagem: dois cartões/celulares flutuantes sobrepostos em ângulo dinâmico. O da esquerda mostra a aba "Visão" do app Pacto com gráfico de pizza colorido (vermelho/teal/azul); o da direita mostra a aba "Mês" com lista de gastos. Sombras realistas, leve glow azul ao redor.
+
+Fundo: gradient escuro azul-marinho (#0b1538) com partículas/grain digital muito sutil. Linhas finas de "rede" no fundo formando geometria abstrata.
+
+Texto no topo (alinhado à esquerda):
+"PACTO"
+em sans-serif geométrica bold, branco, letterspacing largo.
+
+Embaixo, em peso regular:
+"Manual do Casal · v1.0"
+
+No canto inferior direito:
+"pacto-beta.vercel.app" em pequeno.
+
+Atmosfera: profissional, confiável, "isso aqui é coisa séria mas linda".
+
+Evitar: gráficos genéricos de bolsa de valores, robôs, cifrões.
+
+1920×1080 px.
+
+
+═══════════════════════════════════════════════════════════════════
+🎨 VARIAÇÃO 3 — METÁFORA VISUAL (CASA/PAZ)
+═══════════════════════════════════════════════════════════════════
+
+Capa 1920×1080 (16:9) para curso "Pacto — Casa em Paz Começa nas Contas".
+
+Conceito: ilustração simbólica minimalista. Uma casa estilizada (silhueta limpa, contornos geométricos) no centro/direita, recortada contra um céu noturno em gradient azul-marinho para azul profundo (#0b1538 → #1a2960). De dentro da casa, brilha uma luz dourada quente saindo das janelas. Acima da casa, lua crescente discreta.
+
+Lado esquerdo: tipografia grande.
+"Pacto"
+"Uma casa merece paz."
+em fonte serifada elegante (tipo Cormorant Garamond ou similar), branca.
+
+Embaixo, em sans-serif menor:
+"Manual do Casal — Edição 2026"
+
+Pequenos detalhes decorativos: 2-3 estrelas pontuais. Talvez uma silhueta sutil de uma pequena bandeira/triângulo no telhado em azul claro.
+
+Atmosfera: noturna, intimista, esperançosa. "A casa está em ordem, podem dormir tranquilos".
+
+Evitar: realismo fotográfico, casais, gente. Mantém ilustração 2D vetorial limpa.
+
+1920×1080 px.
+
+
+═══════════════════════════════════════════════════════════════════
+💡 DICAS GERAIS PRA QUALQUER VARIAÇÃO
+═══════════════════════════════════════════════════════════════════
+
+1. Sempre pedir explicitamente "1920×1080 pixels, formato 16:9 horizontal" na ferramenta.
+2. Se o resultado vier com texto borrado/errado (comum em IA): peça pra gerar SEM texto e adicione você depois no Canva / Figma / Photoshop.
+3. Use o logo PNG existente (1254×1254) como referência se a IA permitir upload — manda junto pedindo "use este logo na capa".
+4. Pra Hotmart: o tamanho do banner principal pode variar (verifique no painel — geralmente 1920×1080 ou 1200×630).
+5. Pra YouTube/thumbnail: 1920×1080 é o padrão correto.
+6. Pra Instagram (16:9 não rola, mas pode adaptar pra 1080×1080 / 1080×1350 depois).
+
+
+═══════════════════════════════════════════════════════════════════
+🎁 EXTRA — PROMPT EM INGLÊS (se a ferramenta responder melhor)
+═══════════════════════════════════════════════════════════════════
+
+Create a 16:9 horizontal cover image (1920×1080 pixels) for an online course titled "Pacto — Financial Planner for Couples".
+
+Visual style: minimalist modern premium fintech-meets-lifestyle. Apple keynote slide aesthetic crossed with Wise/Headspace branding. Clean composition, high contrast, calm and trustworthy.
+
+Color palette: deep navy gradient background (#0b1538 to near-black #070e26), vibrant blue accent (#5b8dff), white text, subtle coral/peach (#ff9c8a) as single emotional accent.
+
+Composition: Left ~55%: large title "Pacto" in elegant serif (Playfair Display style), bold white. Below: "Manual do Casal — finanças do casal sem briga." in modern sans-serif (Inter style). Right ~45%: floating 3D phone showing the app screen with a colorful pie chart (red/teal/blue slices). Two overlapping small circles next to it (one red #FF6B6B, one teal #4ECDC4) symbolizing the two partners.
+
+Atmosphere: calm, hopeful, "it's all sorted now". Balance between domestic warmth and financial clarity.
+
+Avoid: real people, faces, big dollar signs, money symbols, kitsch hearts, stock-photo couples, more than 3 dominant colors.
+
+Final output: 1920×1080 px, JPG/PNG, course thumbnail quality.

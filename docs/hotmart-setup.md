@@ -9,7 +9,7 @@ Esse documento é o que falta pra começar a receber pagamentos. Você cuida dis
 1. Entra em https://app.hotmart.com → **Produtos → Novo produto**
 2. Tipo: **Serviço de assinatura**
 3. Categoria: **Negócios e Carreira** (ou Finanças)
-4. Nome: **Pacto** (ou "Pacto — Planejador Financeiro do Casal")
+4. Nome: **Pacto** (ou "	")
 5. Tipo de serviço: **Digital**
 6. **Preço:** R$ 29,90/mês (combina com o que tá na landing — "menos de R$ 1/dia"). Sugiro também criar plano anual com desconto (ex: R$ 239/ano = R$ 19,90/mês).
 7. **Recorrência:** Mensal (e/ou Anual). NÃO marca "produto único".

@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from 'react'
 import { tokens } from '@/lib/tokens'
 import { formatBRL, monthLabel } from '@/lib/format'
 import { Avatar, Card, Inp, Lbl } from './ui'
+import { allCategoryNames, categoryEmoji } from '@/lib/categories'
 import InstallPrompt from './InstallPrompt'
 import PendingRequestsCard from './PendingRequestsCard'
 import type { ClosedMonth, CustomCategory } from './types'
@@ -13,7 +14,9 @@ interface Props {
   nameB: string
   incomeA: string
   incomeB: string
-  method: '50/50' | 'proporcional'
+  method: '50/50' | 'proporcional' | 'unificada' | 'categorias'
+  mesada: string
+  categorySplit: Record<string, 'A' | 'B' | 'ambos'>
   closedMonths: ClosedMonth[]
   customCategories: CustomCategory[]
   coupleCode: string | null
@@ -23,7 +26,8 @@ interface Props {
   onUpdate: (patch: {
     nameA?: string; nameB?: string
     incomeA?: string; incomeB?: string
-    method?: '50/50' | 'proporcional'
+    method?: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada?: string
+    categorySplit?: Record<string, 'A' | 'B' | 'ambos'>
   }) => void
   onSignOut: () => void
   onExportMonth: (monthKey: string) => void
@@ -31,7 +35,7 @@ interface Props {
 }
 
 export default function TabConfig({
-  nameA, nameB, incomeA, incomeB, method, closedMonths, customCategories,
+  nameA, nameB, incomeA, incomeB, method, mesada, categorySplit, closedMonths, customCategories,
   coupleCode, partnerJoined, coupleId, currentUserId,
   onUpdate, onSignOut, onExportMonth, onRemoveCategory,
 }: Props) {
@@ -126,6 +130,8 @@ export default function TabConfig({
           {([
             { id: '50/50' as const, emoji: '⚖️', title: '50/50 fixo', sub: 'Cada um paga metade' },
             { id: 'proporcional' as const, emoji: '📐', title: 'Proporcional à renda', sub: 'Quem ganha mais, contribui mais' },
+            { id: 'unificada' as const, emoji: '🤝', title: 'Conta 100% unificada', sub: 'Tudo de uma conta conjunta · sem acerto' },
+            { id: 'categorias' as const, emoji: '🗂️', title: 'Divisão por categorias', sub: 'Cada um assume certas categorias' },
           ]).map((m) => {
             const active = method === m.id
             return (
@@ -173,6 +179,111 @@ export default function TabConfig({
               </button>
             )
           })}
+        </div>
+      </Card>
+
+      {/* Atribuição de categorias — só no método 'categorias' */}
+      {method === 'categorias' && (
+        <Card>
+          <h3
+            style={{
+              fontFamily: tokens.primitive.fontFamily.display,
+              fontWeight: tokens.primitive.fontWeight.extrabold,
+              fontSize: tokens.primitive.fontSize.xl,
+              color: tokens.color.text_heading,
+              marginBottom: tokens.primitive.space[2],
+            }}
+          >
+            Quem assume cada categoria
+          </h3>
+          <p
+            style={{
+              fontSize: tokens.primitive.fontSize.sm,
+              color: tokens.color.text_muted,
+              marginBottom: tokens.primitive.space[6],
+              lineHeight: 1.5,
+            }}
+          >
+            Defina o responsável por cada categoria das contas do casal.
+            <strong> Ambos</strong> divide 50/50.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.primitive.space[4] }}>
+            {allCategoryNames(customCategories).map((cat) => {
+              const owner = categorySplit[cat] ?? 'ambos'
+              return (
+                <div
+                  key={cat}
+                  style={{ display: 'flex', alignItems: 'center', gap: tokens.primitive.space[4] }}
+                >
+                  <span style={{ flex: 1, fontSize: tokens.primitive.fontSize.base, color: tokens.color.text_body, minWidth: 0 }}>
+                    {categoryEmoji(cat, customCategories)} {cat}
+                  </span>
+                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                    {([
+                      { v: 'A' as const, l: nameA || 'A', c: tokens.color.personA },
+                      { v: 'ambos' as const, l: 'Ambos', c: tokens.color.brand },
+                      { v: 'B' as const, l: nameB || 'B', c: tokens.color.personB },
+                    ]).map((o) => {
+                      const active = owner === o.v
+                      return (
+                        <button
+                          key={o.v}
+                          onClick={() => onUpdate({ categorySplit: { ...categorySplit, [cat]: o.v } })}
+                          style={{
+                            background: active ? o.c : tokens.color.bg_card,
+                            color: active ? '#fff' : tokens.color.text_secondary,
+                            border: `1.5px solid ${active ? o.c : tokens.color.border_default}`,
+                            borderRadius: tokens.primitive.radius.pill,
+                            padding: '5px 10px',
+                            fontSize: tokens.primitive.fontSize.sm,
+                            fontWeight: tokens.primitive.fontWeight.semibold,
+                            fontFamily: 'inherit',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            maxWidth: 90,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {o.l}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* Mesada */}
+      <Card>
+        <h3
+          style={{
+            fontFamily: tokens.primitive.fontFamily.display,
+            fontWeight: tokens.primitive.fontWeight.extrabold,
+            fontSize: tokens.primitive.fontSize.xl,
+            color: tokens.color.text_heading,
+            marginBottom: tokens.primitive.space[2],
+          }}
+        >
+          Mesada de cada um
+        </h3>
+        <p
+          style={{
+            fontSize: tokens.primitive.fontSize.sm,
+            color: tokens.color.text_muted,
+            marginBottom: tokens.primitive.space[6],
+            lineHeight: 1.5,
+          }}
+        >
+          Valor igual por mês que cada um gasta livre, sem cobrança. Deixe em
+          branco ou 0 se não usam mesada.
+        </p>
+        <div>
+          <Lbl text="Mesada mensal (cada um)" />
+          <Inp placeholder="0,00" value={mesada} onChange={(v) => onUpdate({ mesada: v })} type="number" />
         </div>
       </Card>
 

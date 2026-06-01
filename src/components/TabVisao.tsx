@@ -44,7 +44,7 @@ export default function TabVisao({
   // ── Soma todas as despesas de UM mês: avulsos + fixos ativos + parcelas ativas
   const computeMonth = (mk: string) => {
     const { year, month } = parseMonthKey(mk)
-    const monthExpenses = expenses.filter((e) => e.monthKey === mk)
+    const monthExpenses = expenses.filter((e) => e.monthKey === mk && e.type !== 'income')
     const monthFixed = fixedCosts.filter((f) => f.active && fixedAppearsInMonth(f.createdAt, f.frequency, mk))
     const monthInst = installments.filter((i) => {
       const start = new Date(i.startedAt)

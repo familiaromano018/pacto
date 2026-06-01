@@ -20,6 +20,8 @@ export interface Expense {
   monthKey: string
   paymentMethod?: PaymentMethod
   createdBy?: string
+  /** 'income' = receita avulsa (entrada). Ausente/'expense' = gasto. */
+  type?: 'expense' | 'income'
 }
 
 export interface Installment {
@@ -101,6 +103,8 @@ export interface FeedEntry {
   sublabel?: string
   paymentMethod?: PaymentMethod
   createdBy?: string
+  /** 'in' = entrada (receita). Ausente/'out' = saída (gasto). */
+  flow?: 'in' | 'out'
 }
 
 // ── Authorization ──

@@ -17,7 +17,9 @@ create table if not exists public.couples (
   name_b        text default '',
   income_a      text default '',
   income_b      text default '',
-  method        text default '50/50' check (method in ('50/50', 'proporcional')),
+  method        text default '50/50' check (method in ('50/50', 'proporcional', 'unificada', 'categorias')),
+  mesada        text default '0',
+  category_split jsonb default '{}'::jsonb,
   privacy_mode  text default 'open' check (privacy_mode in ('open', 'private')),
   created_at    timestamptz default now(),
   updated_at    timestamptz default now()
@@ -46,6 +48,7 @@ create table if not exists public.expenses (
   category        text not null,
   payment_method  text check (payment_method in ('pix', 'debito', 'credito', 'dinheiro', 'boleto', 'transferencia')),
   month_key       text not null,
+  type            text not null default 'expense' check (type in ('expense', 'income')),
   created_at      timestamptz default now(),
   updated_at      timestamptz default now()
 );

@@ -14,13 +14,16 @@ import {
   type PaymentMethodKey,
 } from '@/lib/payment'
 import { categoryEmoji } from '@/lib/categories'
+import { fairShareAByCategory } from '@/lib/split'
 
 interface Props {
   nameA: string
   nameB: string
   incomeA: string
   incomeB: string
-  method: '50/50' | 'proporcional'
+  method: '50/50' | 'proporcional' | 'unificada' | 'categorias'
+  mesada: string
+  categorySplit: Record<string, 'A' | 'B' | 'ambos'>
   monthKey: string
   expenses: Expense[]
   fixedCosts: FixedCost[]
@@ -42,7 +45,7 @@ interface Props {
 type FilterId = 'all' | 'casal' | 'A' | 'B'
 
 export default function TabMes({
-  nameA, nameB, incomeA, incomeB, method,
+  nameA, nameB, incomeA, incomeB, method, mesada, categorySplit,
   monthKey, expenses, fixedCosts, installments, customCategories, currentUserId,
   onRemoveExpense, onEditExpense, onEditFixed, onEditInstallment, onOpenAdd, onCloseMonth, onExportPDF, isClosed,
   pendingFilter, onConsumePendingFilter,
@@ -86,6 +89,7 @@ export default function TabMes({
         date: e.createdAt,
         paymentMethod: e.paymentMethod,
         createdBy: e.createdBy,
+        flow: e.type === 'income' ? 'in' : 'out',
       })
     })
 
@@ -189,21 +193,37 @@ export default function TabMes({
     return r
   }, [feed, filter, categoryFilter, paymentFilter, query])
 
-  // ── Totais
-  const totalMes = feed.reduce((s, e) => s + e.amount, 0)
-  const totalCasal = feed.filter(e => e.scope === 'casal').reduce((s, e) => s + e.amount, 0)
-  const totalCasalA = feed.filter(e => e.scope === 'casal' && e.paidBy === 'A').reduce((s, e) => s + e.amount, 0)
-  const totalCasalB = feed.filter(e => e.scope === 'casal' && e.paidBy === 'B').reduce((s, e) => s + e.amount, 0)
-  const totalPessoalA = feed.filter(e => e.scope === 'A').reduce((s, e) => s + e.amount, 0)
-  const totalPessoalB = feed.filter(e => e.scope === 'B').reduce((s, e) => s + e.amount, 0)
+  // ── Saídas (gastos) x Entradas (receitas)
+  const outFeed = feed.filter(e => e.flow !== 'in')
+  const inFeed = feed.filter(e => e.flow === 'in')
+
+  // ── Totais (só saídas — receita nunca entra no rateio nem nos totais de gasto)
+  const totalMes = outFeed.reduce((s, e) => s + e.amount, 0)
+  const totalCasal = outFeed.filter(e => e.scope === 'casal').reduce((s, e) => s + e.amount, 0)
+  const totalCasalA = outFeed.filter(e => e.scope === 'casal' && e.paidBy === 'A').reduce((s, e) => s + e.amount, 0)
+  const totalCasalB = outFeed.filter(e => e.scope === 'casal' && e.paidBy === 'B').reduce((s, e) => s + e.amount, 0)
+  const totalPessoalA = outFeed.filter(e => e.scope === 'A').reduce((s, e) => s + e.amount, 0)
+  const totalPessoalB = outFeed.filter(e => e.scope === 'B').reduce((s, e) => s + e.amount, 0)
+
+  // ── Balanço entrou/saiu/sobrou (entrou = receitas; saiu = gastos)
+  const totalEntrou = inFeed.reduce((s, e) => s + e.amount, 0)
+  const totalSobrou = totalEntrou - totalMes
+
+  // ── Mesada (gasto pessoal livre de cada um vs teto combinado)
+  const mesadaValor = parseFloat((mesada || '').replace(',', '.')) || 0
 
   // ── Rateio
+  const isUnificada = method === 'unificada'
   const iA = parseFloat(incomeA) || 0
   const iB = parseFloat(incomeB) || 0
-  const fairShareA = method === '50/50' || (iA + iB === 0)
-    ? totalCasal / 2
-    : totalCasal * (iA / (iA + iB))
-  const balanceA = totalCasalA - fairShareA
+  const casalItems = outFeed.filter(e => e.scope === 'casal').map(e => ({ category: e.category, amount: e.amount }))
+  const fairShareA = method === 'categorias'
+    ? fairShareAByCategory(casalItems, categorySplit)
+    : method === '50/50' || (iA + iB === 0)
+      ? totalCasal / 2
+      : totalCasal * (iA / (iA + iB))
+  // Conta unificada: tudo sai do bolso comum, não existe acerto entre as pessoas.
+  const balanceA = isUnificada ? 0 : totalCasalA - fairShareA
 
   const quemDeve = Math.abs(balanceA) < 0.01
     ? null
@@ -235,6 +255,8 @@ export default function TabMes({
         <Card style={{ marginBottom: tokens.primitive.space[8] }}>
           <EmptyHero onOpenAdd={onOpenAdd} isCurrentMonth={isCurrentMonth} isFutureMonth={isFutureMonth} isClosed={isClosed} />
         </Card>
+      ) : isUnificada ? (
+        <UnifiedHero total={totalCasal} />
       ) : quemDeve == null ? (
         <Card style={{ marginBottom: tokens.primitive.space[8] }}>
           <BalancedHero />
@@ -245,6 +267,36 @@ export default function TabMes({
           para={quemDeve.para}
           valor={quemDeve.valor}
         />
+      )}
+
+      {/* Balanço entrou/saiu/sobrou — só quando há receita lançada */}
+      {inFeed.length > 0 && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gap: tokens.primitive.space[5],
+            marginBottom: tokens.primitive.space[10],
+          }}
+        >
+          <StatTile
+            label="Entrou"
+            value={formatBRL(totalEntrou)}
+            accent={tokens.color.success}
+            tone="ok"
+          />
+          <StatTile
+            label="Saiu"
+            value={formatBRL(totalMes)}
+            accent={tokens.color.brand}
+          />
+          <StatTile
+            label="Sobrou"
+            value={formatBRL(totalSobrou)}
+            accent={totalSobrou >= 0 ? tokens.color.success : tokens.color.danger}
+            tone={totalSobrou >= 0 ? 'ok' : 'danger'}
+          />
+        </div>
       )}
 
       {/* Stats 2×2 */}
@@ -284,6 +336,25 @@ export default function TabMes({
             />
           )}
         </div>
+      )}
+
+      {/* Mesada — gasto pessoal livre vs teto combinado */}
+      {feed.length > 0 && mesadaValor > 0 && (
+        <Card style={{ marginBottom: tokens.primitive.space[10] }}>
+          <div
+            style={{
+              fontSize: 11, fontWeight: 600,
+              textTransform: 'uppercase', letterSpacing: '1.2px',
+              color: tokens.color.text_muted,
+              marginBottom: tokens.primitive.space[6],
+            }}
+          >
+            Mesada · {formatBRL(mesadaValor)} cada
+          </div>
+          <MesadaBar name={nameA} used={totalPessoalA} limit={mesadaValor} color={tokens.color.personA} />
+          <div style={{ height: tokens.primitive.space[6] }} />
+          <MesadaBar name={nameB} used={totalPessoalB} limit={mesadaValor} color={tokens.color.personB} />
+        </Card>
       )}
 
       {/* Search bar */}
@@ -705,6 +776,97 @@ function StatTile({
   )
 }
 
+function MesadaBar({ name, used, limit, color }: { name: string; used: number; limit: number; color: string }) {
+  const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0
+  const over = used > limit
+  const restante = limit - used
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: tokens.color.text_heading }}>{name}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: tokens.color.text_muted, fontVariantNumeric: 'tabular-nums' }}>
+          {formatBRL(used)} / {formatBRL(limit)}
+        </span>
+      </div>
+      <div style={{ height: 8, borderRadius: 999, background: tokens.color.bg_app, overflow: 'hidden' }}>
+        <div
+          style={{
+            width: `${pct}%`, height: '100%', borderRadius: 999,
+            background: over ? tokens.color.danger : color,
+            transition: 'width 0.3s ease',
+          }}
+        />
+      </div>
+      <div style={{ marginTop: 5, fontSize: 12, fontWeight: 600, color: over ? tokens.color.danger : tokens.color.success }}>
+        {over ? `passou ${formatBRL(used - limit)} da mesada` : `sobra ${formatBRL(restante)}`}
+      </div>
+    </div>
+  )
+}
+
+function UnifiedHero({ total }: { total: number }) {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        marginBottom: tokens.primitive.space[8],
+        padding: '24px 22px 22px',
+        background: 'linear-gradient(135deg, #0f3d2e 0%, #155e4a 50%, #1a7a5e 100%)',
+        color: '#fff',
+        borderRadius: 24,
+        boxShadow: '0 12px 40px rgba(15, 61, 46, 0.45)',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          width: 280, height: 280,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at center, rgba(52,211,153,0.22) 0%, rgba(52,211,153,0) 70%)',
+          top: -120, right: -100,
+        }}
+      />
+      <div
+        style={{
+          position: 'relative', zIndex: 2,
+          fontSize: 11, fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px',
+          color: 'rgba(255,255,255,0.55)',
+        }}
+      >
+        Conta única do casal
+      </div>
+      <div
+        style={{
+          position: 'relative', zIndex: 2,
+          fontSize: 36, fontWeight: 700,
+          letterSpacing: '-0.02em',
+          lineHeight: 1.05,
+          marginTop: 10,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {formatBRL(total)}
+      </div>
+      <div
+        style={{
+          position: 'relative', zIndex: 2,
+          marginTop: 8,
+          fontSize: 14,
+          color: 'rgba(255,255,255,0.75)',
+          fontWeight: 500,
+        }}
+      >
+        Saiu do bolso comum · <strong style={{ color: '#fff', fontWeight: 700 }}>sem acerto entre vocês</strong> 💙
+      </div>
+    </div>
+  )
+}
+
 function HeroGradient({
   de, para, valor,
 }: {
@@ -771,7 +933,7 @@ function HeroGradient({
           fontWeight: 500,
         }}
       >
-        <strong style={{ color: '#fff', fontWeight: 700 }}>{de}</strong> deve pra <strong style={{ color: '#fff', fontWeight: 700 }}>{para}</strong>
+        <strong style={{ color: '#fff', fontWeight: 700 }}>{de}</strong> repassa pra <strong style={{ color: '#fff', fontWeight: 700 }}>{para}</strong> pra ficar em equilíbrio
       </div>
 
       {/* Avatares discretos no rodapé */}
