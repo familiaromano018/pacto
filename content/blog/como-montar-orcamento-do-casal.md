@@ -3,6 +3,7 @@ title: "Como montar o orçamento do casal (passo a passo)"
 description: "Um método simples pra montar o orçamento mensal a dois: o que listar, como categorizar e como manter sem virar burocracia."
 date: "2026-05-16"
 category: "Orçamento"
+image: "/blog/orcamento-do-casal.png"
 ---
 
 Orçamento não é sobre cortar tudo que dá prazer. É sobre **decidir de propósito** pra onde o dinheiro do casal vai — em vez de descobrir no fim do mês que ele simplesmente sumiu. Feito direito, leva menos tempo do que vocês gastam escolhendo o que assistir.
