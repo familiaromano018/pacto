@@ -1207,12 +1207,22 @@ function Footer() {
             © 2026
           </span>
         </div>
-        <div style={{ fontSize: 12, color: '#71747e' }}>
-          Uma casa merece paz.
-        </div>
+        <nav style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center', fontSize: 12.5 }}>
+          <Link href="/blog" style={footerLinkStyle}>Blog</Link>
+          <Link href="/instalar" style={footerLinkStyle}>Instalar app</Link>
+          <Link href="/ajuda" style={footerLinkStyle}>Ajuda</Link>
+          <Link href="/privacidade" style={footerLinkStyle}>Privacidade</Link>
+          <Link href="/termos" style={footerLinkStyle}>Termos</Link>
+        </nav>
       </div>
     </footer>
   )
+}
+
+const footerLinkStyle: React.CSSProperties = {
+  color: '#a0a3ad',
+  textDecoration: 'none',
+  fontWeight: 500,
 }
 
 // ─────────────────────────────────────────────────────────────── HELPERS ──
