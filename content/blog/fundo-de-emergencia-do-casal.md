@@ -3,6 +3,7 @@ title: "Fundo de emergência do casal: quanto guardar e como"
 description: "Quanto um casal precisa ter de reserva, onde guardar e como construir juntos — o passo que mais reduz briga de dinheiro nos momentos difíceis."
 date: "2026-05-13"
 category: "Reserva"
+image: "/blog/fundo-de-emergencia.png"
 ---
 
 O fundo de emergência é o item menos animador e mais importante do planejamento de um casal. Ninguém se empolga em guardar dinheiro "pra quando der errado" — mas é exatamente essa reserva que evita que um imprevisto (desemprego, conserto, problema de saúde) vire crise no relacionamento. Casal com reserva briga menos quando a vida aperta. É simples assim.
