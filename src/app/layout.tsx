@@ -3,6 +3,7 @@ import './globals.css'
 import { ToastProvider } from '@/components/Toast'
 import MetaPixel from '@/components/MetaPixel'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
   title: 'Pacto — Uma casa merece paz',
@@ -38,6 +39,7 @@ export default function RootLayout({
         <MetaPixel />
         <GoogleAnalytics />
         <ToastProvider>{children}</ToastProvider>
+        <Analytics />
       </body>
     </html>
   )
