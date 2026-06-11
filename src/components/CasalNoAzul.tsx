@@ -32,6 +32,7 @@ import { classify } from '@/lib/changes/classify'
 import { createChangeRequest } from '@/lib/changes/request'
 import { logSoftChange } from '@/lib/changes/history'
 import { fixedAppearsInMonth } from '@/lib/fixed'
+import { fairShareAByCategory } from '@/lib/split'
 import type {
   Expense, FixedCost, Installment, Goal, ClosedMonth, CustomCategory, EditTarget,
 } from './types'
@@ -63,7 +64,9 @@ function AuthedShell({ userId }: { userId: string }) {
   const [nameB, setNameB] = useLocalState('name-b', '')
   const [incomeA, setIncomeA] = useLocalState('income-a', '')
   const [incomeB, setIncomeB] = useLocalState('income-b', '')
-  const [method, setMethod] = useLocalState<'50/50' | 'proporcional'>('method', '50/50')
+  const [method, setMethod] = useLocalState<'50/50' | 'proporcional' | 'unificada' | 'categorias'>('method', '50/50')
+  const [mesada, setMesada] = useLocalState('mesada', '')
+  const [categorySplit, setCategorySplit] = useLocalState<Record<string, 'A' | 'B' | 'ambos'>>('category-split', {})
 
   // ── Data state (persisted) ──
   const [expenses, setExpenses] = useLocalState<Expense[]>('expenses', [])
@@ -130,9 +133,11 @@ function AuthedShell({ userId }: { userId: string }) {
         if (!nameB && row.name_b) setNameB(row.name_b)
         if (!incomeA && row.income_a) setIncomeA(row.income_a)
         if (!incomeB && row.income_b) setIncomeB(row.income_b)
-        if (row.method && (row.method === '50/50' || row.method === 'proporcional')) {
+        if (row.method && (row.method === '50/50' || row.method === 'proporcional' || row.method === 'unificada' || row.method === 'categorias')) {
           setMethod(row.method)
         }
+        if (!mesada && row.mesada) setMesada(row.mesada)
+        if (row.category_split && Object.keys(categorySplit).length === 0) setCategorySplit(row.category_split)
       }
     }
     async function loadMembers() {
@@ -164,7 +169,7 @@ function AuthedShell({ userId }: { userId: string }) {
         loadPartner().catch(() => {})
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'couples', filter: `id=eq.${coupleId}` }, (payload) => {
-        const row = payload.new as { name_a?: string; name_b?: string; income_a?: string; income_b?: string; method?: '50/50' | 'proporcional'; code?: string }
+        const row = payload.new as { name_a?: string; name_b?: string; income_a?: string; income_b?: string; method?: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada?: string; category_split?: Record<string, 'A' | 'B' | 'ambos'>; code?: string }
         if (row.code) setCoupleCode(row.code)
         // espelha mudanças do parceiro no state local (sem entrar em loop: useLocalState não dispara enqueue)
         if (row.name_a != null) setNameA(row.name_a)
@@ -172,6 +177,8 @@ function AuthedShell({ userId }: { userId: string }) {
         if (row.income_a != null) setIncomeA(row.income_a)
         if (row.income_b != null) setIncomeB(row.income_b)
         if (row.method) setMethod(row.method)
+        if (row.mesada != null) setMesada(row.mesada)
+        if (row.category_split != null) setCategorySplit(row.category_split)
       })
       .subscribe()
 
@@ -545,7 +552,8 @@ function AuthedShell({ userId }: { userId: string }) {
   // ── Config (couple row) ──
   function updateConfig(patch: Partial<{
     nameA: string; nameB: string; incomeA: string; incomeB: string
-    method: '50/50' | 'proporcional'
+    method: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada: string
+    categorySplit: Record<string, 'A' | 'B' | 'ambos'>
   }>) {
     const serverPatch: Record<string, any> = {}
     if (patch.nameA != null) { setNameA(patch.nameA); serverPatch.name_a = patch.nameA }
@@ -553,6 +561,8 @@ function AuthedShell({ userId }: { userId: string }) {
     if (patch.incomeA != null) { setIncomeA(patch.incomeA); serverPatch.income_a = patch.incomeA }
     if (patch.incomeB != null) { setIncomeB(patch.incomeB); serverPatch.income_b = patch.incomeB }
     if (patch.method != null) { setMethod(patch.method); serverPatch.method = patch.method }
+    if (patch.mesada != null) { setMesada(patch.mesada); serverPatch.mesada = patch.mesada }
+    if (patch.categorySplit != null) { setCategorySplit(patch.categorySplit); serverPatch.category_split = patch.categorySplit }
     if (Object.keys(serverPatch).length > 0) {
       enqueue({ table: 'couples', op: 'update', payload: serverPatch })
       pushDrain()
@@ -567,7 +577,7 @@ function AuthedShell({ userId }: { userId: string }) {
       // reset state local pra evitar flash de dados do user antigo se logar de novo
       setSetupDone(false)
       setNameA(''); setNameB(''); setIncomeA(''); setIncomeB('')
-      setMethod('50/50')
+      setMethod('50/50'); setMesada(''); setCategorySplit({})
       setExpenses([]); setInstallments([]); setFixedCosts([])
       setGoals([]); setClosedMonths([]); setCustomCategories([])
       setCoupleId(null); setCoupleCode(null); setPartnerJoined(false); setPartnerUserId(null)
@@ -585,7 +595,7 @@ function AuthedShell({ userId }: { userId: string }) {
     const mk = monthKey
     const monthInfo = parseMonthKey(mk)
 
-    const monthExpenses = expenses.filter((e) => e.monthKey === mk)
+    const monthExpenses = expenses.filter((e) => e.monthKey === mk && e.type !== 'income')
     const totalCasal = monthExpenses.filter((e) => e.scope === 'casal').reduce((s, e) => s + e.amount, 0)
     const totalPersonalA = monthExpenses.filter((e) => e.scope === 'A').reduce((s, e) => s + e.amount, 0)
     const totalPersonalB = monthExpenses.filter((e) => e.scope === 'B').reduce((s, e) => s + e.amount, 0)
@@ -602,10 +612,13 @@ function AuthedShell({ userId }: { userId: string }) {
     const iA = parseFloat(incomeA) || 0
     const iB = parseFloat(incomeB) || 0
     const totalCasalA = monthExpenses.filter((e) => e.scope === 'casal' && e.paidBy === 'A').reduce((s, e) => s + e.amount, 0)
-    const fairShareA = method === '50/50' || (iA + iB === 0)
-      ? totalCasal / 2
-      : totalCasal * (iA / (iA + iB))
-    const balanceA = totalCasalA - fairShareA
+    const casalItems = monthExpenses.filter((e) => e.scope === 'casal').map((e) => ({ category: e.category, amount: e.amount }))
+    const fairShareA = method === 'categorias'
+      ? fairShareAByCategory(casalItems, categorySplit)
+      : method === '50/50' || (iA + iB === 0)
+        ? totalCasal / 2
+        : totalCasal * (iA / (iA + iB))
+    const balanceA = method === 'unificada' ? 0 : totalCasalA - fairShareA
 
     const closed: ClosedMonth = {
       monthKey: mk,
@@ -650,7 +663,7 @@ function AuthedShell({ userId }: { userId: string }) {
     try {
       generateExtractPDF({
         monthKey: mk,
-        nameA, nameB, incomeA, incomeB, method,
+        nameA, nameB, incomeA, incomeB, method, categorySplit,
         expenses, fixedCosts, installments, customCategories,
       })
       toast.show('PDF gerado ✓')
@@ -667,7 +680,7 @@ function AuthedShell({ userId }: { userId: string }) {
       (monthInfo.year === now.getFullYear() && monthInfo.month > now.getMonth() + 1)
     if (isFuture) return 0
 
-    const fromExpenses = expenses.filter((e) => e.monthKey === monthKey).reduce((s, e) => s + e.amount, 0)
+    const fromExpenses = expenses.filter((e) => e.monthKey === monthKey && e.type !== 'income').reduce((s, e) => s + e.amount, 0)
     const fromFixed = fixedCosts
       .filter((f) => f.active && fixedAppearsInMonth(f.createdAt, f.frequency, monthKey))
       .reduce((s, f) => s + f.amount, 0)
@@ -747,7 +760,7 @@ function AuthedShell({ userId }: { userId: string }) {
         {tab === 'mes' && (
           <TabMes
             nameA={nameA} nameB={nameB}
-            incomeA={incomeA} incomeB={incomeB} method={method}
+            incomeA={incomeA} incomeB={incomeB} method={method} mesada={mesada} categorySplit={categorySplit}
             monthKey={monthKey}
             expenses={expenses}
             fixedCosts={fixedCosts}
@@ -786,7 +799,7 @@ function AuthedShell({ userId }: { userId: string }) {
           <TabConfig
             nameA={nameA} nameB={nameB}
             incomeA={incomeA} incomeB={incomeB}
-            method={method}
+            method={method} mesada={mesada} categorySplit={categorySplit}
             closedMonths={closedMonths}
             customCategories={customCategories}
             coupleCode={coupleCode}

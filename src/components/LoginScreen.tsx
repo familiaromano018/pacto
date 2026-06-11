@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Logo } from './Logo'
 import { signInWithGoogle } from '@/lib/supabase/useSession'
 
@@ -58,7 +59,7 @@ export default function LoginScreen() {
             lineHeight: 1.5,
           }}
         >
-          Combinem as contas. Pacto cuida de quem deve quanto.
+          Combinem as contas. Pacto cuida do acerto e mantém vocês em equilíbrio.
           <br/>
           <span style={{ opacity: 0.65, fontSize: 11 }}>14 dias grátis. Sem cartão.</span>
         </p>
@@ -120,6 +121,20 @@ export default function LoginScreen() {
           <br />
           Os dados ficam só entre vocês dois.
         </p>
+
+        <Link
+          href="/instalar"
+          style={{
+            display: 'inline-block',
+            marginTop: 20,
+            color: 'var(--color-brand)',
+            fontSize: 13,
+            fontWeight: 600,
+            textDecoration: 'none',
+          }}
+        >
+          📲 Instalar o Pacto no celular
+        </Link>
       </div>
     </div>
   )

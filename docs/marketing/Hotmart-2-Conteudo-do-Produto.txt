@@ -1,0 +1,190 @@
+═══════════════════════════════════════════════════════════════════
+HOTMART — CONTEÚDO DO PRODUTO (ÁREA DE MEMBROS)
+═══════════════════════════════════════════════════════════════════
+
+Esse é o texto que o comprador vê DEPOIS de comprar.
+
+═══════════════════════════════════════════════════════════════════
+MENSAGEM DE BOAS-VINDAS
+(cola no campo "Conteúdo" / "Mensagem ao comprador")
+═══════════════════════════════════════════════════════════════════
+
+🎉 Bem-vindo(a) ao Pacto!
+
+Sua assinatura está ativa e o app já liberou pra vocês.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📲 COMO ACESSAR (1 minuto)
+
+1. Abre o link: https://pacto-beta.vercel.app
+2. Faz login com o MESMO e-mail que você usou na compra aqui da Hotmart
+   ⚠️ Importante: se você comprar com um e-mail e logar no Pacto com outro, o app não vai reconhecer sua assinatura. Use o mesmo nos dois.
+3. Cria seu pacto (ou entra com o código se o parceiro já criou)
+4. Pronto. Sem mais banners de trial, acesso total liberado.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📥 BAIXE O MANUAL DO USUÁRIO
+
+Anexamos um PDF completo com tudo o que vocês precisam saber: como adicionar gastos, dividir despesas, fechar o mês, autorizar edições do parceiro, exportar PDF, etc.
+
+Leia em 15 minutos. Vai economizar horas de descoberta.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 INSTALA COMO APP NO CELULAR
+
+Pra ter a melhor experiência:
+
+iPhone (Safari):
+• Abre pacto-beta.vercel.app no Safari
+• Toca no botão de compartilhar (□↑)
+• Escolhe "Adicionar à Tela de Início"
+• Pronto. Vira ícone como qualquer outro app.
+
+Android (Chrome):
+• Abre pacto-beta.vercel.app no Chrome
+• Vai aparecer um banner "Adicionar à tela inicial" ou usa o menu (⋮) → "Instalar aplicativo"
+• Pronto.
+
+Depois de instalado, abre em tela cheia, funciona offline e sincroniza automaticamente entre vocês dois.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👥 CONVIDA SEU PARCEIRO(A)
+
+Lembre: 1 assinatura libera os 2 celulares. Seu(sua) parceiro(a) NÃO precisa comprar separadamente — basta entrar no seu pacto.
+
+Como fazer:
+1. Você cria o pacto e ganha um código (ex: PACTO-ABC123)
+2. Vai em "Casal" → "Convite" e toca em "Compartilhar"
+3. Envia pelo WhatsApp (ou copia o código e cola)
+4. Ela/Ele abre pacto-beta.vercel.app no celular dela/dele, faz login com o e-mail dela/dele, escolhe "Tenho um convite" e digita o código
+5. Pronto. Os dois veem os mesmos dados em tempo real.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ PRIMEIROS 3 PASSOS RECOMENDADOS
+
+Pra começar com o pé direito hoje à noite:
+
+1. CONFIGUREM A DIVISÃO (2 min)
+   Aba "Casal" → escolhe 50/50 ou Proporcional à renda. Se proporcional, preencham as duas rendas.
+
+2. CADASTREM OS FIXOS (5 min)
+   Aba "Recorrentes" → adicionem aluguel, streamings, internet, academia. Tudo que cai todo mês.
+
+3. REGISTREM O PRIMEIRO GASTO JUNTOS (1 min)
+   Toca no "+" e cadastra alguma coisa que comprararam recente. Sentem como é rápido.
+
+A partir daí, é só usar.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ DÚVIDAS?
+
+• Manual completo: o PDF anexado tem 56 perguntas respondidas
+• Centro de ajuda dentro do app: aba "Casal" → "Centro de ajuda"
+• Não acha o que procura? Responde essa mensagem aqui na Hotmart ou usa o canal de atendimento.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏠 CASA EM PAZ COMEÇA NAS CONTAS.
+
+Boa jornada. Esperamos que o Pacto faça pelo casal de vocês o que tem feito pelas outras famílias que escolheram organizar a parte financeira com método em vez de conversa difícil.
+
+— Equipe Pacto
+
+
+═══════════════════════════════════════════════════════════════════
+E-MAIL AUTOMÁTICO PÓS-COMPRA
+(se a Hotmart oferecer disparo automático)
+═══════════════════════════════════════════════════════════════════
+
+Assunto: Bem-vindo(a) ao Pacto — Acesso liberado 🤝
+
+Oi!
+
+Sua assinatura do Pacto foi ativada com sucesso. 🎉
+
+✅ ACESSE AGORA: https://pacto-beta.vercel.app
+
+Use o MESMO e-mail da compra pra entrar.
+
+📥 ANEXO: Baixei o Manual do Usuário em PDF pra você ler com calma.
+
+⚡ DICA RÁPIDA: Depois de logar, instale o app na tela do celular (Safari ou Chrome → "Adicionar à tela inicial"). Vira ícone como qualquer outro app, e sincroniza com o(a) parceiro(a) em tempo real.
+
+Bora começar?
+
+— Equipe Pacto
+
+
+═══════════════════════════════════════════════════════════════════
+MENSAGENS PÓS-VENDA (NURTURING — OPCIONAL)
+═══════════════════════════════════════════════════════════════════
+
+──── DIA 2 ────────────────────────────────────────
+
+Oi, tudo bem?
+
+Já configurou o Pacto ontem? Se sim, beleza. Se não, leva 10 minutos:
+
+1. https://pacto-beta.vercel.app
+2. Login com seu e-mail
+3. Configurem a divisão (50/50 ou proporcional)
+4. Cadastrem os custos fixos (aluguel, streamings, etc.)
+
+E o(a) parceiro(a)? Já entrou? Lembre que UMA assinatura cobre os DOIS celulares. Ele(a) só precisa do código.
+
+Qualquer dúvida, responde aqui.
+
+
+──── DIA 7 ────────────────────────────────────────
+
+Já fechou o primeiro mês no Pacto?
+
+Se ainda não, é o passo que muda o jogo: no fim do mês, abre a aba "Mês" e toca em "Fechar mês". O app calcula tudo e mostra quem deve quanto pra quem.
+
+Se a divisão tá funcionando bem, ótimo. Se não, é sinal de ajustar — mudar de 50/50 pra proporcional, ou revisar o que vai pra "casal" vs "individual".
+
+Tô por aqui pra qualquer dúvida.
+
+
+──── DIA 30 ────────────────────────────────────────
+
+Um mês de Pacto. 🎯
+
+Como tá sendo a experiência? Tem algo que faria a vida de vocês mais fácil?
+
+Responde aqui contando — leio TUDO e uso pra melhorar o app.
+
+Obrigado pela confiança.
+
+
+═══════════════════════════════════════════════════════════════════
+MENSAGEM DE BOAS-VINDAS WHATSAPP / TELEGRAM
+(se for fazer integração de canal de suporte)
+═══════════════════════════════════════════════════════════════════
+
+Oi! Aqui é da equipe Pacto 👋
+
+Sua assinatura foi confirmada. Esse é o nosso canal direto pra dúvidas e suporte.
+
+Pra começar:
+1. Acessa pacto-beta.vercel.app (com o e-mail da compra)
+2. Cria o pacto + convida o(a) parceiro(a) com o código
+3. Manda qualquer pergunta por aqui
+
+Bora!
+
+
+═══════════════════════════════════════════════════════════════════
+ARQUIVOS PRA ANEXAR NA ÁREA DE MEMBROS
+═══════════════════════════════════════════════════════════════════
+
+1. PDF — Manual do Usuário
+   Caminho local: docs/marketing/Pacto-Manual-do-Usuario.pdf
+   Nome na Hotmart: Pacto - Manual do Usuário.pdf
+   Descrição: Guia completo com 56 respostas. Leitura em 15 minutos.

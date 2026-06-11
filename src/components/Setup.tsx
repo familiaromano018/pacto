@@ -22,7 +22,7 @@ export interface SetupResult {
   nameB: string
   incomeA: string
   incomeB: string
-  method: '50/50' | 'proporcional'
+  method: '50/50' | 'proporcional' | 'unificada' | 'categorias'
 }
 
 interface Props {
@@ -50,7 +50,7 @@ export default function Setup({ initialCoupleId, onDone }: Props) {
   const [nameB, setNameB] = useState('')
   const [incomeA, setIncomeA] = useState('')
   const [incomeB, setIncomeB] = useState('')
-  const [method, setMethod] = useState<'50/50' | 'proporcional' | null>(null)
+  const [method, setMethod] = useState<'50/50' | 'proporcional' | 'unificada' | 'categorias' | null>(null)
   const [errors, setErrors] = useState<{ nameA?: boolean; nameB?: boolean; method?: boolean }>({})
 
   // Carrega couple row + role quando coupleId tá setado e vai pra details
@@ -68,7 +68,7 @@ export default function Setup({ initialCoupleId, onDone }: Props) {
           setNameB(row.name_b || '')
           setIncomeA(row.income_a || '')
           setIncomeB(row.income_b || '')
-          setMethod((row.method as '50/50' | 'proporcional') || null)
+          setMethod((row.method as '50/50' | 'proporcional' | 'unificada' | 'categorias') || null)
         }
       } catch (err: any) {
         if (!cancelled) setErrorMsg(err?.message ?? 'Não consegui carregar o casal.')
@@ -479,7 +479,7 @@ function DetailsStep({
   nameB: string; setNameB: (v: string) => void
   incomeA: string; setIncomeA: (v: string) => void
   incomeB: string; setIncomeB: (v: string) => void
-  method: '50/50' | 'proporcional' | null; setMethod: (m: '50/50' | 'proporcional') => void
+  method: '50/50' | 'proporcional' | 'unificada' | 'categorias' | null; setMethod: (m: '50/50' | 'proporcional' | 'unificada' | 'categorias') => void
   errors: { nameA?: boolean; nameB?: boolean; method?: boolean }
   onSubmit: () => void
   busy: boolean
@@ -543,6 +543,8 @@ function DetailsStep({
           {[
             { id: '50/50' as const, title: '50/50 fixo', sub: 'Cada um paga metade, independente da renda.' },
             { id: 'proporcional' as const, title: 'Proporcional à renda', sub: 'Quem ganha mais, contribui mais.' },
+            { id: 'unificada' as const, title: 'Conta 100% unificada', sub: 'Todo o dinheiro da casa numa conta conjunta. Sem acerto entre vocês.' },
+            { id: 'categorias' as const, title: 'Divisão por categorias', sub: 'Cada um assume certas categorias. Defina os donos depois, na aba Casal.' },
           ].map((m) => (
             <div
               key={m.id}

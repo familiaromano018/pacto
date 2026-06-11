@@ -17,6 +17,12 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  // Verificação do Google Search Console.
+  // Defina GOOGLE_SITE_VERIFICATION nas env vars da Vercel com o código que o
+  // Google fornece (o valor "content" da meta tag). Vazio = tag não renderiza.
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+    : undefined,
 }
 
 export const viewport: Viewport = {
@@ -35,6 +41,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        {/* Aplica o tema salvo antes da pintura, evitando flash do tema errado */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('pacto-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         <MetaPixel />
         <GoogleAnalytics />

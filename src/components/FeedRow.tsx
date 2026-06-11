@@ -23,7 +23,8 @@ const KIND_META: Record<FeedEntry['kind'], { label: string; color: string }> = {
 }
 
 export default function FeedRow({ entry, nameA, nameB, customCategories = [], currentUserId, onRemove, onEdit }: Props) {
-  const meta = KIND_META[entry.kind]
+  const isIncome = entry.flow === 'in'
+  const meta = isIncome ? { label: 'Receita', color: tokens.color.success } : KIND_META[entry.kind]
   const isOwn = !currentUserId || !entry.createdBy || entry.createdBy === currentUserId
   const payerName =
     entry.scope === 'A' ? nameA :
@@ -127,12 +128,12 @@ export default function FeedRow({ entry, nameA, nameB, customCategories = [], cu
           style={{
             fontWeight: tokens.primitive.fontWeight.black,
             fontSize: tokens.primitive.fontSize.xl,
-            color: tokens.color.text_heading,
+            color: isIncome ? tokens.color.success : tokens.color.text_heading,
             fontFamily: tokens.primitive.fontFamily.display,
             whiteSpace: 'nowrap',
           }}
         >
-          {formatBRL(entry.amount)}
+          {isIncome ? '+ ' : ''}{formatBRL(entry.amount)}
         </div>
         {onRemove && (
           <button

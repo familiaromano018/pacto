@@ -5,7 +5,7 @@ import { tokens } from '@/lib/tokens'
 import { newId } from '@/lib/id'
 import { currentMonthKey } from '@/lib/format'
 import { allCategoryNames, categoryEmoji, EMOJI_PICKER_OPTIONS } from '@/lib/categories'
-import { PAYMENT_METHODS } from './constants'
+import { PAYMENT_METHODS, INCOME_CATEGORIES } from './constants'
 import type { Expense, FixedCost, Installment, PaidBy, Scope, ExpenseKind, CustomCategory, PaymentMethod, EditTarget } from './types'
 import type { FixedFrequency } from '@/lib/fixed'
 
@@ -41,6 +41,7 @@ export default function AddExpenseSheet({
   const [newCatName, setNewCatName] = useState('')
   const [newCatEmoji, setNewCatEmoji] = useState('📦')
   const [kind, setKind] = useState<ExpenseKind>('avulso')
+  const [flow, setFlow] = useState<'gasto' | 'receita'>('gasto')
   const [desc, setDesc] = useState('')
   const [amount, setAmount] = useState('')
   const [scope, setScope] = useState<Scope>('casal')
@@ -61,6 +62,7 @@ export default function AddExpenseSheet({
         if (editing.kind === 'avulso') {
           const e = editing.expense
           setKind('avulso')
+          setFlow(e.type === 'income' ? 'receita' : 'gasto')
           setDesc(e.desc); setAmount(String(e.amount).replace('.', ','))
           setScope(e.scope); setPaidBy(e.paidBy); setCategory(e.category)
           setPaymentMethod(e.paymentMethod || '')
@@ -68,7 +70,7 @@ export default function AddExpenseSheet({
           setFrequency('monthly')
         } else if (editing.kind === 'fixo') {
           const f = editing.fixed
-          setKind('fixo')
+          setKind('fixo'); setFlow('gasto')
           setDesc(f.desc); setAmount(String(f.amount).replace('.', ','))
           setScope(f.scope); setPaidBy(f.paidBy); setCategory(f.category)
           setPaymentMethod(f.paymentMethod || '')
@@ -77,7 +79,7 @@ export default function AddExpenseSheet({
           setParcelas('12'); setParcelasPagas('0')
         } else if (editing.kind === 'parcela') {
           const i = editing.installment
-          setKind('parcela')
+          setKind('parcela'); setFlow('gasto')
           setDesc(i.desc); setAmount(String(i.totalAmount).replace('.', ','))
           setScope(i.scope); setPaidBy(i.paidBy); setCategory(i.category)
           setPaymentMethod(i.paymentMethod || '')
@@ -87,8 +89,8 @@ export default function AddExpenseSheet({
           setFrequency('monthly')
         }
       } else {
-        setKind('avulso')
-        setDesc(''); setAmount('')
+        setKind('avulso'); setFlow('gasto')
+        setDesc(''); setAmount(''); setCategory('Mercado')
         setParcelas('12'); setParcelasPagas('0')
         setPaymentMethod(''); setDueDay(''); setFrequency('monthly')
       }
@@ -113,6 +115,21 @@ export default function AddExpenseSheet({
   const editingTarget = editingExpense || editingFixed || editingInstallment
   const editingCreatedBy = editingTarget?.createdBy
   const isEditingOther = !!editing && !!editingCreatedBy && editingCreatedBy !== currentUserId
+
+  const isIncome = flow === 'receita'
+  const categoryOptions = isIncome ? INCOME_CATEGORIES : allCategoryNames(customCategories)
+
+  function selectFlow(next: 'gasto' | 'receita') {
+    setFlow(next)
+    setError(null)
+    if (next === 'receita') {
+      setKind('avulso')
+      setPaymentMethod('')
+      if (!INCOME_CATEGORIES.includes(category)) setCategory('Salário')
+    } else if (INCOME_CATEGORIES.includes(category) && !allCategoryNames(customCategories).includes(category)) {
+      setCategory('Mercado')
+    }
+  }
 
   function submit() {
     if (!desc.trim()) return setError('Falta a descrição')
@@ -149,8 +166,9 @@ export default function AddExpenseSheet({
         paidBy, scope, category,
         createdAt: preservedCreatedAt,
         monthKey: preservedMonthKey,
-        paymentMethod: pm,
+        paymentMethod: isIncome ? undefined : pm,
         createdBy: preservedCreatedBy,
+        type: isIncome ? 'income' : undefined,
       })
     } else if (kind === 'fixo') {
       const preservedCreatedAt = editing?.kind === 'fixo' ? editing.fixed.createdAt : Date.now()
@@ -287,7 +305,7 @@ export default function AddExpenseSheet({
                 color: tokens.color.text_muted,
               }}
             >
-              {kind === 'avulso' && 'Gasto registrado'}
+              {kind === 'avulso' && (isIncome ? 'Receita registrada' : 'Gasto registrado')}
               {kind === 'fixo' && 'Fixo cadastrado'}
               {kind === 'parcela' && 'Parcelado cadastrado'}
               {' • '}
@@ -310,11 +328,51 @@ export default function AddExpenseSheet({
           style={{
             ...tokens.text.h1,
             color: tokens.color.text_heading,
+            marginBottom: tokens.primitive.space[8],
+          }}
+        >
+          {isEditing ? (isIncome ? 'Editar receita' : 'Editar gasto') : (isIncome ? 'Nova receita' : 'Novo gasto')}
+        </h2>
+
+        {/* Gasto ↔ Receita */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 6,
+            padding: 4,
+            background: tokens.color.bg_app,
+            borderRadius: tokens.primitive.radius.lg,
             marginBottom: tokens.primitive.space[10],
           }}
         >
-          Novo gasto
-        </h2>
+          {([
+            { v: 'gasto', l: '💸 Gasto', c: tokens.color.brand },
+            { v: 'receita', l: '💰 Receita', c: tokens.color.success },
+          ] as const).map((o) => {
+            const active = flow === o.v
+            return (
+              <button
+                key={o.v}
+                onClick={() => selectFlow(o.v)}
+                style={{
+                  background: active ? o.c : 'transparent',
+                  color: active ? '#fff' : tokens.color.text_secondary,
+                  border: 'none',
+                  borderRadius: tokens.primitive.radius.md,
+                  padding: `${tokens.primitive.space[5]} 0`,
+                  fontSize: tokens.primitive.fontSize.lg,
+                  fontWeight: tokens.primitive.fontWeight.bold,
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                  transition: tokens.motion.interaction,
+                }}
+              >
+                {o.l}
+              </button>
+            )
+          })}
+        </div>
 
         {/* Valor — hero */}
         <div style={{ textAlign: 'center', marginBottom: tokens.primitive.space[10] }}>
@@ -339,17 +397,23 @@ export default function AddExpenseSheet({
               R$
             </span>
             <input
-              type="number"
+              type="text"
               inputMode="decimal"
               placeholder="0,00"
               value={amount}
-              onChange={(e) => { setAmount(e.target.value); setError(null) }}
+              onChange={(e) => {
+                // Aceita só dígitos e um separador decimal (vírgula ou ponto).
+                // type="text" (em vez de number) pra o navegador não esvaziar
+                // o campo quando o valor vem com vírgula — ex: ao editar.
+                const cleaned = e.target.value.replace(/[^\d.,]/g, '')
+                setAmount(cleaned); setError(null)
+              }}
               autoFocus
               style={{
                 fontFamily: tokens.primitive.fontFamily.display,
                 fontSize: tokens.primitive.fontSize.display,
                 fontWeight: tokens.primitive.fontWeight.black,
-                color: tokens.color.brand,
+                color: isIncome ? tokens.color.success : tokens.color.brand,
                 border: 'none',
                 outline: 'none',
                 background: 'transparent',
@@ -374,7 +438,7 @@ export default function AddExpenseSheet({
 
         {/* Descrição */}
         <input
-          placeholder="O que foi?"
+          placeholder={isIncome ? 'De onde veio?' : 'O que foi?'}
           value={desc}
           onChange={(e) => { setDesc(e.target.value); setError(null) }}
           style={{
@@ -392,17 +456,19 @@ export default function AddExpenseSheet({
           }}
         />
 
-        {/* Tipo segmented */}
-        <SegmentedField
-          label="Tipo"
-          value={kind}
-          onChange={(v) => setKind(v as ExpenseKind)}
-          options={[
-            { v: 'avulso', l: '💸 Avulso' },
-            { v: 'fixo', l: '📌 Fixo' },
-            { v: 'parcela', l: '💳 Parcela' },
-          ]}
-        />
+        {/* Tipo segmented — só pra gasto (receita é sempre avulsa) */}
+        {!isIncome && (
+          <SegmentedField
+            label="Tipo"
+            value={kind}
+            onChange={(v) => setKind(v as ExpenseKind)}
+            options={[
+              { v: 'avulso', l: '💸 Avulso' },
+              { v: 'fixo', l: '📌 Fixo' },
+              { v: 'parcela', l: '💳 Parcela' },
+            ]}
+          />
+        )}
 
         {/* Escopo */}
         <SegmentedField
@@ -416,10 +482,10 @@ export default function AddExpenseSheet({
           ]}
         />
 
-        {/* Quem pagou (só se for casal — escopo pessoal já implica pagador) */}
+        {/* Quem pagou/recebeu (só se for casal — escopo pessoal já implica a pessoa) */}
         {scope === 'casal' && (
           <SegmentedField
-            label="Quem pagou?"
+            label={isIncome ? 'Quem recebeu?' : 'Quem pagou?'}
             value={paidBy}
             onChange={(v) => setPaidBy(v as PaidBy)}
             options={[
@@ -443,7 +509,9 @@ export default function AddExpenseSheet({
           </div>
         )}
 
-        {/* Forma de pagamento */}
+        {/* Forma de pagamento — só pra gasto */}
+        {!isIncome && (
+        <>
         <FieldLabel text="Forma de pagamento" />
         <div
           style={{
@@ -477,6 +545,8 @@ export default function AddExpenseSheet({
             )
           })}
         </div>
+        </>
+        )}
 
         {/* Frequência (apenas fixo) */}
         {kind === 'fixo' && (
@@ -560,7 +630,7 @@ export default function AddExpenseSheet({
             marginBottom: tokens.primitive.space[10],
           }}
         >
-          {allCategoryNames(customCategories).map((c) => (
+          {categoryOptions.map((c) => (
             <button
               key={c}
               onClick={() => setCategory(c)}
@@ -580,22 +650,24 @@ export default function AddExpenseSheet({
               {categoryEmoji(c, customCategories)} {c}
             </button>
           ))}
-          <button
-            onClick={() => setCreatingCategory(true)}
-            style={{
-              background: 'transparent',
-              color: tokens.color.text_secondary,
-              border: `1.5px dashed ${tokens.color.border_default}`,
-              borderRadius: tokens.primitive.radius.pill,
-              padding: `${tokens.primitive.space[3]} ${tokens.primitive.space[6]}`,
-              fontSize: tokens.primitive.fontSize.base,
-              fontWeight: tokens.primitive.fontWeight.semibold,
-              fontFamily: 'inherit',
-              cursor: 'pointer',
-            }}
-          >
-            + Nova
-          </button>
+          {!isIncome && (
+            <button
+              onClick={() => setCreatingCategory(true)}
+              style={{
+                background: 'transparent',
+                color: tokens.color.text_secondary,
+                border: `1.5px dashed ${tokens.color.border_default}`,
+                borderRadius: tokens.primitive.radius.pill,
+                padding: `${tokens.primitive.space[3]} ${tokens.primitive.space[6]}`,
+                fontSize: tokens.primitive.fontSize.base,
+                fontWeight: tokens.primitive.fontWeight.semibold,
+                fontFamily: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              + Nova
+            </button>
+          )}
         </div>
 
         {creatingCategory && (

@@ -1,4 +1,4 @@
-import { CATEGORIES, EMOJIS } from '@/components/constants'
+import { CATEGORIES, EMOJIS, INCOME_EMOJIS } from '@/components/constants'
 import type { CustomCategory } from '@/components/types'
 
 export function allCategoryNames(custom: CustomCategory[]): string[] {
@@ -8,6 +8,7 @@ export function allCategoryNames(custom: CustomCategory[]): string[] {
 
 export function categoryEmoji(name: string, custom: CustomCategory[]): string {
   if (EMOJIS[name]) return EMOJIS[name]
+  if (INCOME_EMOJIS[name]) return INCOME_EMOJIS[name]
   const found = custom.find((c) => c.name === name)
   return found?.emoji ?? '📦'
 }

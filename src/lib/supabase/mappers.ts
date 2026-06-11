@@ -25,6 +25,7 @@ export function expenseFromRow(r: ExpenseRow): Expense {
     monthKey: r.month_key,
     paymentMethod: r.payment_method ?? undefined,
     createdBy: r.created_by ?? undefined,
+    type: r.type === 'income' ? 'income' : undefined,
   }
 }
 export function expenseToRow(
@@ -43,6 +44,7 @@ export function expenseToRow(
     category: e.category,
     payment_method: e.paymentMethod ?? null,
     month_key: e.monthKey,
+    type: e.type === 'income' ? 'income' : 'expense',
     created_at: tsToIso(e.createdAt),
   }
 }

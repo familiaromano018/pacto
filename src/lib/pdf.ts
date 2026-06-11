@@ -3,6 +3,7 @@ import autoTable from 'jspdf-autotable'
 import { formatBRL, monthLabel, parseMonthKey } from './format'
 import { categoryEmoji } from './categories'
 import { paymentMethodLabel } from '@/components/constants'
+import { fairShareAByCategory } from './split'
 import type { Expense, FixedCost, Installment, CustomCategory } from '@/components/types'
 
 interface ExtractInput {
@@ -11,7 +12,8 @@ interface ExtractInput {
   nameB: string
   incomeA: string
   incomeB: string
-  method: '50/50' | 'proporcional'
+  method: '50/50' | 'proporcional' | 'unificada' | 'categorias'
+  categorySplit?: Record<string, 'A' | 'B' | 'ambos'>
   expenses: Expense[]
   fixedCosts: FixedCost[]
   installments: Installment[]
@@ -36,6 +38,7 @@ export function generateExtractPDF(input: ExtractInput) {
     date: string
     desc: string
     cat: string
+    catRaw: string
     pessoa: string
     pago: string
     tipo: string
@@ -44,12 +47,13 @@ export function generateExtractPDF(input: ExtractInput) {
   }> = []
 
   input.expenses
-    .filter((e) => e.monthKey === monthKey)
+    .filter((e) => e.monthKey === monthKey && e.type !== 'income')
     .forEach((e) => {
       rows.push({
         date: new Date(e.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         desc: e.desc,
         cat: `${categoryEmoji(e.category, input.customCategories)} ${e.category}`.trim(),
+        catRaw: e.category,
         pessoa: e.scope === 'casal' ? 'Casal' : e.scope === 'A' ? nameA : nameB,
         pago: e.scope === 'casal' ? (e.paidBy === 'A' ? nameA : nameB) : '—',
         tipo: 'Avulso',
@@ -65,6 +69,7 @@ export function generateExtractPDF(input: ExtractInput) {
         date: f.dueDay ? String(f.dueDay).padStart(2, '0') : '—',
         desc: f.desc,
         cat: `${categoryEmoji(f.category, input.customCategories)} ${f.category}`.trim(),
+        catRaw: f.category,
         pessoa: f.scope === 'casal' ? 'Casal' : f.scope === 'A' ? nameA : nameB,
         pago: f.scope === 'casal' ? (f.paidBy === 'A' ? nameA : nameB) : '—',
         tipo: 'Fixo',
@@ -80,6 +85,7 @@ export function generateExtractPDF(input: ExtractInput) {
         date: i.dueDay ? String(i.dueDay).padStart(2, '0') : '—',
         desc: `${i.desc} (${elapsed + 1}/${i.totalParcelas})`,
         cat: `${categoryEmoji(i.category, input.customCategories)} ${i.category}`.trim(),
+        catRaw: i.category,
         pessoa: i.scope === 'casal' ? 'Casal' : i.scope === 'A' ? nameA : nameB,
         pago: i.scope === 'casal' ? (i.paidBy === 'A' ? nameA : nameB) : '—',
         tipo: 'Parcela',
@@ -100,10 +106,15 @@ export function generateExtractPDF(input: ExtractInput) {
 
   const iA = parseFloat(incomeA) || 0
   const iB = parseFloat(incomeB) || 0
-  const fairShareA = method === '50/50' || iA + iB === 0
-    ? totalCasal / 2
-    : totalCasal * (iA / (iA + iB))
-  const balanceA = casalA - fairShareA
+  const fairShareA = method === 'categorias'
+    ? fairShareAByCategory(
+        rows.filter((r) => r.pessoa === 'Casal').map((r) => ({ category: r.catRaw, amount: r.valor })),
+        input.categorySplit ?? {},
+      )
+    : method === '50/50' || iA + iB === 0
+      ? totalCasal / 2
+      : totalCasal * (iA / (iA + iB))
+  const balanceA = method === 'unificada' ? 0 : casalA - fairShareA
   const quemDeve = Math.abs(balanceA) < 0.01
     ? null
     : balanceA > 0
@@ -148,7 +159,7 @@ export function generateExtractPDF(input: ExtractInput) {
   doc.setFontSize(10)
   doc.setTextColor(180, 180, 190)
   doc.text(
-    `${nameA} & ${nameB} · Divisão ${method === '50/50' ? '50/50' : 'proporcional'}`,
+    `${nameA} & ${nameB} · ${method === 'unificada' ? 'Conta unificada' : method === 'categorias' ? 'Divisão por categorias' : `Divisão ${method === '50/50' ? '50/50' : 'proporcional'}`}`,
     margin, 84,
   )
 
@@ -195,7 +206,7 @@ export function generateExtractPDF(input: ExtractInput) {
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(13)
     doc.setTextColor(180, 50, 50)
-    doc.text(`${quemDeve.de} deve ${formatBRL(quemDeve.valor)} para ${quemDeve.para}`, margin + 12, cursorY + 36)
+    doc.text(`${quemDeve.de} repassa ${formatBRL(quemDeve.valor)} para ${quemDeve.para}`, margin + 12, cursorY + 36)
     cursorY += 60
   } else if (total > 0) {
     doc.setFillColor(240, 253, 244)

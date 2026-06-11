@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { useSession } from '@/lib/supabase/useSession'
+import { trackPixel } from '@/components/MetaPixel'
+import { trackGA } from '@/components/GoogleAnalytics'
 
 type Variant = 'nav' | 'primary' | 'final' | 'pricing-outlined' | 'pricing-filled'
 
@@ -83,8 +85,18 @@ export default function SmartCTA({ variant }: Props) {
         ? 'Começar agora'
         : 'Começar grátis →'
 
+  function handleClick() {
+    if (isAuth) {
+      trackGA('open_app', { source: variant })
+    } else {
+      // Intenção de começar (clicou no CTA da landing). Mede o passo entrada → clique.
+      trackPixel('Lead', { content_name: 'CTA Começar grátis' })
+      trackGA('cta_comecar', { source: variant })
+    }
+  }
+
   return (
-    <Link href="/app" style={styles[variant]}>
+    <Link href="/app" style={styles[variant]} onClick={handleClick}>
       {label}
     </Link>
   )
