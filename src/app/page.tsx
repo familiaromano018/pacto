@@ -3,11 +3,11 @@ import { Logo, LogoMark } from '@/components/Logo'
 import SmartCTA from '@/components/landing/SmartCTA'
 
 export const metadata = {
-  title: 'Pacto — Mais do que números, um acordo entre vocês',
-  description: 'Combine uma vez. Viva todo dia. O app que organiza as finanças do casal sem briga — porque casas em paz começam nas contas.',
+  title: 'Pacto — As contas do casal, sem briga de quem pagou o quê',
+  description: 'O app que mostra na hora quem deve quanto e sincroniza nos dois celulares em tempo real. Rateio 50/50, por renda, conta única ou por categorias. 14 dias grátis, sem cartão.',
   openGraph: {
-    title: 'Pacto — Mais do que números, um acordo entre vocês',
-    description: 'Combine uma vez. Viva todo dia. Finanças do casal sem briga.',
+    title: 'Pacto — As contas do casal, sem briga de quem pagou o quê',
+    description: 'Quem deve quanto, na hora, nos dois celulares. Finanças do casal sem briga. 14 dias grátis.',
     type: 'website',
   },
 }
@@ -176,7 +176,7 @@ function Hero() {
             fontWeight: 400,
           }}
         >
-          O Pacto organiza tudo que vocês dividem — aluguel, mercado, parcelas, metas — e mostra <strong style={{ color: '#fff', fontWeight: 600 }}>na hora quem deve quanto</strong> pra fechar o mês em paz. Do jeito que combina com vocês: 50/50, por renda, conta única ou por categorias.
+          Cada um lança do próprio celular e o Pacto mostra, <strong style={{ color: '#fff', fontWeight: 600 }}>na hora, quem deve quanto</strong> pra quem — atualizado nos dois aparelhos em tempo real. Acabou a planilha, o &ldquo;manda o print&rdquo; e o climão no fim do mês.
         </p>
 
         <div
@@ -689,7 +689,7 @@ function Comparison() {
                 ['Saldo do casal mês a mês', true, true, false, 'manual'],
                 ['Extrato PDF do mês', true, false, false, 'export'],
                 ['Gráficos de gastos', true, false, true, 'manual'],
-                ['Sync entre 2 celulares', 'sim', true, false, false],
+                ['Sync em tempo real entre 2 celulares', true, true, false, false],
                 ['Pensado pra casal (não amigos)', true, false, false, false],
               ].map(([feat, p, s, m, pl], i) => (
                 <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
@@ -1049,11 +1049,11 @@ function FAQ() {
     },
     {
       q: 'Meus dados ficam guardados onde?',
-      a: 'Hoje, no seu próprio dispositivo (localStorage). Não enviamos nada pra servidor. Quando ativarmos sync entre celulares, vai ser criptografado e privado pro casal — ninguém de fora vê.',
+      a: 'Na nuvem, criptografados em trânsito e em repouso, e sincronizados em tempo real entre os celulares de vocês dois. O acesso é restrito ao casal — ninguém de fora vê seus lançamentos. Você exporta tudo em PDF quando quiser, e excluir a conta apaga os dados de verdade.',
     },
     {
       q: 'Posso usar sozinho enquanto minha parceira não baixa?',
-      a: 'Pode. Começa registrando sozinho. Quando ela entrar, gera um código de convite e ela vê os mesmos dados.',
+      a: 'Pode. Você começa registrando sozinho e, quando ela entrar pelo código de convite, tudo que você já lançou aparece no celular dela na hora. Daí em diante, todo gasto que um lançar o outro vê em tempo real.',
     },
     {
       q: 'O que acontece se a gente terminar?',
@@ -1061,7 +1061,7 @@ function FAQ() {
     },
     {
       q: 'Funciona offline?',
-      a: 'Sim. Tudo roda no seu celular. Internet só pra exportar PDF e (no futuro) sync.',
+      a: 'Funciona. Você lança os gastos mesmo sem internet — fica salvo no seu celular — e, assim que conectar, tudo sincroniza sozinho com o celular do seu par.',
     },
   ]
 
