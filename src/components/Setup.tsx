@@ -13,6 +13,7 @@ import {
 } from '@/lib/supabase/couple'
 import type { CoupleRow } from '@/lib/supabase/database.types'
 import { signOut } from '@/lib/supabase/useSession'
+import { trackPixel } from './MetaPixel'
 
 export interface SetupResult {
   coupleId: string
@@ -86,6 +87,9 @@ export default function Setup({ initialCoupleId, onDone }: Props) {
       const row = await getCoupleRow(id)
       setCoupleId(id)
       setCoupleRow(row)
+      // Cadastro concluído: casal criado (parceiro A / iniciador). É o evento que
+      // permite o Meta otimizar por signup real, não por clique acidental no Reels.
+      trackPixel('CompleteRegistration', { content_name: 'couple_created', status: 'creator' })
       setStep('created')
     } catch (err: any) {
       setErrorMsg(err?.message ?? 'Não foi possível criar o casal.')
@@ -105,6 +109,8 @@ export default function Setup({ initialCoupleId, onDone }: Props) {
     try {
       const id = await joinCoupleWithCode(inviteCode.trim())
       setCoupleId(id)
+      // Cadastro concluído: parceiro B entrou pelo código de convite.
+      trackPixel('CompleteRegistration', { content_name: 'couple_joined', status: 'partner' })
       setStep('details')
     } catch (err: any) {
       setErrorMsg(err?.message ?? 'Não consegui entrar no casal.')
