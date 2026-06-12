@@ -11,7 +11,16 @@ import { CATEGORIES, INCOME_CATEGORIES, EMOJIS, INCOME_EMOJIS } from '@/componen
 import { newId } from '@/lib/id'
 import { parseMessage } from './parse'
 import type { ParsedIntent } from './parse'
-import type { ExpenseRow, PaidBy, PaymentMethod, Scope } from '@/lib/supabase/database.types'
+import { computeMonthTotals } from '@/lib/calculations/monthTotals'
+import { monthLabel } from '@/lib/format'
+import type {
+  CategorySplit,
+  ExpenseRow,
+  Method,
+  PaidBy,
+  PaymentMethod,
+  Scope,
+} from '@/lib/supabase/database.types'
 
 const PAYMENT_METHODS: PaymentMethod[] = ['pix', 'debito', 'credito', 'dinheiro', 'boleto', 'transferencia']
 
@@ -60,6 +69,10 @@ interface Ctx {
   role: PaidBy
   nameA: string
   nameB: string
+  incomeA: string
+  incomeB: string
+  method: Method
+  categorySplit: CategorySplit | null
   expenseCategories: string[]
   incomeCategories: string[]
   customEmojis: Record<string, string>
@@ -87,7 +100,7 @@ export async function handleVerifiedMessage(
 
   const { data: couple } = await sb
     .from('couples')
-    .select('name_a, name_b')
+    .select('name_a, name_b, income_a, income_b, method, category_split')
     .eq('id', coupleId)
     .maybeSingle()
   const nameA = couple?.name_a || 'A'
@@ -105,7 +118,21 @@ export async function handleVerifiedMessage(
   const expenseCategories = Array.from(new Set([...CATEGORIES.filter((c) => c !== 'Outros'), ...customNames, 'Outros']))
   const incomeCategories = [...INCOME_CATEGORIES]
 
-  const ctx: Ctx = { sb, coupleId, userId, role, nameA, nameB, expenseCategories, incomeCategories, customEmojis }
+  const ctx: Ctx = {
+    sb,
+    coupleId,
+    userId,
+    role,
+    nameA,
+    nameB,
+    incomeA: couple?.income_a || '0',
+    incomeB: couple?.income_b || '0',
+    method: (couple?.method as Method) || '50/50',
+    categorySplit: (couple?.category_split as CategorySplit) ?? null,
+    expenseCategories,
+    incomeCategories,
+    customEmojis,
+  }
 
   // ── parse
   const intent = await parseMessage(text, {
@@ -129,7 +156,7 @@ export async function handleVerifiedMessage(
     case 'apagar':
       return doApagar(ctx)
     case 'consultar':
-      return '📊 Consultas pelo WhatsApp ("quanto gastei esse mês?") estão chegando! Por ora, dá uma olhada no app.'
+      return doConsultar(ctx, intent)
     case 'ajuda':
       return [
         '💛 *Como usar o Pacto no WhatsApp:*',
@@ -140,8 +167,9 @@ export async function handleVerifiedMessage(
         '• Quem pagou: *"mercado 200, a ' + (role === 'A' ? nameB : nameA) + ' pagou"*',
         '• Corrigir: *"era 120"* / *"muda pra mercado"*',
         '• Apagar: *"apaga o último"*',
+        '• Consultar: *"quem deve quanto?"* / *"quanto gastei?"* / *"quanto de mercado?"*',
         '',
-        'Eu anoto na hora e te confirmo. 🙌',
+        'Pode mandar por áudio também. Eu anoto na hora e te confirmo. 🙌',
       ].join('\n')
     default:
       return 'Manda tipo *"gastei 50 no mercado"* que eu lanço pra vocês. 💛'
@@ -263,6 +291,71 @@ async function doApagar(ctx: Ctx): Promise<string> {
   }
   const emoji = emojiFor(last.category, ctx.customEmojis)
   return `🗑️ Apaguei: *${brl(Number(last.amount))}* · ${emoji} ${last.category}\n_${last.desc_text}_`
+}
+
+function prevMonthKey(mk: string): string {
+  const [y, m] = mk.split('-').map(Number)
+  const d = new Date(y, m - 1, 1)
+  d.setMonth(d.getMonth() - 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+async function doConsultar(ctx: Ctx, intent: ParsedIntent): Promise<string> {
+  const monthKey = intent.periodo === 'mes_passado' ? prevMonthKey(spMonthKey()) : spMonthKey()
+  const label = monthLabel(monthKey)
+
+  const [expRes, fixRes, instRes] = await Promise.all([
+    ctx.sb.from('expenses').select('*').eq('couple_id', ctx.coupleId).eq('month_key', monthKey),
+    ctx.sb.from('fixed_costs').select('*').eq('couple_id', ctx.coupleId),
+    ctx.sb.from('installments').select('*').eq('couple_id', ctx.coupleId),
+  ])
+
+  const t = computeMonthTotals({
+    monthKey,
+    expenses: (expRes.data as any[]) || [],
+    fixedCosts: (fixRes.data as any[]) || [],
+    installments: (instRes.data as any[]) || [],
+    incomeA: ctx.incomeA,
+    incomeB: ctx.incomeB,
+    method: ctx.method,
+    categorySplit: ctx.categorySplit,
+  })
+
+  const nameOf = (r: PaidBy) => (r === 'A' ? ctx.nameA : ctx.nameB)
+
+  switch (intent.consulta_tipo || 'saldo') {
+    case 'meu_total': {
+      const v = ctx.role === 'A' ? t.totalA : t.totalB
+      return `🧾 Em ${label}, você gastou *${brl(v)}* _(o que saiu do seu bolso)_.`
+    }
+    case 'total_casal':
+      return `🧾 Em ${label}: total de *${brl(t.totalMes)}*\n• Contas do casal: ${brl(t.totalCasal)}\n• Pessoais: ${brl(t.totalPessoalA + t.totalPessoalB)}`
+    case 'categoria': {
+      if (!intent.categoria) return 'Qual categoria? Ex: *"quanto de mercado esse mês?"*'
+      const cat = matchCategory(intent.categoria, ctx.expenseCategories)
+      const v = t.byCategory[cat] ?? 0
+      const emoji = emojiFor(cat, ctx.customEmojis)
+      return v > 0
+        ? `${emoji} Em ${label}, vocês gastaram *${brl(v)}* em ${cat}.`
+        : `${emoji} Não achei gasto em ${cat} em ${label}.`
+    }
+    case 'sobra': {
+      if (t.totalEntrou === 0) return `Em ${label} ainda não tem receita lançada. Saíram ${brl(t.totalMes)} em gastos.`
+      const verbo = t.totalSobrou >= 0 ? 'sobrou' : 'faltou'
+      return `💵 Em ${label}: entrou ${brl(t.totalEntrou)}, saiu ${brl(t.totalMes)} → *${verbo} ${brl(Math.abs(t.totalSobrou))}*.`
+    }
+    case 'saldo':
+    default: {
+      if (ctx.method === 'unificada') {
+        return `🤝 Vocês usam conta unificada — sem acerto entre vocês. Em ${label} o casal gastou *${brl(t.totalCasal)}*.`
+      }
+      if (!t.quemDeve) {
+        return `🟰 Em ${label} está zerado — ninguém deve ninguém. O casal gastou ${brl(t.totalCasal)}.`
+      }
+      const { de, para, valor } = t.quemDeve
+      return `💰 Acerto de ${label}: *${nameOf(de)} deve ${brl(valor)} pra ${nameOf(para)}*.\n_Casal gastou ${brl(t.totalCasal)} no mês._`
+    }
+  }
 }
 
 /** Monta "R$ X · 🛒 Categoria (· pessoal | · pagou Nome)". */

@@ -15,6 +15,8 @@ export interface ParsedIntent {
   escopo?: 'casal' | 'meu' | 'do_parceiro'
   quem_pagou?: 'eu' | 'parceiro'
   forma_pagamento?: PaymentMethod | null
+  consulta_tipo?: 'saldo' | 'total_casal' | 'meu_total' | 'categoria' | 'sobra'
+  periodo?: 'mes_atual' | 'mes_passado'
   confianca?: number
 }
 
@@ -61,6 +63,17 @@ const TOOL = {
         enum: ['pix', 'debito', 'credito', 'dinheiro', 'boleto', 'transferencia', null],
         description: 'Forma de pagamento se mencionada, senão null.',
       },
+      consulta_tipo: {
+        type: 'string',
+        enum: ['saldo', 'total_casal', 'meu_total', 'categoria', 'sobra'],
+        description:
+          'Só quando action=consultar. saldo = quem deve quanto / acerto; total_casal = quanto o casal gastou; meu_total = quanto EU gastei; categoria = quanto gastou numa categoria (preencha o campo categoria); sobra = quanto entrou/sobrou (receitas - gastos).',
+      },
+      periodo: {
+        type: 'string',
+        enum: ['mes_atual', 'mes_passado'],
+        description: 'Período da consulta. Default mes_atual.',
+      },
       confianca: { type: 'number', description: 'Sua confiança de 0 a 1 na interpretação.' },
     },
     required: ['action'],
@@ -86,7 +99,7 @@ export async function parseMessage(text: string, ctx: ParseContext): Promise<Par
     `- categoria: escolha a mais próxima da lista do tipo certo; se nada servir, "Outros".`,
     `- escopo: default "casal". Só use "meu"/"do_parceiro" se a pessoa deixar claro que é pessoal.`,
     `- quem_pagou: default "eu". Se disser que o parceiro pagou (ex: "a ${ctx.nameA === ctx.senderName ? ctx.nameB : ctx.nameA} pagou"), use "parceiro". Isso é independente do escopo (uma conta do casal pode ter sido paga por qualquer um).`,
-    `- Pergunta tipo "quanto gastei?", "qual o saldo?" -> action=consultar.`,
+    `- Pergunta -> action=consultar + consulta_tipo: "quanto gastei?" -> meu_total; "quanto gastamos?"/"total do mês?" -> total_casal; "quem deve quanto?"/"qual o acerto?"/"como tá o mês?" -> saldo; "quanto de mercado?" -> categoria (+ campo categoria); "quanto sobrou?"/"quanto entrou?" -> sobra. "mês passado" -> periodo=mes_passado.`,
     `- "corrige", "tava errado", "era 120", "muda a categoria pra mercado" -> action=corrigir, preenchendo SÓ os campos que mudaram (valor/categoria/descricao/escopo/quem_pagou).`,
     `- "apaga", "cancela", "exclui o último" -> action=apagar.`,
     `- Saudação/dúvida de como usar -> action=ajuda. Qualquer coisa fora disso -> action=outro.`,
