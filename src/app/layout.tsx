@@ -1,9 +1,25 @@
 import type { Metadata, Viewport } from 'next'
+import { Fraunces, Hanken_Grotesk } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/components/Toast'
 import MetaPixel from '@/components/MetaPixel'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { Analytics } from '@vercel/analytics/next'
+
+// Display serifada com caráter (hero, títulos, números) — foge do visual genérico.
+const display = Fraunces({
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-display',
+})
+
+// Corpo: grotesca humanista, legível e sóbria (não Inter).
+const body = Hanken_Grotesk({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+})
 
 export const metadata: Metadata = {
   title: 'Pacto — Uma casa merece paz',
@@ -40,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${display.variable} ${body.variable}`}>
       <head>
         {/* Aplica o tema salvo antes da pintura, evitando flash do tema errado */}
         <script

@@ -1,6 +1,14 @@
 import Link from 'next/link'
-import { Logo, LogoMark } from '@/components/Logo'
+import Image from 'next/image'
+import { LogoMark } from '@/components/Logo'
 import SmartCTA from '@/components/landing/SmartCTA'
+import Reveal from '@/components/landing/Reveal'
+import HeroBg from '@/components/landing/HeroBg'
+import HowScene from '@/components/landing/HowScene'
+import YouTubeLite from '@/components/landing/YouTubeLite'
+import GrowingStat from '@/components/landing/GrowingStat'
+import WrongWays from '@/components/landing/WrongWays'
+import AppShowcase from '@/components/landing/AppShowcase'
 
 export const metadata = {
   title: 'Pacto — As contas do casal, sem briga de quem pagou o quê',
@@ -12,16 +20,55 @@ export const metadata = {
   },
 }
 
+// ── Paleta "Noite / Cofre" (navy + brass) ──
+const C = {
+  bg: '#0c1226',
+  bgDeep: '#090d1c',
+  surface: '#131a31',
+  surfaceHi: '#182245',
+  ink: '#f3efe6',
+  inkSoft: '#c7ccdb',
+  muted: '#8b91a8',
+  brass: '#c9a25e',
+  brassHi: '#e3c389',
+  brassDim: 'rgba(201,162,94,0.14)',
+  hair: 'rgba(214,201,178,0.12)',
+  hairStrong: 'rgba(214,201,178,0.22)',
+  neutralCheck: 'rgba(214,201,178,0.45)',
+}
+
+// Paleta clara — "sessão creme" que quebra o ritmo escuro do site
+const LIGHT = {
+  bg: '#efe6d4',
+  card: '#f8f1e3',
+  panel: '#faf5ea', // painel branco-quente da "resolução"
+  ink: '#1a2138',
+  body: '#4a4f63',
+  muted: '#6b6f82',
+  bronze: '#9c6f30',
+  hair: 'rgba(26,33,56,0.12)',
+  hairStrong: 'rgba(26,33,56,0.22)',
+}
+
+const display = 'var(--font-display), Georgia, serif'
+
+function delay(ms: number): React.CSSProperties {
+  return { ['--pl-delay' as string]: `${ms}ms` } as React.CSSProperties
+}
+
 export default function LandingPage() {
   return (
-    <main style={{ background: '#0b0b10', color: '#f4f4f6', minHeight: '100vh', overflowX: 'clip' }}>
+    <main className="pacto-landing" style={{ minHeight: '100vh', overflowX: 'clip' }}>
       <Nav />
       <Hero />
-      <ProblemStats />
+      <VideoSection />
+      <WrongWays />
       <ThreePillars />
       <HowItWorks />
+      <AppShowcase />
       <Comparison />
       <Features />
+      <Testimonials />
       <ForWhom />
       <Pricing />
       <FAQ />
@@ -40,10 +87,10 @@ function Nav() {
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        background: 'rgba(11,11,16,0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(12,18,38,0.72)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        borderBottom: `1px solid ${C.hair}`,
       }}
     >
       <div
@@ -57,35 +104,19 @@ function Nav() {
         }}
       >
         <LogoMark size={26} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: '0.2em',
-              color: '#f4f4f6',
-              lineHeight: 1,
-            }}
-          >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.24em', color: C.ink, lineHeight: 1 }}>
             PACTO
           </span>
-          <span
-            style={{
-              fontSize: 8,
-              fontWeight: 600,
-              letterSpacing: '0.18em',
-              color: '#5b8dff',
-              lineHeight: 1,
-            }}
-          >
+          <span style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.2em', color: C.brass, lineHeight: 1 }}>
             FINANÇAS · DIÁLOGO · PROPÓSITO
           </span>
         </div>
         <nav style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 22 }}>
-          <a href="#problema" style={navLinkStyle}>O problema</a>
-          <a href="#como" style={navLinkStyle}>Como funciona</a>
-          <a href="#preco" style={navLinkStyle}>Preço</a>
-          <Link href="/blog" style={navLinkStyle}>Blog</Link>
+          <a href="#problema" className="pl-link" style={navLinkStyle}>O problema</a>
+          <a href="#como" className="pl-link" style={navLinkStyle}>Como funciona</a>
+          <a href="#preco" className="pl-link" style={navLinkStyle}>Preço</a>
+          <Link href="/blog" className="pl-link" style={navLinkStyle}>Blog</Link>
           <SmartCTA variant="nav" />
         </nav>
       </div>
@@ -94,345 +125,120 @@ function Nav() {
 }
 
 const navLinkStyle: React.CSSProperties = {
-  color: '#a0a3ad',
+  color: C.muted,
   fontSize: 13,
   fontWeight: 500,
   textDecoration: 'none',
+  transition: 'color 0.2s ease',
 }
 
 // ─────────────────────────────────────────────────────────────── HERO ──
 
 function Hero() {
   return (
-    <section
-      style={{
-        position: 'relative',
-        padding: '90px 24px 80px',
-        textAlign: 'center',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Glow decorativo */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          top: -200,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 800,
-          height: 600,
-          background: 'radial-gradient(ellipse at center, rgba(91,141,255,0.18) 0%, rgba(91,141,255,0) 60%)',
-          pointerEvents: 'none',
-        }}
-      />
+    <>
+      <section className="pl-hero">
+        <HeroBg />
+        <div className="pl-hero-scrim" aria-hidden />
 
-      <div style={{ position: 'relative', maxWidth: 880, margin: '0 auto' }}>
-        <div style={{ marginBottom: 16 }}>
-          <Logo size={72} wordColor="#f4f4f6" />
-        </div>
+        <div className="pl-hero-inner">
+          <div className="pl-hero-copy">
+            <div className="pl-rise pl-hero-eyebrow" style={{ ...delay(0), display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+              <span style={{ width: 22, height: 1, background: C.brass, display: 'inline-block' }} />
+              <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.28em', color: C.brass, textTransform: 'uppercase' }}>
+                Um acordo entre vocês
+              </span>
+            </div>
 
-        <div
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.32em',
-            color: '#5b8dff',
-            textTransform: 'uppercase',
-            marginBottom: 36,
-          }}
-        >
-          Finanças · Diálogo · Propósito
-        </div>
+            <h1
+              className="pl-rise pl-display"
+              style={{
+                ...delay(90),
+                fontSize: 'clamp(26px, 4.6vw, 38px)',
+                fontWeight: 600,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.12,
+                color: C.ink,
+                margin: 0,
+              }}
+            >
+              <span className="pl-h1-line">As contas do casal,</span>
+              <span className="pl-h1-line" style={{ color: C.brass, fontStyle: 'italic', fontWeight: 500 }}>
+                sem a briga de quem pagou o quê.
+              </span>
+            </h1>
 
-        <h1
-          style={{
-            fontSize: 'clamp(42px, 7vw, 72px)',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.02,
-            color: '#fff',
-            margin: 0,
-          }}
-        >
-          As contas do casal,<br />
-          <span
-            style={{
-              color: '#5b8dff',
-            }}
-          >
-            sem a briga de quem pagou o quê.
-          </span>
-        </h1>
+            <p
+              className="pl-rise"
+              style={{ ...delay(220), fontSize: 19, color: C.inkSoft, marginTop: 22, lineHeight: 1.6, fontWeight: 400 }}
+            >
+              Cada um lança do próprio celular e o Pacto mostra,{' '}
+              <strong style={{ color: C.ink, fontWeight: 600 }}>na hora, quem deve quanto</strong> pra quem — atualizado nos dois aparelhos em tempo real. Acabou a planilha, o &ldquo;manda o print&rdquo; e o climão no fim do mês.
+            </p>
 
-        <p
-          style={{
-            fontSize: 19,
-            color: '#a0a3ad',
-            marginTop: 28,
-            maxWidth: 600,
-            margin: '28px auto 0',
-            lineHeight: 1.55,
-            fontWeight: 400,
-          }}
-        >
-          Cada um lança do próprio celular e o Pacto mostra, <strong style={{ color: '#fff', fontWeight: 600 }}>na hora, quem deve quanto</strong> pra quem — atualizado nos dois aparelhos em tempo real. Acabou a planilha, o &ldquo;manda o print&rdquo; e o climão no fim do mês.
-        </p>
+            <div className="pl-rise" style={{ ...delay(330), display: 'flex', justifyContent: 'center', gap: 14, marginTop: 32, flexWrap: 'wrap' }}>
+              <SmartCTA variant="primary" />
+              <a
+                href="#como"
+                className="pl-tap"
+                style={{
+                  background: 'rgba(12,18,38,0.5)',
+                  color: C.ink,
+                  padding: '15px 28px',
+                  borderRadius: 999,
+                  fontWeight: 600,
+                  fontSize: 17,
+                  textDecoration: 'none',
+                  border: `1px solid ${C.hairStrong}`,
+                  backdropFilter: 'blur(4px)',
+                  WebkitBackdropFilter: 'blur(4px)',
+                }}
+              >
+                Como funciona →
+              </a>
+            </div>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 14,
-            marginTop: 38,
-            flexWrap: 'wrap',
-          }}
-        >
-          <SmartCTA variant="primary" />
-          <a
-            href="#como"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              color: '#f4f4f6',
-              padding: '15px 28px',
-              borderRadius: 12,
-              fontWeight: 600,
-              fontSize: 15,
-              textDecoration: 'none',
-              border: '1px solid rgba(255,255,255,0.10)',
-            }}
-          >
-            Como funciona →
-          </a>
-        </div>
-
-        <div
-          style={{
-            marginTop: 26,
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '10px 20px',
-            fontSize: 12.5,
-            color: '#8a8d97',
-          }}
-        >
-          {[
-            'Grátis 14 dias · sem cartão',
-            'Seus dados ficam só entre vocês',
-            'Sem anúncios',
-            'Feito por um casal, pra casais',
-          ].map((t) => (
-            <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: '#5b8dff', fontWeight: 700 }}>✓</span>
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Big number floating below */}
-      <div
-        style={{
-          position: 'relative',
-          marginTop: 80,
-          maxWidth: 880,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-        }}
-      >
-        <div
-          style={{
-            background: 'linear-gradient(135deg, rgba(91,141,255,0.08) 0%, rgba(212,175,106,0.04) 100%)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 24,
-            padding: '40px 32px',
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: '0.2em',
-              color: '#a0a3ad',
-              fontWeight: 600,
-            }}
-          >
-            IBGE · Pesquisa Nacional
-          </div>
-          <div
-            style={{
-              fontSize: 'clamp(64px, 12vw, 120px)',
-              fontWeight: 800,
-              letterSpacing: '-0.04em',
-              lineHeight: 1,
-              marginTop: 12,
-              background: 'linear-gradient(135deg, #fff 0%, #d4af6a 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            60%
-          </div>
-          <div
-            style={{
-              fontSize: 20,
-              color: '#f4f4f6',
-              fontWeight: 500,
-              marginTop: 8,
-              maxWidth: 540,
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              lineHeight: 1.4,
-            }}
-          >
-            dos divórcios no Brasil têm dinheiro como motivo principal.
+            <div
+              className="pl-rise"
+              style={{ ...delay(440), marginTop: 30, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px 26px', fontSize: 14.5, fontWeight: 500, color: C.ink }}
+            >
+              {[
+                'Grátis 14 dias · sem cartão',
+                'Sem anúncios',
+                'Feito por um casal, pra casais',
+              ].map((t) => (
+                <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ display: 'inline-flex', width: 20, height: 20, borderRadius: '50%', background: 'rgba(201,162,94,0.18)', color: C.brass, alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800 }}>✓</span>
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Figura IBGE — gráfico que sobe e número que conta no scroll */}
+      <GrowingStat />
+    </>
   )
 }
 
-// ─────────────────────────────────────────────────────────────── PROBLEM STATS ──
+// ─────────────────────────────────────────────────────────────── VÍDEO ──
 
-function ProblemStats() {
-  const wrongs = [
-    {
-      title: 'Dividir tudo meio a meio.',
-      desc: 'Parece justo, mas ignora realidades diferentes. Quem ganha menos sangra. Quem ganha mais não percebe.',
-    },
-    {
-      title: 'Um paga tudo, o outro nada.',
-      desc: 'Gera dependência, ressentimento e desequilíbrio. O dinheiro vira poder — e poder não combina com casal.',
-    },
-    {
-      title: 'Cada um paga o que quer.',
-      desc: 'Sem planejamento, só conflitos aumentam. No fim do mês, ninguém sabe quem deve a quem.',
-    },
-  ]
-
+function VideoSection() {
   return (
-    <section id="problema" style={{ padding: '110px 24px', background: '#0b0b10' }}>
-      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+    <section style={{ padding: '96px 24px', background: C.bgDeep }}>
+      <div style={{ maxWidth: 920, margin: '0 auto' }}>
         <SectionHeader
-          kicker="Você reconhece esse cenário?"
-          title="3 jeitos errados de dividir conta de casal."
-          sub="A maioria dos casais usa um destes três métodos. Os três têm o mesmo problema: criam atrito em vez de combinar."
+          kicker="Conheça o Pacto"
+          title="O Pacto em 1 minuto."
+          sub="Por que criamos — e como funciona na vida real de um casal."
         />
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 20,
-            marginTop: 56,
-          }}
-        >
-          {wrongs.map((w, i) => (
-            <div
-              key={i}
-              style={{
-                background: '#16161c',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 20,
-                padding: '32px 28px',
-                position: 'relative',
-              }}
-            >
-              <div
-                aria-hidden
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  background: 'rgba(91,141,255,0.12)',
-                  border: '1.5px solid rgba(91,141,255,0.5)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#5b8dff',
-                  fontWeight: 800,
-                  fontSize: 22,
-                  marginBottom: 20,
-                }}
-              >
-                ✕
-              </div>
-              <div
-                style={{
-                  fontSize: 19,
-                  color: '#f4f4f6',
-                  fontWeight: 700,
-                  marginBottom: 10,
-                  lineHeight: 1.3,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {w.title}
-              </div>
-              <div
-                style={{
-                  fontSize: 14.5,
-                  color: '#a0a3ad',
-                  lineHeight: 1.6,
-                }}
-              >
-                {w.desc}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div
-          style={{
-            marginTop: 64,
-            padding: '32px 28px',
-            background: 'linear-gradient(135deg, rgba(91,141,255,0.10) 0%, rgba(91,141,255,0.02) 100%)',
-            border: '1px solid rgba(91,141,255,0.25)',
-            borderRadius: 20,
-            textAlign: 'center',
-            maxWidth: 720,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.2em',
-              color: '#5b8dff',
-              textTransform: 'uppercase',
-              marginBottom: 14,
-            }}
-          >
-            O jeito certo
+        <Reveal style={{ marginTop: 48 }}>
+          <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: '0 30px 70px rgba(0,0,0,0.5)', border: `1px solid ${C.hair}`, aspectRatio: '16 / 9', background: '#000' }}>
+            <YouTubeLite id="D5AoitzgQEo" poster="/site-video-poster.jpg" title="O Pacto em 1 minuto" />
           </div>
-          <div
-            style={{
-              fontSize: 'clamp(22px, 3vw, 28px)',
-              color: '#fff',
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.3,
-            }}
-          >
-            Combinar uma vez. Registrar tudo.<br />
-            Fechar o mês em paz.
-          </div>
-          <div
-            style={{
-              fontSize: 15,
-              color: '#a0a3ad',
-              marginTop: 12,
-              lineHeight: 1.55,
-            }}
-          >
-            É isso que o Pacto faz.
-          </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   )
@@ -446,24 +252,21 @@ function ThreePillars() {
       label: 'Finanças',
       title: 'Números claros.',
       desc: 'Rateio automático, custos fixos, parcelados e fechamento mensal — tudo na palma da mão. Sem planilha. Sem esquecimento.',
-      icon: '○',
     },
     {
       label: 'Diálogo',
       title: 'Conversa fácil.',
       desc: 'Quando os dois veem os mesmos números em tempo real, a conversa muda. De acusação pra acordo. De memória pra fato.',
-      icon: '◐',
     },
     {
       label: 'Propósito',
       title: 'Relação forte.',
       desc: 'Metas a dois, projetos em comum, decisões compartilhadas. Dinheiro deixa de ser desgaste e vira ferramenta de construção.',
-      icon: '●',
     },
   ]
 
   return (
-    <section style={{ padding: '110px 24px', background: '#13131a' }}>
+    <section style={{ padding: '108px 24px', background: C.bg }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
         <SectionHeader
           kicker="O método Pacto"
@@ -471,96 +274,45 @@ function ThreePillars() {
           sub="Não é só sobre o app. É sobre a relação que vocês querem construir."
         />
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 24,
-            marginTop: 56,
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginTop: 56 }}>
           {pillars.map((p, i) => (
-            <div
-              key={p.label}
-              style={{
-                background: 'linear-gradient(180deg, rgba(91,141,255,0.06) 0%, rgba(91,141,255,0.01) 100%)',
-                border: '1px solid rgba(91,141,255,0.15)',
-                borderRadius: 22,
-                padding: '36px 30px',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
+            <Reveal key={p.label} delay={i * 150} className="pl-strong">
               <div
+                className="pl-card-hover"
                 style={{
-                  fontSize: 56,
-                  color: '#5b8dff',
-                  lineHeight: 1,
-                  marginBottom: 24,
-                  fontWeight: 300,
-                }}
-                aria-hidden
-              >
-                {p.icon}
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: '#5b8dff',
-                  marginBottom: 14,
+                  background: C.surface,
+                  border: `1px solid ${C.hair}`,
+                  borderRadius: 4,
+                  padding: '36px 30px',
+                  height: '100%',
                 }}
               >
-                0{i + 1} · {p.label}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18 }}>
+                  <span className="pl-display" style={{ fontSize: 38, color: C.brass, fontWeight: 500, lineHeight: 1 }}>
+                    0{i + 1}
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: C.muted }}>
+                    {p.label}
+                  </span>
+                </div>
+                <div className="pl-display" style={{ fontSize: 28, color: C.ink, fontWeight: 500, letterSpacing: '-0.01em', marginBottom: 12, lineHeight: 1.2 }}>
+                  {p.title}
+                </div>
+                <div style={{ fontSize: 17, color: C.muted, lineHeight: 1.6 }}>
+                  {p.desc}
+                </div>
               </div>
-              <div
-                style={{
-                  fontSize: 24,
-                  color: '#fff',
-                  fontWeight: 800,
-                  letterSpacing: '-0.02em',
-                  marginBottom: 14,
-                  lineHeight: 1.2,
-                }}
-              >
-                {p.title}
-              </div>
-              <div
-                style={{
-                  fontSize: 15,
-                  color: '#a0a3ad',
-                  lineHeight: 1.6,
-                }}
-              >
-                {p.desc}
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
 
-        <div
-          style={{
-            marginTop: 64,
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              fontSize: 'clamp(20px, 2.5vw, 24px)',
-              fontStyle: 'italic',
-              color: '#d4d6dd',
-              fontWeight: 400,
-              lineHeight: 1.4,
-              maxWidth: 640,
-              margin: '0 auto',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            &ldquo;Organizar não é só sobre números. É sobre acordos, confiança e tranquilidade todos os dias.&rdquo;
+        <Reveal delay={140}>
+          <div style={{ marginTop: 60, textAlign: 'center' }}>
+            <div className="pl-display" style={{ fontSize: 'clamp(24px, 2.9vw, 31px)', fontStyle: 'italic', color: C.inkSoft, fontWeight: 400, lineHeight: 1.45, maxWidth: 660, margin: '0 auto', letterSpacing: '-0.01em' }}>
+              &ldquo;Organizar não é só sobre números. É sobre acordos, confiança e tranquilidade todos os dias.&rdquo;
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   )
@@ -569,83 +321,27 @@ function ThreePillars() {
 // ─────────────────────────────────────────────────────────────── HOW IT WORKS ──
 
 function HowItWorks() {
-  const steps = [
-    {
-      n: '01',
-      title: 'Combinem uma vez',
-      desc: '50/50 fixo ou proporcional à renda. Vocês decidem como dividir as contas do casal.',
-    },
-    {
-      n: '02',
-      title: 'Registrem os gastos',
-      desc: 'Cada despesa entra no extrato compartilhado. Avulso, fixo ou parcelado — categorizado e ratado automaticamente.',
-    },
-    {
-      n: '03',
-      title: 'Fechem o mês em paz',
-      desc: 'No fim do mês, Pacto mostra o saldo claro: quem deve quanto pra quem. Ou se ninguém deve nada.',
-    },
-  ]
-
   return (
-    <section id="como" style={{ padding: '110px 24px', background: '#13131a' }}>
-      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-        <SectionHeader
-          kicker="Como funciona"
-          title="Três passos. Zero planilha."
-          sub="Pacto faz a conta. Vocês vivem a relação."
-        />
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 24,
-            marginTop: 56,
-          }}
-        >
-          {steps.map((s) => (
-            <div
-              key={s.n}
-              style={{
-                padding: '36px 28px',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#5b8dff',
-                  letterSpacing: '0.15em',
-                }}
-              >
-                {s.n}
-              </div>
-              <h3
-                style={{
-                  fontSize: 24,
-                  fontWeight: 700,
-                  color: '#fff',
-                  marginTop: 14,
-                  letterSpacing: '-0.015em',
-                  lineHeight: 1.2,
-                }}
-              >
-                {s.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: 15,
-                  color: '#a0a3ad',
-                  marginTop: 10,
-                  lineHeight: 1.6,
-                }}
-              >
-                {s.desc}
-              </p>
-            </div>
-          ))}
-        </div>
+    <section id="como" className="pl-how-section">
+      <div className="pl-how-bg">
+        <Image src="/how-couple.jpg" alt="Casal lançando os gastos no Pacto, juntos no sofá" fill sizes="100vw" style={{ objectFit: 'cover' }} />
+        <div className="pl-how-scrim-full" aria-hidden />
+      </div>
+      <div className="pl-how-inner">
+        <Reveal style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto', padding: '10px 30px 26px', background: 'radial-gradient(120% 100% at 50% 35%, rgba(9,13,28,0.78) 0%, rgba(9,13,28,0.32) 52%, transparent 78%)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <span style={{ width: 18, height: 1, background: C.brass }} />
+            <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: C.brass, fontWeight: 600 }}>Como funciona</span>
+            <span style={{ width: 18, height: 1, background: C.brass }} />
+          </div>
+          <h2 className="pl-display" style={{ fontSize: 'clamp(31px, 4.5vw, 45px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.015em', lineHeight: 1.18, margin: 0, textShadow: '0 2px 24px rgba(9,13,28,0.85)' }}>
+            Três passos. Zero planilha.
+          </h2>
+          <p style={{ fontSize: 18, marginTop: 16, lineHeight: 1.6, fontWeight: 500, color: C.ink, textShadow: '0 2px 18px rgba(9,13,28,0.85)' }}>
+            Pacto faz a conta. <span style={{ color: C.brass }}>Vocês vivem a relação.</span>
+          </p>
+        </Reveal>
+        <HowScene />
       </div>
     </section>
   )
@@ -655,54 +351,58 @@ function HowItWorks() {
 
 function Comparison() {
   return (
-    <section style={{ padding: '110px 24px', background: '#0b0b10' }}>
+    <section style={{ padding: '108px 24px', background: C.bg }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-        <SectionHeader
-          kicker="Pacto vs. tudo o que você já tentou"
-          title="Não é dividir conta de pizza. É vida a dois."
-          sub="Os apps que existem foram feitos pra amigos. Pacto entende que casal é diferente."
-        />
+        <Reveal style={{ textAlign: 'center', maxWidth: 920, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <span style={{ width: 18, height: 1, background: C.brass }} />
+            <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: C.brass, fontWeight: 600 }}>
+              Pacto vs. tudo o que você já tentou
+            </span>
+            <span style={{ width: 18, height: 1, background: C.brass }} />
+          </div>
+          <h2 className="pl-display" style={{ fontSize: 'clamp(31px, 4.5vw, 45px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.015em', lineHeight: 1.18, margin: 0 }}>
+            Não é dividir conta de pizza.<br />É vida a dois.
+          </h2>
+          <p className="pl-head-1l" style={{ fontSize: 17, color: C.muted, marginTop: 16, lineHeight: 1.6 }}>
+            Os apps que existem foram feitos pra amigos. Pacto entende que casal é diferente.
+          </p>
+        </Reveal>
 
-        <div
-          style={{
-            marginTop: 56,
-            background: '#16161c',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 24,
-            overflow: 'hidden',
-          }}
-        >
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                <th style={thStyle}></th>
-                <th style={{ ...thStyle, color: '#fff', fontWeight: 700 }}>Pacto</th>
-                <th style={thStyle}>Splitwise</th>
-                <th style={thStyle}>Mobills</th>
-                <th style={thStyle}>Planilha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['Rateio justo (50/50 ou proporcional)', true, false, false, 'manual'],
-                ['Fixos e parcelas mensais', true, false, true, 'manual'],
-                ['Saldo do casal mês a mês', true, true, false, 'manual'],
-                ['Extrato PDF do mês', true, false, false, 'export'],
-                ['Gráficos de gastos', true, false, true, 'manual'],
-                ['Sync em tempo real entre 2 celulares', true, true, false, false],
-                ['Pensado pra casal (não amigos)', true, false, false, false],
-              ].map(([feat, p, s, m, pl], i) => (
-                <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                  <td style={{ ...tdStyle, color: '#f4f4f6', fontWeight: 500, textAlign: 'left' }}>{feat as string}</td>
-                  <td style={tdStyle}><Cell v={p} brand /></td>
-                  <td style={tdStyle}><Cell v={s} /></td>
-                  <td style={tdStyle}><Cell v={m} /></td>
-                  <td style={tdStyle}><Cell v={pl} /></td>
+        <Reveal delay={80}>
+          <div style={{ marginTop: 52, background: C.surface, border: `1px solid ${C.hair}`, borderRadius: 4, overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                  <th style={thStyle}></th>
+                  <th style={{ ...thStyle, color: C.brass, fontWeight: 700 }}>Pacto</th>
+                  <th style={thStyle}>Splitwise</th>
+                  <th style={thStyle}>Mobills</th>
+                  <th style={thStyle}>Planilha</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {[
+                  ['Rateio justo (50/50 ou proporcional)', true, false, false, 'manual'],
+                  ['Fixos e parcelas mensais', true, false, true, 'manual'],
+                  ['Saldo do casal mês a mês', true, true, false, 'manual'],
+                  ['Extrato PDF do mês', true, false, false, 'export'],
+                  ['Gráficos de gastos', true, false, true, 'manual'],
+                  ['Sync em tempo real entre 2 celulares', true, true, false, false],
+                  ['Pensado pra casal (não amigos)', true, false, false, false],
+                ].map(([feat, p, s, m, pl], i) => (
+                  <tr key={i} style={{ borderTop: `1px solid ${C.hair}` }}>
+                    <td style={{ ...tdStyle, color: C.ink, fontWeight: 500, textAlign: 'left' }}>{feat as string}</td>
+                    <td style={tdStyle}><Cell v={p} brand /></td>
+                    <td style={tdStyle}><Cell v={s} /></td>
+                    <td style={tdStyle}><Cell v={m} /></td>
+                    <td style={tdStyle}><Cell v={pl} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
       </div>
     </section>
   )
@@ -712,7 +412,7 @@ const thStyle: React.CSSProperties = {
   padding: '18px 16px',
   fontSize: 13,
   fontWeight: 600,
-  color: '#a0a3ad',
+  color: C.muted,
   textAlign: 'center',
   textTransform: 'uppercase',
   letterSpacing: '0.06em',
@@ -720,9 +420,9 @@ const thStyle: React.CSSProperties = {
 
 const tdStyle: React.CSSProperties = {
   padding: '14px 16px',
-  fontSize: 14,
+  fontSize: 16,
   textAlign: 'center',
-  color: '#a0a3ad',
+  color: C.muted,
 }
 
 function Cell({ v, brand }: { v: boolean | string; brand?: boolean }) {
@@ -733,8 +433,9 @@ function Cell({ v, brand }: { v: boolean | string; brand?: boolean }) {
           display: 'inline-flex',
           width: 22, height: 22,
           borderRadius: '50%',
-          background: brand ? '#5b8dff' : 'rgba(52,211,153,0.18)',
-          color: brand ? '#fff' : '#34d399',
+          background: brand ? C.brass : 'transparent',
+          border: brand ? 'none' : `1px solid ${C.neutralCheck}`,
+          color: brand ? C.bg : C.neutralCheck,
           alignItems: 'center', justifyContent: 'center',
         }}
       >
@@ -745,19 +446,10 @@ function Cell({ v, brand }: { v: boolean | string; brand?: boolean }) {
     )
   }
   if (v === false) {
-    return <span style={{ color: '#3f3f46', fontSize: 16 }}>—</span>
+    return <span style={{ color: C.hairStrong, fontSize: 18 }}>—</span>
   }
   return (
-    <span
-      style={{
-        fontSize: 11,
-        color: '#a0a3ad',
-        background: 'rgba(255,255,255,0.04)',
-        padding: '3px 8px',
-        borderRadius: 6,
-        fontWeight: 600,
-      }}
-    >
+    <span style={{ fontSize: 11, color: C.muted, background: 'rgba(214,201,178,0.06)', padding: '3px 8px', borderRadius: 4, fontWeight: 600 }}>
       {v}
     </span>
   )
@@ -790,17 +482,13 @@ function Features() {
   ]
 
   return (
-    <section style={{ padding: '110px 24px', background: '#13131a' }}>
+    <section style={{ padding: '108px 24px', background: C.bgDeep }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-        <SectionHeader
-          kicker="O que vocês ganham"
-          title="Tudo que vocês precisam pra parar de brigar."
-        />
+        <SectionHeader kicker="O que vocês ganham" title="Tudo que vocês precisam pra parar de brigar." />
 
         <div
           style={{
             display: 'grid',
-            // 4 cards: força 2×2 no desktop (min 380px por card) e 1 col no mobile
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
             gap: 20,
             marginTop: 56,
@@ -809,43 +497,111 @@ function Features() {
             marginRight: 'auto',
           }}
         >
-          {items.map((it) => (
-            <div
-              key={it.title}
-              style={{
-                background: '#0b0b10',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 20,
-                padding: '32px 28px',
-              }}
-            >
+          {items.map((it, i) => (
+            <Reveal key={it.title} delay={(i % 2) * 90}>
               <div
-                style={{
-                  width: 44, height: 44,
-                  borderRadius: 12,
-                  background: 'rgba(91,141,255,0.12)',
-                  color: '#5b8dff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: 20,
-                }}
+                className="pl-card-hover"
+                style={{ background: C.surface, border: `1px solid ${C.hair}`, borderRadius: 4, padding: '32px 28px', height: '100%' }}
               >
-                {it.icon}
+                <div
+                  style={{
+                    width: 44, height: 44,
+                    borderRadius: 10,
+                    background: C.brassDim,
+                    color: C.brass,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: 20,
+                  }}
+                >
+                  {it.icon}
+                </div>
+                <h3 className="pl-display" style={{ fontSize: 21, fontWeight: 600, color: C.ink, marginBottom: 8, letterSpacing: '-0.01em' }}>
+                  {it.title}
+                </h3>
+                <p style={{ fontSize: 16, color: C.muted, lineHeight: 1.6 }}>
+                  {it.desc}
+                </p>
               </div>
-              <h3
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────── TESTIMONIALS ──
+
+function Testimonials() {
+  const items = [
+    {
+      quote: "Eu achava que a gente não precisava de app, que era só 'conversar melhor'. Aí no primeiro fechamento do mês a gente descobriu que eu pagava 70% de tudo sem perceber. Hoje é proporcional e ninguém se sente injustiçado.",
+      name: 'Michel',
+      meta: 'Junto há 5 anos · Londrina',
+      initials: 'M',
+    },
+    {
+      quote: "A gente tinha uma planilha que só eu atualizava. Virava cobrança: 'você não lançou o mercado'. No Pacto cada um lança na hora, do próprio celular, e aparece pro outro em tempo real. Acabou o 'manda print'.",
+      name: 'Marcelo e Raquel',
+      meta: 'Morando juntos há 10 anos · São Paulo',
+      initials: 'M&R',
+    },
+    {
+      quote: "Ele ganha quase o dobro de mim e o 50/50 me sufocava, mas eu tinha vergonha de falar. O modo proporcional resolveu sem precisar de DR. Foi o app que fez a conversa difícil pela gente.",
+      name: 'Fabiana',
+      meta: 'Noiva · Curitiba',
+      initials: 'F',
+    },
+  ]
+
+  return (
+    <section style={{ padding: '108px 24px', background: C.bg }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+        <SectionHeader
+          kicker="Quem já fez o Pacto"
+          title="Casais que pararam de brigar por causa de dinheiro."
+        />
+        <div className="pl-testimonials" style={{ marginTop: 52 }}>
+          {items.map((t, i) => (
+            <Reveal key={t.name} delay={i * 90}>
+              <figure
+                className="pl-card-hover"
                 style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: '#fff',
-                  marginBottom: 8,
-                  letterSpacing: '-0.01em',
+                  background: C.surface,
+                  border: `1px solid ${C.hair}`,
+                  borderRadius: 4,
+                  padding: '30px 28px',
+                  margin: 0,
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
                 }}
               >
-                {it.title}
-              </h3>
-              <p style={{ fontSize: 14, color: '#a0a3ad', lineHeight: 1.6 }}>
-                {it.desc}
-              </p>
-            </div>
+                <div className="pl-display" aria-hidden style={{ fontSize: 52, lineHeight: 0.5, color: C.brass, fontWeight: 600, marginBottom: 12 }}>
+                  &ldquo;
+                </div>
+                <blockquote style={{ margin: 0, fontSize: 17, color: C.inkSoft, lineHeight: 1.65, flex: 1 }}>
+                  {t.quote}
+                </blockquote>
+                <figcaption style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                      background: C.brassDim, border: `1px solid ${C.brass}`, color: C.brass,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 13, fontWeight: 700, letterSpacing: '0.02em',
+                    }}
+                  >
+                    {t.initials}
+                  </span>
+                  <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <span style={{ fontSize: 16, color: C.ink, fontWeight: 600 }}>{t.name}</span>
+                    <span style={{ fontSize: 12.5, color: C.muted }}>{t.meta}</span>
+                  </span>
+                </figcaption>
+              </figure>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -857,49 +613,23 @@ function Features() {
 
 function ForWhom() {
   return (
-    <section style={{ padding: '110px 24px', background: '#0b0b10' }}>
-      <div
-        style={{
-          maxWidth: 720,
-          margin: '0 auto',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            textTransform: 'uppercase',
-            letterSpacing: '0.2em',
-            color: '#5b8dff',
-            fontWeight: 600,
-            marginBottom: 16,
-          }}
-        >
+    <section style={{ position: 'relative', overflow: 'hidden', padding: '128px 24px' }}>
+      <video className="pl-whom-bg" autoPlay muted loop playsInline preload="auto" poster="/scene-desk.jpg">
+        <source src="/whom-bg.mp4" type="video/mp4" />
+      </video>
+      <div className="pl-whom-scrim" aria-hidden />
+      <Reveal style={{ position: 'relative', zIndex: 2, maxWidth: 760, margin: '0 auto', textAlign: 'center', padding: '8px 28px 24px', background: 'radial-gradient(120% 100% at 50% 40%, rgba(9,13,28,0.74) 0%, rgba(9,13,28,0.32) 55%, transparent 80%)' }}>
+        <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.22em', color: C.brass, fontWeight: 600, marginBottom: 18 }}>
           Pra quem é
         </div>
-        <h2
-          style={{
-            fontSize: 'clamp(28px, 4vw, 40px)',
-            fontWeight: 700,
-            color: '#fff',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.2,
-          }}
-        >
-          Pra casais que dividem<br />a <em style={{ color: '#d4af6a', fontStyle: 'italic' }}>vida</em>, não só a conta da pizza.
+        <h2 className="pl-display" style={{ fontSize: 'clamp(32px, 4.5vw, 45px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.015em', lineHeight: 1.2, textShadow: '0 2px 22px rgba(9,13,28,0.8)' }}>
+          Pra casais que dividem<br />a <em style={{ color: C.brass, fontStyle: 'italic' }}>vida</em>, não só a conta da pizza.
         </h2>
-        <p
-          style={{
-            fontSize: 17,
-            color: '#a0a3ad',
-            lineHeight: 1.65,
-            marginTop: 24,
-          }}
-        >
+        <p style={{ fontSize: 19, color: C.ink, lineHeight: 1.65, marginTop: 24, textShadow: '0 2px 16px rgba(9,13,28,0.8)' }}>
           Casados, namorando há tempo, dividindo aluguel pela primeira vez. Com renda igual ou desigual.
           Hétero, gay, lésbico. Casais com filhos, sem filhos, com gato. Pacto é pra quem decidiu construir junto — e quer ter clareza, não tensão.
         </p>
-      </div>
+      </Reveal>
     </section>
   )
 }
@@ -908,7 +638,7 @@ function ForWhom() {
 
 function Pricing() {
   return (
-    <section id="preco" style={{ padding: '110px 24px', background: '#13131a' }}>
+    <section id="preco" style={{ padding: '108px 24px', background: C.bg }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
         <SectionHeader
           kicker="Preço justo"
@@ -927,76 +657,65 @@ function Pricing() {
             marginRight: 'auto',
           }}
         >
-          <div
-            style={{
-              background: '#0b0b10',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 24,
-              padding: '36px 32px',
-            }}
-          >
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#a0a3ad', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Trial
+          <Reveal>
+            <div style={{ background: C.surface, border: `1px solid ${C.hair}`, borderRadius: 6, padding: '36px 32px', height: '100%' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Trial
+              </div>
+              <div className="pl-display" style={{ fontSize: 52, fontWeight: 500, color: C.ink, marginTop: 12, letterSpacing: '-0.02em' }}>
+                Grátis
+              </div>
+              <div style={{ fontSize: 16, color: C.muted, marginTop: 6 }}>
+                14 dias completos. Sem cartão.
+              </div>
+              <ul style={ulStyle}>
+                <Li>Tudo do Pacto</Li>
+                <Li>Extrato PDF ilimitado</Li>
+                <Li>Histórico de meses</Li>
+                <Li>Sem cobranças surpresa</Li>
+              </ul>
+              <SmartCTA variant="pricing-outlined" />
             </div>
-            <div style={{ fontSize: 44, fontWeight: 800, color: '#fff', marginTop: 14, letterSpacing: '-0.03em' }}>
-              Grátis
-            </div>
-            <div style={{ fontSize: 14, color: '#a0a3ad', marginTop: 6 }}>
-              14 dias completos. Sem cartão.
-            </div>
-            <ul style={ulStyle}>
-              <Li>Tudo do Pacto</Li>
-              <Li>Extrato PDF ilimitado</Li>
-              <Li>Histórico de meses</Li>
-              <Li>Sem cobranças surpresa</Li>
-            </ul>
-            <SmartCTA variant="pricing-outlined" />
-          </div>
+          </Reveal>
 
-          <div
-            style={{
-              background: 'linear-gradient(180deg, rgba(91,141,255,0.10) 0%, rgba(91,141,255,0.02) 100%)',
-              border: '1px solid rgba(91,141,255,0.35)',
-              borderRadius: 24,
-              padding: '36px 32px',
-              position: 'relative',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: -14, right: 24,
-                background: '#5b8dff',
-                color: '#fff',
-                padding: '5px 12px',
-                borderRadius: 999,
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-              }}
-            >
-              Após o trial
+          <Reveal delay={90}>
+            <div style={{ background: C.surfaceHi, border: `1px solid ${C.brass}`, borderRadius: 6, padding: '36px 32px', position: 'relative', height: '100%' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: -13, right: 24,
+                  background: C.brass,
+                  color: C.bg,
+                  padding: '5px 12px',
+                  borderRadius: 999,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Após o trial
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.brass, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Pacto
+              </div>
+              <div className="pl-display" style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 12 }}>
+                <span style={{ fontSize: 25, color: C.muted, fontWeight: 500 }}>R$</span>
+                <span style={{ fontSize: 52, fontWeight: 500, color: C.ink, letterSpacing: '-0.02em' }}>29,90</span>
+                <span style={{ fontSize: 16, color: C.muted, fontFamily: 'var(--font-body)' }}>/ mês</span>
+              </div>
+              <div style={{ fontSize: 16, color: C.muted, marginTop: 6 }}>
+                Menos de <strong style={{ color: C.ink }}>R$ 1 por dia</strong>. Casal inteiro inclusive.
+              </div>
+              <ul style={ulStyle}>
+                <Li>Tudo do trial</Li>
+                <Li>Sync entre 2 celulares em tempo real</Li>
+                <Li>Suporte por e-mail</Li>
+                <Li>Cancele quando quiser</Li>
+              </ul>
+              <SmartCTA variant="pricing-filled" />
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#5b8dff', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Pacto
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 14 }}>
-              <span style={{ fontSize: 22, color: '#a0a3ad', fontWeight: 600 }}>R$</span>
-              <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>29,90</span>
-              <span style={{ fontSize: 14, color: '#a0a3ad' }}>/ mês</span>
-            </div>
-            <div style={{ fontSize: 14, color: '#a0a3ad', marginTop: 6 }}>
-              Menos de <strong style={{ color: '#fff' }}>R$ 1 por dia</strong>. Casal inteiro inclusive.
-            </div>
-            <ul style={ulStyle}>
-              <Li>Tudo do trial</Li>
-              <Li>Sync entre 2 celulares em tempo real</Li>
-              <Li>Suporte por e-mail</Li>
-              <Li>Cancele quando quiser</Li>
-            </ul>
-            <SmartCTA variant="pricing-filled" />
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -1014,19 +733,9 @@ const ulStyle: React.CSSProperties = {
 
 function Li({ children }: { children: React.ReactNode }) {
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#cacace' }}>
-      <span
-        style={{
-          width: 18, height: 18,
-          borderRadius: '50%',
-          background: 'rgba(52,211,153,0.15)',
-          color: '#34d399',
-          display: 'inline-flex',
-          alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+    <li style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 16, color: C.inkSoft }}>
+      <span style={{ color: C.brass, display: 'inline-flex', flexShrink: 0 }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 13l4 4L19 7" />
         </svg>
       </span>
@@ -1066,63 +775,40 @@ function FAQ() {
   ]
 
   return (
-    <section style={{ padding: '110px 24px', background: '#0b0b10' }}>
+    <section style={{ padding: '108px 24px', background: C.bgDeep }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <SectionHeader
-          kicker="Dúvidas comuns"
-          title="O que vocês querem saber."
-        />
+        <SectionHeader kicker="Dúvidas comuns" title="O que vocês querem saber." />
 
-        <div style={{ marginTop: 48 }}>
+        <div style={{ marginTop: 44 }}>
           {items.map((it, i) => (
-            <details
-              key={i}
-              style={{
-                borderTop: '1px solid rgba(255,255,255,0.06)',
-                padding: '20px 0',
-              }}
-            >
-              <summary
-                style={{
-                  cursor: 'pointer',
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: '#f4f4f6',
-                  listStyle: 'none',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 16,
-                  alignItems: 'center',
-                }}
-              >
-                {it.q}
-                <span style={{ color: '#5b8dff', fontSize: 24, lineHeight: 1, fontWeight: 300 }}>+</span>
-              </summary>
-              <p
-                style={{
-                  fontSize: 14,
-                  color: '#a0a3ad',
-                  lineHeight: 1.7,
-                  marginTop: 12,
-                  paddingRight: 24,
-                }}
-              >
-                {it.a}
-              </p>
-            </details>
+            <Reveal key={i} delay={(i % 3) * 70}>
+              <details style={{ borderTop: `1px solid ${C.hair}`, padding: '20px 0' }}>
+                <summary
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: 18,
+                    fontWeight: 600,
+                    color: C.ink,
+                    listStyle: 'none',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: 16,
+                    alignItems: 'center',
+                  }}
+                >
+                  {it.q}
+                  <span style={{ color: C.brass, fontSize: 27, lineHeight: 1, fontWeight: 300 }}>+</span>
+                </summary>
+                <p style={{ fontSize: 16, color: C.muted, lineHeight: 1.7, marginTop: 12, paddingRight: 24 }}>
+                  {it.a}
+                </p>
+              </details>
+            </Reveal>
           ))}
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 36 }}>
-          <a
-            href="/ajuda"
-            style={{
-              color: '#5b8dff',
-              textDecoration: 'none',
-              fontSize: 15,
-              fontWeight: 600,
-            }}
-          >
+          <a href="/ajuda" className="pl-link" style={{ color: C.brass, textDecoration: 'none', fontSize: 17, fontWeight: 600 }}>
             Já é usuário? Ver guia completo →
           </a>
         </div>
@@ -1135,43 +821,36 @@ function FAQ() {
 
 function FinalCTA() {
   return (
-    <section style={{ padding: '110px 24px', background: '#13131a', position: 'relative', overflow: 'hidden' }}>
+    <section style={{ padding: '116px 24px', background: C.bg, position: 'relative', overflow: 'hidden' }}>
       <div
         aria-hidden
         style={{
           position: 'absolute',
-          width: 600, height: 600,
+          width: 620, height: 620,
           borderRadius: '50%',
-          background: 'radial-gradient(circle at center, rgba(91,141,255,0.12) 0%, transparent 70%)',
-          top: -200, left: '50%', transform: 'translateX(-50%)',
+          background: 'radial-gradient(circle at center, rgba(201,162,94,0.10) 0%, transparent 68%)',
+          top: -220, left: '50%', transform: 'translateX(-50%)',
           pointerEvents: 'none',
         }}
       />
-      <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
-        <LogoMark size={48} />
-        <h2
-          style={{
-            fontSize: 'clamp(34px, 5.5vw, 52px)',
-            fontWeight: 800,
-            color: '#fff',
-            letterSpacing: '-0.03em',
-            lineHeight: 1.05,
-            marginTop: 24,
-          }}
-        >
-          Casa em paz começa<br />
-          <span style={{ color: '#5b8dff' }}>nas contas.</span>
-        </h2>
-        <p style={{ fontSize: 18, color: '#a0a3ad', marginTop: 20, lineHeight: 1.55 }}>
-          Comecem o pacto hoje. Em 5 minutos vocês têm clareza pra resto da vida a dois.
-        </p>
-        <div style={{ marginTop: 32 }}>
-          <SmartCTA variant="final" />
+      <Reveal>
+        <div style={{ position: 'relative', maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+          <LogoMark size={46} />
+          <h2 className="pl-display" style={{ fontSize: 'clamp(38px, 6.1vw, 59px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.02em', lineHeight: 1.08, marginTop: 24 }}>
+            Casa em paz começa<br />
+            <span style={{ color: C.brass, fontStyle: 'italic' }}>nas contas.</span>
+          </h2>
+          <p style={{ fontSize: 20, color: C.inkSoft, marginTop: 20, lineHeight: 1.55 }}>
+            Comecem o pacto hoje. Em 5 minutos vocês têm clareza pra resto da vida a dois.
+          </p>
+          <div style={{ marginTop: 32 }}>
+            <SmartCTA variant="final" />
+          </div>
+          <div style={{ fontSize: 12, color: C.muted, marginTop: 14 }}>
+            Sem cartão. Sem pegadinha.
+          </div>
         </div>
-        <div style={{ fontSize: 12, color: '#71747e', marginTop: 14 }}>
-          Sem cartão. Sem pegadinha.
-        </div>
-      </div>
+      </Reveal>
     </section>
   )
 }
@@ -1180,13 +859,7 @@ function FinalCTA() {
 
 function Footer() {
   return (
-    <footer
-      style={{
-        padding: '40px 24px',
-        background: '#0b0b10',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-      }}
-    >
+    <footer style={{ padding: '40px 24px', background: C.bg, borderTop: `1px solid ${C.hair}` }}>
       <div
         style={{
           maxWidth: 1120,
@@ -1200,19 +873,19 @@ function Footer() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <LogoMark size={22} />
-          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.2em', color: '#f4f4f6' }}>
+          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.2em', color: C.ink }}>
             PACTO
           </span>
-          <span style={{ fontSize: 12, color: '#71747e', marginLeft: 8 }}>
+          <span style={{ fontSize: 12, color: C.muted, marginLeft: 8 }}>
             © 2026
           </span>
         </div>
         <nav style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center', fontSize: 12.5 }}>
-          <Link href="/blog" style={footerLinkStyle}>Blog</Link>
-          <Link href="/instalar" style={footerLinkStyle}>Instalar app</Link>
-          <Link href="/ajuda" style={footerLinkStyle}>Ajuda</Link>
-          <Link href="/privacidade" style={footerLinkStyle}>Privacidade</Link>
-          <Link href="/termos" style={footerLinkStyle}>Termos</Link>
+          <Link href="/blog" className="pl-link" style={footerLinkStyle}>Blog</Link>
+          <Link href="/instalar" className="pl-link" style={footerLinkStyle}>Instalar app</Link>
+          <Link href="/ajuda" className="pl-link" style={footerLinkStyle}>Ajuda</Link>
+          <Link href="/privacidade" className="pl-link" style={footerLinkStyle}>Privacidade</Link>
+          <Link href="/termos" className="pl-link" style={footerLinkStyle}>Termos</Link>
         </nav>
       </div>
     </footer>
@@ -1220,55 +893,35 @@ function Footer() {
 }
 
 const footerLinkStyle: React.CSSProperties = {
-  color: '#a0a3ad',
+  color: C.muted,
   textDecoration: 'none',
   fontWeight: 500,
 }
 
 // ─────────────────────────────────────────────────────────────── HELPERS ──
 
-function SectionHeader({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
+function SectionHeader({ kicker, title, sub, light }: { kicker: string; title: string; sub?: string; light?: boolean }) {
+  const accent = light ? LIGHT.bronze : C.brass
+  const titleColor = light ? LIGHT.ink : C.ink
+  const subColor = light ? LIGHT.body : C.muted
   return (
-    <div style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
-      <div
-        style={{
-          fontSize: 11,
-          textTransform: 'uppercase',
-          letterSpacing: '0.2em',
-          color: '#5b8dff',
-          fontWeight: 600,
-          marginBottom: 14,
-        }}
-      >
-        {kicker}
+    <Reveal style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+        <span style={{ width: 18, height: 1, background: accent }} />
+        <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.2em', color: accent, fontWeight: 600 }}>
+          {kicker}
+        </span>
+        <span style={{ width: 18, height: 1, background: accent }} />
       </div>
-      <h2
-        style={{
-          fontSize: 'clamp(28px, 4vw, 40px)',
-          fontWeight: 700,
-          color: '#fff',
-          letterSpacing: '-0.02em',
-          lineHeight: 1.15,
-        }}
-      >
+      <h2 className="pl-display" style={{ fontSize: 'clamp(31px, 4.5vw, 45px)', fontWeight: 500, color: titleColor, letterSpacing: '-0.015em', lineHeight: 1.18 }}>
         {title}
       </h2>
       {sub && (
-        <p
-          style={{
-            fontSize: 16,
-            color: '#a0a3ad',
-            marginTop: 16,
-            lineHeight: 1.6,
-            maxWidth: 580,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        >
+        <p style={{ fontSize: 18, color: subColor, marginTop: 16, lineHeight: 1.6, maxWidth: 580, marginLeft: 'auto', marginRight: 'auto' }}>
           {sub}
         </p>
       )}
-    </div>
+    </Reveal>
   )
 }
 

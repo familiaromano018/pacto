@@ -12,64 +12,67 @@ interface Props {
   variant: Variant
 }
 
+const BRASS = '#c9a25e'
+const INK = '#0c1226'
+
 const styles: Record<Variant, CSSProperties> = {
   nav: {
-    background: '#5b8dff',
-    color: '#fff',
+    background: BRASS,
+    color: INK,
     padding: '9px 18px',
-    borderRadius: 10,
-    fontWeight: 600,
+    borderRadius: 999,
+    fontWeight: 700,
     fontSize: 13,
     textDecoration: 'none',
   },
   primary: {
-    background: '#5b8dff',
-    color: '#fff',
-    padding: '16px 30px',
-    borderRadius: 12,
+    background: BRASS,
+    color: INK,
+    padding: '16px 32px',
+    borderRadius: 999,
     fontWeight: 700,
     fontSize: 15,
     textDecoration: 'none',
-    boxShadow: '0 12px 28px rgba(91,141,255,0.4)',
+    boxShadow: '0 14px 30px rgba(201,162,94,0.28)',
     letterSpacing: '0.01em',
   },
   final: {
-    background: '#5b8dff',
-    color: '#fff',
-    padding: '18px 36px',
-    borderRadius: 14,
+    background: BRASS,
+    color: INK,
+    padding: '18px 40px',
+    borderRadius: 999,
     fontWeight: 700,
     fontSize: 16,
     textDecoration: 'none',
-    boxShadow: '0 16px 32px rgba(91,141,255,0.45)',
+    boxShadow: '0 18px 36px rgba(201,162,94,0.32)',
     letterSpacing: '0.01em',
     display: 'inline-block',
   },
   'pricing-outlined': {
     display: 'block',
-    background: 'rgba(255,255,255,0.06)',
-    color: '#fff',
+    background: 'transparent',
+    color: '#f3efe6',
     padding: '14px 0',
-    borderRadius: 12,
+    borderRadius: 999,
     fontWeight: 600,
     fontSize: 14,
     textDecoration: 'none',
     textAlign: 'center',
     marginTop: 28,
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(214,201,178,0.22)',
   },
   'pricing-filled': {
     display: 'block',
-    background: '#5b8dff',
-    color: '#fff',
+    background: BRASS,
+    color: INK,
     padding: '14px 0',
-    borderRadius: 12,
+    borderRadius: 999,
     fontWeight: 700,
     fontSize: 14,
     textDecoration: 'none',
     textAlign: 'center',
     marginTop: 28,
-    boxShadow: '0 8px 24px rgba(91,141,255,0.35)',
+    boxShadow: '0 10px 26px rgba(201,162,94,0.26)',
   },
 }
 
@@ -96,7 +99,7 @@ export default function SmartCTA({ variant }: Props) {
   }
 
   return (
-    <Link href="/app" style={styles[variant]} onClick={handleClick}>
+    <Link href="/app" className="pl-tap" style={styles[variant]} onClick={handleClick}>
       {label}
     </Link>
   )
