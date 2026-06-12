@@ -8,6 +8,7 @@ import { getTheme, setTheme, type Theme } from '@/lib/theme'
 import { allCategoryNames, categoryEmoji } from '@/lib/categories'
 import InstallPrompt from './InstallPrompt'
 import PendingRequestsCard from './PendingRequestsCard'
+import WhatsappCard from './WhatsappCard'
 import type { ClosedMonth, CustomCategory } from './types'
 
 interface Props {
@@ -116,6 +117,9 @@ export default function TabConfig({
           </div>
         </div>
       </Card>
+
+      {/* Integração WhatsApp */}
+      <WhatsappCard />
 
       {/* Aparência — tema claro/escuro */}
       <Card>

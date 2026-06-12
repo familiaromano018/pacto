@@ -118,6 +118,16 @@ export interface CustomCategoryRow {
   created_at: string
 }
 
+export interface UserWhatsappRow {
+  user_id: string
+  phone: string | null
+  verified: boolean
+  verify_code: string | null
+  verify_expires_at: string | null
+  created_at: string
+  updated_at: string
+}
+
 // ────────────────────────────────────────────────────────────── Database type ──
 
 type Insertable<T extends { id?: string; created_at?: string; updated_at?: string }> =
@@ -143,6 +153,7 @@ export interface Database {
       goals:             T<GoalRow>
       closed_months:     { Row: ClosedMonthRow; Insert: ClosedMonthRow; Update: Partial<ClosedMonthRow>; Relationships: [] }
       custom_categories: T<CustomCategoryRow>
+      user_whatsapp:     { Row: UserWhatsappRow; Insert: Partial<UserWhatsappRow> & { user_id: string }; Update: Partial<UserWhatsappRow>; Relationships: [] }
     }
     Views: Record<string, never>
     Functions: {
