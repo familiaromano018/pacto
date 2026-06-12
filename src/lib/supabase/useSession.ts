@@ -54,6 +54,27 @@ export async function signInWithGoogle(redirectTo?: string) {
   })
 }
 
+export async function signUpWithEmail(email: string, password: string, redirectTo?: string) {
+  const sb = supabase()
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  return sb.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: `${origin}${redirectTo ?? '/app'}` },
+  })
+}
+
+export async function signInWithEmail(email: string, password: string) {
+  const sb = supabase()
+  return sb.auth.signInWithPassword({ email, password })
+}
+
+export async function resetPassword(email: string) {
+  const sb = supabase()
+  const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  return sb.auth.resetPasswordForEmail(email, { redirectTo: `${origin}/app` })
+}
+
 export async function signOut() {
   const sb = supabase()
   return sb.auth.signOut()
