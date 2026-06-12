@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { sendText } from '@/lib/whatsapp/evolution'
 import { phoneFromJid, normalizePhone } from '@/lib/whatsapp/phone'
+import { handleVerifiedMessage } from '@/lib/whatsapp/handlers'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -104,7 +105,7 @@ export async function POST(req: NextRequest) {
     // 6 dígitos mas sem código pendente: cai pro fluxo normal abaixo.
   }
 
-  // ── 4. Número já verificado? (Fases 1-3 entram aqui)
+  // ── 4. Número já verificado? → parseia e lança (Fase 1)
   const { data: known } = await sb
     .from('user_whatsapp')
     .select('user_id')
@@ -113,12 +114,15 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
 
   if (known) {
-    // TODO Fase 1: parsear a frase, gravar o gasto e confirmar.
-    await sendText(
-      phone,
-      '👋 Recebi! O lançamento de gastos por WhatsApp ainda está sendo ativado. Já já tá no ar. 💛',
-    )
-    return NextResponse.json({ ok: true, stage: 'phase0-known-number' })
+    try {
+      const reply = await handleVerifiedMessage(sb, known.user_id, text)
+      if (reply) await sendText(phone, reply)
+      return NextResponse.json({ ok: true, stage: 'handled' })
+    } catch (err) {
+      console.error('[whatsapp-webhook] handler erro', err)
+      await sendText(phone, 'Ops, deu um errinho aqui 😞. Tenta de novo daqui a pouco?')
+      return NextResponse.json({ ok: true, stage: 'handler-error' })
+    }
   }
 
   // ── 5. Número desconhecido: ignora em silêncio (não respondemos a quem não é do Pacto).
