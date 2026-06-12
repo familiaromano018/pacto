@@ -164,7 +164,7 @@ function Hero() {
             >
               <span className="pl-h1-line">As contas do casal,</span>
               <span className="pl-h1-line" style={{ color: C.brass, fontStyle: 'italic', fontWeight: 500 }}>
-                sem a briga de quem pagou o quê.
+                sem a briga<br className="brm" /> de quem pagou o quê.
               </span>
             </h1>
 
@@ -308,7 +308,7 @@ function ThreePillars() {
 
         <Reveal delay={140}>
           <div style={{ marginTop: 60, textAlign: 'center' }}>
-            <div className="pl-display" style={{ fontSize: 'clamp(24px, 2.9vw, 31px)', fontStyle: 'italic', color: C.inkSoft, fontWeight: 400, lineHeight: 1.45, maxWidth: 660, margin: '0 auto', letterSpacing: '-0.01em' }}>
+            <div className="pl-display" style={{ fontSize: 'clamp(24px, 2.9vw, 31px)', fontStyle: 'italic', color: C.inkSoft, fontWeight: 400, lineHeight: 1.45, maxWidth: 660, margin: '0 auto', letterSpacing: '-0.01em', textWrap: 'balance' } as React.CSSProperties}>
               &ldquo;Organizar não é só sobre números. É sobre acordos, confiança e tranquilidade todos os dias.&rdquo;
             </div>
           </div>
@@ -335,10 +335,10 @@ function HowItWorks() {
             <span style={{ width: 18, height: 1, background: C.brass }} />
           </div>
           <h2 className="pl-display" style={{ fontSize: 'clamp(31px, 4.5vw, 45px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.015em', lineHeight: 1.18, margin: 0, textShadow: '0 2px 24px rgba(9,13,28,0.85)' }}>
-            Três passos. Zero planilha.
+            Três passos.<br className="brm" /> Zero planilha.
           </h2>
           <p style={{ fontSize: 18, marginTop: 16, lineHeight: 1.6, fontWeight: 500, color: C.ink, textShadow: '0 2px 18px rgba(9,13,28,0.85)' }}>
-            Pacto faz a conta. <span style={{ color: C.brass }}>Vocês vivem a relação.</span>
+            Pacto faz a conta.<br className="brm" /> <span style={{ color: C.brass }}>Vocês vivem a relação.</span>
           </p>
         </Reveal>
         <HowScene />
@@ -362,7 +362,7 @@ function Comparison() {
             <span style={{ width: 18, height: 1, background: C.brass }} />
           </div>
           <h2 className="pl-display" style={{ fontSize: 'clamp(31px, 4.5vw, 45px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.015em', lineHeight: 1.18, margin: 0 }}>
-            Não é dividir conta de pizza.<br />É vida a dois.
+            Não é dividir<br className="brm" /> conta de pizza.<br />É vida a dois.
           </h2>
           <p className="pl-head-1l" style={{ fontSize: 17, color: C.muted, marginTop: 16, lineHeight: 1.6 }}>
             Os apps que existem foram feitos pra amigos. Pacto entende que casal é diferente.
@@ -536,9 +536,9 @@ function Testimonials() {
   const items = [
     {
       quote: "Eu achava que a gente não precisava de app, que era só 'conversar melhor'. Aí no primeiro fechamento do mês a gente descobriu que eu pagava 70% de tudo sem perceber. Hoje é proporcional e ninguém se sente injustiçado.",
-      name: 'Michel',
-      meta: 'Junto há 5 anos · Londrina',
-      initials: 'M',
+      name: 'Léo & Fernanda',
+      meta: 'Juntos há 5 anos · Londrina',
+      initials: 'L&F',
     },
     {
       quote: "A gente tinha uma planilha que só eu atualizava. Virava cobrança: 'você não lançou o mercado'. No Pacto cada um lança na hora, do próprio celular, e aparece pro outro em tempo real. Acabou o 'manda print'.",
@@ -623,7 +623,7 @@ function ForWhom() {
           Pra quem é
         </div>
         <h2 className="pl-display" style={{ fontSize: 'clamp(32px, 4.5vw, 45px)', fontWeight: 500, color: C.ink, letterSpacing: '-0.015em', lineHeight: 1.2, textShadow: '0 2px 22px rgba(9,13,28,0.8)' }}>
-          Pra casais que dividem<br />a <em style={{ color: C.brass, fontStyle: 'italic' }}>vida</em>, não só a conta da pizza.
+          Pra casais que<br className="brm" /> dividem<br className="brd" /> a <em style={{ color: C.brass, fontStyle: 'italic' }}>vida</em>,<br className="brm" /> não só a conta da pizza.
         </h2>
         <p style={{ fontSize: 19, color: C.ink, lineHeight: 1.65, marginTop: 24, textShadow: '0 2px 16px rgba(9,13,28,0.8)' }}>
           Casados, namorando há tempo, dividindo aluguel pela primeira vez. Com renda igual ou desigual.

@@ -682,6 +682,14 @@ input[type='number']::-webkit-outer-spin-button {
 
 /* Linhas do H1 do hero: não quebram no desktop (garante 2 linhas);
    no mobile voltam a quebrar normal pra não estourar a tela */
+/* quebras condicionais: .brm só no mobile, .brd só no desktop */
+.brm { display: none; }
+.brd { display: inline; }
+@media (max-width: 600px) {
+  .brm { display: inline; }
+  .brd { display: none; }
+}
+
 .pl-h1-line { display: block; white-space: nowrap; }
 @media (max-width: 600px) {
   .pl-h1-line { white-space: normal; }
