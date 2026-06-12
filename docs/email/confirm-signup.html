@@ -1,0 +1,68 @@
+<!--
+  Pacto — template "Confirm signup" (e-mail de boas-vindas + confirmação).
+  Colar em: Supabase → Authentication → Emails → "Confirm signup".
+  Variável do Supabase usada: {{ .ConfirmationURL }}
+  Assunto sugerido: Bem-vindos ao Pacto 💛 — confirmem o e-mail pra começar
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#efe6d4;margin:0;padding:32px 12px;font-family:Helvetica,Arial,sans-serif;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e7ddc9;">
+
+        <!-- Cabeçalho navy -->
+        <tr>
+          <td style="background:#0c1226;padding:30px 32px;text-align:center;">
+            <div style="font-size:20px;font-weight:bold;letter-spacing:4px;color:#f3efe6;">PACTO</div>
+            <div style="font-size:9px;letter-spacing:3px;color:#c9a25e;margin-top:6px;">FINANÇAS &middot; DIÁLOGO &middot; PROPÓSITO</div>
+          </td>
+        </tr>
+
+        <!-- Corpo -->
+        <tr>
+          <td style="padding:38px 36px 8px;text-align:center;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;color:#1a2138;font-weight:normal;">
+              Bem-vindos ao <span style="color:#c9a25e;font-style:italic;">Pacto</span> 💛
+            </div>
+            <p style="font-size:15px;line-height:1.65;color:#4a4f63;margin:18px 0 0;">
+              Que bom ter vocês aqui. O Pacto cuida das contas do casal — quem deve quanto, na hora — pra vocês cuidarem do resto.
+            </p>
+            <p style="font-size:15px;line-height:1.65;color:#4a4f63;margin:14px 0 0;">
+              Falta só <strong style="color:#1a2138;">confirmar o e-mail</strong> pra começar os 14 dias grátis:
+            </p>
+          </td>
+        </tr>
+
+        <!-- Botão -->
+        <tr>
+          <td style="padding:26px 36px 8px;text-align:center;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#c9a25e;color:#0c1226;text-decoration:none;font-size:15px;font-weight:bold;padding:15px 34px;border-radius:999px;">
+              Confirmar e-mail e começar &rarr;
+            </a>
+          </td>
+        </tr>
+
+        <!-- Fallback link -->
+        <tr>
+          <td style="padding:18px 36px 30px;text-align:center;">
+            <p style="font-size:12px;line-height:1.6;color:#8b8f9e;margin:0;">
+              Se o botão não funcionar, copie e cole este link no navegador:<br>
+              <a href="{{ .ConfirmationURL }}" style="color:#9c6f30;word-break:break-all;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+
+        <!-- Rodapé -->
+        <tr>
+          <td style="background:#faf5ea;border-top:1px solid #e7ddc9;padding:22px 32px;text-align:center;">
+            <p style="font-size:12px;color:#8b8f9e;margin:0;line-height:1.6;">
+              Feito por um casal, pra casais. Os dados ficam só entre vocês dois.<br>
+              Se você não criou esta conta, pode ignorar este e-mail.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+      <div style="font-size:11px;color:#a99f8a;margin-top:18px;">© Pacto &middot; pacto-app.tec.br</div>
+    </td>
+  </tr>
+</table>

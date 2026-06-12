@@ -8,6 +8,7 @@ import { useToast } from './Toast'
 import { currentMonthKey, parseMonthKey } from '@/lib/format'
 import Setup from './Setup'
 import LoginScreen from './LoginScreen'
+import ResetPasswordScreen from './ResetPasswordScreen'
 import PaywallScreen from './PaywallScreen'
 import TrialBanner from './TrialBanner'
 import TrialWelcomeModal from './TrialWelcomeModal'
@@ -50,7 +51,17 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
 // ── Top-level: auth gate ───────────────────────────────────────────────────────
 export default function CasalNoAzul() {
   const session = useSession()
+  const [recovery, setRecovery] = useState(false)
 
+  useEffect(() => {
+    const sb = supabase()
+    const { data: { subscription } } = sb.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (recovery) return <ResetPasswordScreen onDone={() => setRecovery(false)} />
   if (session.status === 'loading') return <Splash />
   if (session.status === 'unauthenticated') return <LoginScreen />
   return <AuthedShell userId={session.user.id} />
