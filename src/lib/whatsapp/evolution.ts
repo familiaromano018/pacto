@@ -14,6 +14,43 @@ export function evolutionConfigured(): boolean {
   return Boolean(BASE && KEY && INSTANCE)
 }
 
+export interface MediaBase64 {
+  base64: string
+  mimetype?: string
+}
+
+/**
+ * Pega o base64 de uma mídia (áudio) de uma mensagem recebida.
+ * Se o webhook já trouxe o base64 (WEBHOOK_BASE64 ligado), usa direto;
+ * senão busca via getBase64FromMediaMessage usando a key da mensagem.
+ */
+export async function getMediaBase64(
+  messageKey: { id?: string; remoteJid?: string; fromMe?: boolean },
+  payloadBase64?: string,
+  payloadMime?: string,
+): Promise<MediaBase64 | null> {
+  if (payloadBase64) return { base64: payloadBase64, mimetype: payloadMime }
+  if (!evolutionConfigured()) return null
+  const url = `${BASE!.replace(/\/$/, '')}/chat/getBase64FromMediaMessage/${INSTANCE}`
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: KEY! },
+      body: JSON.stringify({ message: { key: messageKey }, convertToMp4: false }),
+    })
+    if (!res.ok) {
+      console.error('[whatsapp] getBase64 falhou', res.status, (await res.text().catch(() => '')).slice(0, 200))
+      return null
+    }
+    const data = await res.json()
+    if (data?.base64) return { base64: data.base64, mimetype: data.mimetype }
+    return null
+  } catch (err) {
+    console.error('[whatsapp] getMediaBase64 erro', err)
+    return null
+  }
+}
+
 /**
  * Envia uma mensagem de texto. Se a Evolution ainda não estiver configurada,
  * vira no-op (loga e não quebra) — assim a Fase 0 sobe sem as credenciais.

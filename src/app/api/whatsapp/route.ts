@@ -14,7 +14,8 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { sendText } from '@/lib/whatsapp/evolution'
+import { sendText, getMediaBase64 } from '@/lib/whatsapp/evolution'
+import { transcribeAudio } from '@/lib/whatsapp/transcribe'
 import { phoneFromJid, normalizePhone } from '@/lib/whatsapp/phone'
 import { handleVerifiedMessage } from '@/lib/whatsapp/handlers'
 
@@ -26,7 +27,10 @@ interface EvoMessage {
   message?: {
     conversation?: string
     extendedTextMessage?: { text?: string }
+    audioMessage?: { mimetype?: string }
+    base64?: string // quando WEBHOOK_BASE64 está ligado na Evolution
   }
+  base64?: string
   pushName?: string
 }
 
@@ -65,12 +69,36 @@ export async function POST(req: NextRequest) {
   }
 
   const phone = phoneFromJid(msg.key?.remoteJid)
-  const text = extractText(msg)
-  if (!phone || !text) {
-    return NextResponse.json({ ok: true, ignored: 'no phone or empty text' })
+  if (!phone) {
+    return NextResponse.json({ ok: true, ignored: 'no phone' })
   }
 
   const sb = supabaseAdmin()
+
+  // Número já verificado? (preciso cedo: só transcrevo áudio de quem é do Pacto, pra não gastar à toa)
+  const { data: verifiedUser } = await sb
+    .from('user_whatsapp')
+    .select('user_id')
+    .eq('phone', normalizePhone(phone))
+    .eq('verified', true)
+    .maybeSingle()
+
+  // Texto: da mensagem, ou transcrito do áudio (nota de voz).
+  let text = extractText(msg)
+  if (!text && msg.message?.audioMessage && verifiedUser) {
+    const media = await getMediaBase64(
+      msg.key || {},
+      msg.message.base64 ?? msg.base64,
+      msg.message.audioMessage.mimetype,
+    )
+    if (media?.base64) {
+      const t = await transcribeAudio(media.base64, media.mimetype)
+      if (t) text = t
+    }
+  }
+  if (!text) {
+    return NextResponse.json({ ok: true, ignored: 'no text' })
+  }
 
   // ── 3. É uma VERIFICAÇÃO de número? (mensagem contém um código de 6 dígitos pendente)
   const codeMatch = text.replace(/\s/g, '').match(/\b(\d{6})\b/)
@@ -105,17 +133,10 @@ export async function POST(req: NextRequest) {
     // 6 dígitos mas sem código pendente: cai pro fluxo normal abaixo.
   }
 
-  // ── 4. Número já verificado? → parseia e lança (Fase 1)
-  const { data: known } = await sb
-    .from('user_whatsapp')
-    .select('user_id')
-    .eq('phone', normalizePhone(phone))
-    .eq('verified', true)
-    .maybeSingle()
-
-  if (known) {
+  // ── 4. Número já verificado? → parseia e lança (Fases 1-2)
+  if (verifiedUser) {
     try {
-      const reply = await handleVerifiedMessage(sb, known.user_id, text)
+      const reply = await handleVerifiedMessage(sb, verifiedUser.user_id, text)
       if (reply) await sendText(phone, reply)
       return NextResponse.json({ ok: true, stage: 'handled' })
     } catch (err) {
