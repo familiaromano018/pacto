@@ -29,7 +29,6 @@ function Scene({ src, alt, position, children }: { src: string; alt: string; pos
     const el = ref.current
     if (!el) return
     const setP = (v: number) => el.style.setProperty('--p', String(v))
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setP(1); return }
     let raf = 0
     const update = () => {
       raf = 0

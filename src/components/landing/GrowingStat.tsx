@@ -35,10 +35,6 @@ export default function GrowingStat() {
       }
     }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      apply(1)
-      return
-    }
 
     apply(0)
     let raf = 0

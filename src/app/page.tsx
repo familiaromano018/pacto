@@ -542,9 +542,9 @@ function Testimonials() {
     },
     {
       quote: "A gente tinha uma planilha que só eu atualizava. Virava cobrança: 'você não lançou o mercado'. No Pacto cada um lança na hora, do próprio celular, e aparece pro outro em tempo real. Acabou o 'manda print'.",
-      name: 'Marcelo e Raquel',
+      name: 'Ilan e Ju',
       meta: 'Morando juntos há 10 anos · São Paulo',
-      initials: 'M&R',
+      initials: 'I&J',
     },
     {
       quote: "Ele ganha quase o dobro de mim e o 50/50 me sufocava, mas eu tinha vergonha de falar. O modo proporcional resolveu sem precisar de DR. Foi o app que fez a conversa difícil pela gente.",
