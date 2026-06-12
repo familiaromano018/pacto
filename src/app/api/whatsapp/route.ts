@@ -17,7 +17,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { sendText, getMediaBase64 } from '@/lib/whatsapp/evolution'
 import { transcribeAudio } from '@/lib/whatsapp/transcribe'
 import { phoneFromJid, normalizePhone } from '@/lib/whatsapp/phone'
-import { handleVerifiedMessage } from '@/lib/whatsapp/handlers'
+import { handleVerifiedMessage, handleReceipt } from '@/lib/whatsapp/handlers'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -28,6 +28,8 @@ interface EvoMessage {
     conversation?: string
     extendedTextMessage?: { text?: string }
     audioMessage?: { mimetype?: string }
+    imageMessage?: { mimetype?: string; caption?: string }
+    documentMessage?: { mimetype?: string; fileName?: string; caption?: string }
     base64?: string // quando WEBHOOK_BASE64 está ligado na Evolution
   }
   base64?: string
@@ -83,13 +85,34 @@ export async function POST(req: NextRequest) {
     .eq('verified', true)
     .maybeSingle()
 
+  const m = msg.message
+
+  // ── Nota fiscal: foto (imageMessage) ou PDF (documentMessage) — só número verificado.
+  const isPdf = !!m?.documentMessage && (m.documentMessage.mimetype || '').includes('pdf')
+  if (verifiedUser && (m?.imageMessage || isPdf)) {
+    const mime = isPdf ? 'application/pdf' : (m?.imageMessage?.mimetype || 'image/jpeg')
+    const caption = m?.imageMessage?.caption ?? m?.documentMessage?.caption
+    const media = await getMediaBase64(msg.key || {}, m?.base64 ?? msg.base64, mime)
+    if (media?.base64) {
+      try {
+        const reply = await handleReceipt(sb, verifiedUser.user_id, media.base64, media.mimetype || mime, caption)
+        if (reply) await sendText(phone, reply)
+        return NextResponse.json({ ok: true, stage: 'receipt' })
+      } catch (err) {
+        console.error('[whatsapp-webhook] handleReceipt erro', err)
+        await sendText(phone, 'Não consegui ler a nota agora 😞. Tenta de novo ou manda o valor no texto?')
+        return NextResponse.json({ ok: true, stage: 'receipt-error' })
+      }
+    }
+  }
+
   // Texto: da mensagem, ou transcrito do áudio (nota de voz).
   let text = extractText(msg)
-  if (!text && msg.message?.audioMessage && verifiedUser) {
+  if (!text && m?.audioMessage && verifiedUser) {
     const media = await getMediaBase64(
       msg.key || {},
-      msg.message.base64 ?? msg.base64,
-      msg.message.audioMessage.mimetype,
+      m.base64 ?? msg.base64,
+      m.audioMessage.mimetype,
     )
     if (media?.base64) {
       const t = await transcribeAudio(media.base64, media.mimetype)

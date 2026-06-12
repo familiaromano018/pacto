@@ -9,7 +9,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { CATEGORIES, INCOME_CATEGORIES, EMOJIS, INCOME_EMOJIS } from '@/components/constants'
 import { newId } from '@/lib/id'
-import { parseMessage } from './parse'
+import { parseMessage, parseReceipt } from './parse'
 import type { ParsedIntent } from './parse'
 import { computeMonthTotals } from '@/lib/calculations/monthTotals'
 import { monthLabel } from '@/lib/format'
@@ -78,24 +78,20 @@ interface Ctx {
   customEmojis: Record<string, string>
 }
 
-export async function handleVerifiedMessage(
-  sb: SupabaseClient,
-  userId: string,
-  text: string,
-): Promise<string | null> {
-  // ── contexto: casal + papel + categorias custom
+/** Carrega o contexto do casal a partir do user. Retorna erro amigável (assinatura) ou null (sem casal). */
+async function loadCtx(sb: SupabaseClient, userId: string): Promise<{ ctx?: Ctx; error?: string }> {
   const { data: member } = await sb
     .from('members')
     .select('couple_id, role')
     .eq('user_id', userId)
     .maybeSingle()
-  if (!member) return null
+  if (!member) return {}
   const coupleId: string = member.couple_id
   const role = member.role as PaidBy
 
   const { data: hasAccess } = await sb.rpc('couple_has_access', { target_couple: coupleId })
   if (!hasAccess) {
-    return '⚠️ A assinatura do Pacto está inativa. Reative no app pra continuar lançando por aqui.'
+    return { error: '⚠️ A assinatura do Pacto está inativa. Reative no app pra continuar lançando por aqui.' }
   }
 
   const { data: couple } = await sb
@@ -103,9 +99,6 @@ export async function handleVerifiedMessage(
     .select('name_a, name_b, income_a, income_b, method, category_split')
     .eq('id', coupleId)
     .maybeSingle()
-  const nameA = couple?.name_a || 'A'
-  const nameB = couple?.name_b || 'B'
-  const senderName = role === 'A' ? nameA : nameB
 
   const { data: customs } = await sb
     .from('custom_categories')
@@ -118,30 +111,43 @@ export async function handleVerifiedMessage(
   const expenseCategories = Array.from(new Set([...CATEGORIES.filter((c) => c !== 'Outros'), ...customNames, 'Outros']))
   const incomeCategories = [...INCOME_CATEGORIES]
 
-  const ctx: Ctx = {
-    sb,
-    coupleId,
-    userId,
-    role,
-    nameA,
-    nameB,
-    incomeA: couple?.income_a || '0',
-    incomeB: couple?.income_b || '0',
-    method: (couple?.method as Method) || '50/50',
-    categorySplit: (couple?.category_split as CategorySplit) ?? null,
-    expenseCategories,
-    incomeCategories,
-    customEmojis,
+  return {
+    ctx: {
+      sb,
+      coupleId,
+      userId,
+      role,
+      nameA: couple?.name_a || 'A',
+      nameB: couple?.name_b || 'B',
+      incomeA: couple?.income_a || '0',
+      incomeB: couple?.income_b || '0',
+      method: (couple?.method as Method) || '50/50',
+      categorySplit: (couple?.category_split as CategorySplit) ?? null,
+      expenseCategories,
+      incomeCategories,
+      customEmojis,
+    },
   }
+}
+
+export async function handleVerifiedMessage(
+  sb: SupabaseClient,
+  userId: string,
+  text: string,
+): Promise<string | null> {
+  const loaded = await loadCtx(sb, userId)
+  if (loaded.error) return loaded.error
+  if (!loaded.ctx) return null
+  const ctx = loaded.ctx
 
   // ── parse
   const intent = await parseMessage(text, {
-    nameA,
-    nameB,
-    senderName,
-    senderRole: role,
-    expenseCategories,
-    incomeCategories,
+    nameA: ctx.nameA,
+    nameB: ctx.nameB,
+    senderName: ctx.role === 'A' ? ctx.nameA : ctx.nameB,
+    senderRole: ctx.role,
+    expenseCategories: ctx.expenseCategories,
+    incomeCategories: ctx.incomeCategories,
     hoje: spToday(),
   })
   if (!intent) {
@@ -164,16 +170,74 @@ export async function handleVerifiedMessage(
         '• Lançar gasto: *"gastei 100 de gasolina"*',
         '• Lançar receita: *"recebi 3000 de salário"*',
         '• Gasto pessoal: *"almoço 35, foi meu"*',
-        '• Quem pagou: *"mercado 200, a ' + (role === 'A' ? nameB : nameA) + ' pagou"*',
+        '• Quem pagou: *"mercado 200, a ' + (ctx.role === 'A' ? ctx.nameB : ctx.nameA) + ' pagou"*',
         '• Corrigir: *"era 120"* / *"muda pra mercado"*',
         '• Apagar: *"apaga o último"*',
         '• Consultar: *"quem deve quanto?"* / *"quanto gastei?"* / *"quanto de mercado?"*',
+        '• Nota fiscal: manda a *foto do cupom* ou o *PDF* que eu leio e lanço 📸',
         '',
         'Pode mandar por áudio também. Eu anoto na hora e te confirmo. 🙌',
       ].join('\n')
     default:
       return 'Manda tipo *"gastei 50 no mercado"* que eu lanço pra vocês. 💛'
   }
+}
+
+/** Lê uma foto de cupom ou PDF de nota e lança o gasto. */
+export async function handleReceipt(
+  sb: SupabaseClient,
+  userId: string,
+  base64: string,
+  mediaType: string,
+  caption?: string,
+): Promise<string | null> {
+  const loaded = await loadCtx(sb, userId)
+  if (loaded.error) return loaded.error
+  if (!loaded.ctx) return null
+  const ctx = loaded.ctx
+
+  const r = await parseReceipt(base64, mediaType, {
+    expenseCategories: ctx.expenseCategories,
+    hoje: spToday(),
+    caption,
+  })
+  if (!r || !(typeof r.valor === 'number' && r.valor > 0)) {
+    return 'Recebi a nota 📄 mas não consegui ler o valor 😕. Me manda assim: *"gastei 137,90 no mercado"*.'
+  }
+
+  const category = matchCategory(r.categoria, ctx.expenseCategories)
+  const monthKey = receiptMonthKey(r.data)
+  const desc = (r.descricao || category).trim().slice(0, 120)
+
+  const row = {
+    id: newId(),
+    couple_id: ctx.coupleId,
+    created_by: ctx.userId,
+    desc_text: desc,
+    amount: Math.round(r.valor * 100) / 100,
+    paid_by: ctx.role,
+    scope: 'casal' as Scope,
+    category,
+    payment_method: null,
+    month_key: monthKey,
+    type: 'expense' as const,
+  }
+
+  const { error } = await ctx.sb.from('expenses').insert(row)
+  if (error) {
+    console.error('[whatsapp] insert nota falhou', JSON.stringify(error))
+    return 'Li a nota, mas não consegui salvar agora 😞. Tenta de novo?'
+  }
+
+  const emoji = emojiFor(category, ctx.customEmojis)
+  const mesTag = monthKey !== spMonthKey() ? ` _(lançado em ${monthLabel(monthKey)})_` : ''
+  return `✅ Anotei pela nota: *${brl(row.amount)}* · ${emoji} ${category}${mesTag}\n_${desc}_\n\nSe algo ficou errado, manda *"era 120"* ou *"apaga o último"*.`
+}
+
+/** "YYYY-MM" a partir de uma data YYYY-MM-DD da nota; senão o mês atual. */
+function receiptMonthKey(data?: string): string {
+  if (data && /^\d{4}-\d{2}-\d{2}$/.test(data)) return data.slice(0, 7)
+  return spMonthKey()
 }
 
 /** Resolve quem desembolsou: default quem mandou; "parceiro" inverte. */

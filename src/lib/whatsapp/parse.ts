@@ -135,3 +135,99 @@ export async function parseMessage(text: string, ctx: ParseContext): Promise<Par
     return null
   }
 }
+
+// ──────────────────────────────────────────────── Nota fiscal (visão) ──
+
+export interface ReceiptData {
+  valor?: number
+  descricao?: string
+  categoria?: string
+  data?: string // YYYY-MM-DD
+  confianca?: number
+}
+
+export interface ReceiptContext {
+  expenseCategories: string[]
+  hoje: string
+  caption?: string
+}
+
+const RECEIPT_TOOL = {
+  name: 'registrar_nota',
+  description: 'Extrai os dados de um cupom fiscal / nota / recibo de compra.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      valor: {
+        type: 'number',
+        description:
+          'O VALOR TOTAL final pago (campo "TOTAL", "VALOR A PAGAR", "VALOR PAGO", "VALOR TOTAL R$"). NUNCA subtotal, troco, desconto, nem item individual.',
+      },
+      descricao: { type: 'string', description: 'Nome do estabelecimento/loja. Ex: "Carrefour", "Posto Shell", "Drogasil".' },
+      categoria: { type: 'string', description: 'Categoria mais próxima da lista, inferida pela loja. Se nada servir, "Outros".' },
+      data: { type: 'string', description: 'Data da compra em YYYY-MM-DD, se visível. Senão omita.' },
+      confianca: { type: 'number', description: '0 a 1.' },
+    },
+    required: [],
+  },
+} as const
+
+function normalizeImageType(m: string): string {
+  const t = (m || '').split(';')[0].trim().toLowerCase()
+  return ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(t) ? t : 'image/jpeg'
+}
+
+/** Lê uma foto de cupom ou um PDF de nota e extrai os dados do gasto. */
+export async function parseReceipt(base64: string, mediaType: string, ctx: ReceiptContext): Promise<ReceiptData | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    console.warn('[whatsapp] ANTHROPIC_API_KEY ausente — não dá pra ler a nota')
+    return null
+  }
+
+  const isPdf = (mediaType || '').includes('pdf')
+  const system = [
+    `Você lê cupons fiscais e notas de compra de um app de finanças de casal. Extraia os dados chamando registrar_nota.`,
+    `Hoje é ${ctx.hoje}.`,
+    `Categorias disponíveis: ${ctx.expenseCategories.join(', ')}.`,
+    `Pegue SEMPRE o VALOR TOTAL final efetivamente pago. A descrição é o nome da loja. Infira a categoria pela loja.`,
+  ].join('\n')
+
+  const mediaBlock = isPdf
+    ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } }
+    : { type: 'image', source: { type: 'base64', media_type: normalizeImageType(mediaType), data: base64 } }
+  const textBlock = {
+    type: 'text',
+    text: ctx.caption ? `Observação do usuário: ${ctx.caption}` : 'Extraia os dados desta nota.',
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 400,
+        system,
+        tools: [RECEIPT_TOOL],
+        tool_choice: { type: 'tool', name: 'registrar_nota' },
+        messages: [{ role: 'user', content: [mediaBlock, textBlock] }],
+      }),
+    })
+    if (!res.ok) {
+      console.error('[whatsapp] Anthropic (nota)', res.status, (await res.text().catch(() => '')).slice(0, 200))
+      return null
+    }
+    const data = await res.json()
+    const toolUse = (data.content || []).find((c: any) => c.type === 'tool_use')
+    if (!toolUse?.input) return null
+    return toolUse.input as ReceiptData
+  } catch (err) {
+    console.error('[whatsapp] parseReceipt erro', err)
+    return null
+  }
+}
