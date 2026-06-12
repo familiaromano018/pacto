@@ -13,6 +13,7 @@ export interface ParsedIntent {
   descricao?: string
   categoria?: string
   escopo?: 'casal' | 'meu' | 'do_parceiro'
+  quem_pagou?: 'eu' | 'parceiro'
   forma_pagamento?: PaymentMethod | null
   confianca?: number
 }
@@ -49,6 +50,12 @@ const TOOL = {
         enum: ['casal', 'meu', 'do_parceiro'],
         description: 'casal = conta dividida (default); meu = gasto pessoal de quem mandou; do_parceiro = pessoal do parceiro.',
       },
+      quem_pagou: {
+        type: 'string',
+        enum: ['eu', 'parceiro'],
+        description:
+          'Quem desembolsou. Default "eu" (quem mandou). Use "parceiro" se a mensagem disser que o outro pagou — resolva nomes pelo contexto (quem mandou vs nome do parceiro).',
+      },
       forma_pagamento: {
         type: ['string', 'null'],
         enum: ['pix', 'debito', 'credito', 'dinheiro', 'boleto', 'transferencia', null],
@@ -78,8 +85,10 @@ export async function parseMessage(text: string, ctx: ParseContext): Promise<Par
     `- valor SEMPRE em reais como número (ponto decimal). Sem valor num lançamento -> ainda action=lancar mas sem o campo valor.`,
     `- categoria: escolha a mais próxima da lista do tipo certo; se nada servir, "Outros".`,
     `- escopo: default "casal". Só use "meu"/"do_parceiro" se a pessoa deixar claro que é pessoal.`,
+    `- quem_pagou: default "eu". Se disser que o parceiro pagou (ex: "a ${ctx.nameA === ctx.senderName ? ctx.nameB : ctx.nameA} pagou"), use "parceiro". Isso é independente do escopo (uma conta do casal pode ter sido paga por qualquer um).`,
     `- Pergunta tipo "quanto gastei?", "qual o saldo?" -> action=consultar.`,
-    `- "corrige", "tava errado", "muda pra X" -> action=corrigir. "apaga", "cancela o último" -> action=apagar.`,
+    `- "corrige", "tava errado", "era 120", "muda a categoria pra mercado" -> action=corrigir, preenchendo SÓ os campos que mudaram (valor/categoria/descricao/escopo/quem_pagou).`,
+    `- "apaga", "cancela", "exclui o último" -> action=apagar.`,
     `- Saudação/dúvida de como usar -> action=ajuda. Qualquer coisa fora disso -> action=outro.`,
   ].join('\n')
 
