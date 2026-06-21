@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import type { CoupleRow, SubStatus } from '@/lib/admin/data'
+import { setCoupleStatus, type AdminAction } from '@/app/admin/actions'
 
 const STATUS_LABELS: Record<SubStatus, string> = {
   trial: 'Trial',
@@ -85,6 +86,21 @@ export default function CouplesTable({ rows }: { rows: CoupleRow[] }) {
   const [filter, setFilter] = useState<(typeof FILTER_OPTIONS)[number]['id']>('all')
   const [q, setQ] = useState('')
   const [openLog, setOpenLog] = useState<string | null>(null)
+  const [manage, setManage] = useState<string | null>(null)
+  const [premiumMonths, setPremiumMonths] = useState(12)
+  const [trialDays, setTrialDays] = useState(14)
+  const [pending, startTransition] = useTransition()
+
+  function runAction(coupleId: string, action: AdminAction) {
+    startTransition(async () => {
+      try {
+        await setCoupleStatus(coupleId, action)
+        setManage(null)
+      } catch (e) {
+        alert('Erro ao atualizar: ' + (e instanceof Error ? e.message : String(e)))
+      }
+    })
+  }
 
   const filtered = useMemo(() => {
     const qLower = q.trim().toLowerCase()
@@ -114,6 +130,7 @@ export default function CouplesTable({ rows }: { rows: CoupleRow[] }) {
   }, [rows, filter, q])
 
   const openLogRow = filtered.find((r) => r.coupleId === openLog) || null
+  const manageRow = rows.find((r) => r.coupleId === manage) || null
 
   return (
     <div>
@@ -290,6 +307,25 @@ export default function CouplesTable({ rows }: { rows: CoupleRow[] }) {
                     </td>
                     <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => {
+                            setManage(r.coupleId)
+                            setPremiumMonths(12)
+                            setTrialDays(14)
+                          }}
+                          style={{
+                            background: 'var(--color-brand)',
+                            border: '1px solid var(--color-border-default)',
+                            color: 'var(--color-text-on-brand)',
+                            padding: '4px 10px',
+                            borderRadius: 6,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                          }}
+                        >
+                          ⚙️ Plano
+                        </button>
                         {emails.length > 0 && (
                           <a
                             href={mailtoFor(emails, r)}
@@ -432,6 +468,187 @@ export default function CouplesTable({ rows }: { rows: CoupleRow[] }) {
                 )
               })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {manageRow && (
+        <div
+          onClick={() => !pending && setManage(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'var(--color-bg-overlay)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+            zIndex: 100,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--color-bg-elevated)',
+              border: '1px solid var(--color-border-default)',
+              borderRadius: 12,
+              maxWidth: 460,
+              width: '100%',
+              padding: 20,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: 4,
+                alignItems: 'center',
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: 16 }}>
+                Gerenciar plano —{' '}
+                {[manageRow.nameA, manageRow.nameB].filter(Boolean).join(' & ') || manageRow.code}
+              </h3>
+              <button
+                onClick={() => !pending && setManage(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 20,
+                  cursor: 'pointer',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 16 }}>
+              Status atual: <strong>{STATUS_LABELS[manageRow.status]}</strong>
+            </div>
+
+            {/* Premium */}
+            <div
+              style={{
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border-default)',
+                borderRadius: 10,
+                padding: 14,
+                marginBottom: 12,
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Tornar Premium (pagando)</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label style={{ fontSize: 13, color: 'var(--color-text-body)' }}>Duração:</label>
+                <select
+                  value={premiumMonths}
+                  onChange={(e) => setPremiumMonths(Number(e.target.value))}
+                  disabled={pending}
+                  style={{
+                    background: 'var(--color-bg-card-muted)',
+                    border: '1px solid var(--color-border-default)',
+                    color: 'var(--color-text-primary)',
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    fontSize: 13,
+                  }}
+                >
+                  <option value={1}>1 mês</option>
+                  <option value={3}>3 meses</option>
+                  <option value={6}>6 meses</option>
+                  <option value={12}>12 meses</option>
+                  <option value={24}>24 meses</option>
+                </select>
+                <button
+                  onClick={() => runAction(manageRow.coupleId, { kind: 'premium', months: premiumMonths })}
+                  disabled={pending}
+                  style={{
+                    background: '#34d399',
+                    border: 'none',
+                    color: '#06281d',
+                    padding: '7px 14px',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: pending ? 'wait' : 'pointer',
+                    marginLeft: 'auto',
+                  }}
+                >
+                  {pending ? '...' : 'Aplicar Premium'}
+                </button>
+              </div>
+            </div>
+
+            {/* Trial */}
+            <div
+              style={{
+                background: 'var(--color-bg-card)',
+                border: '1px solid var(--color-border-default)',
+                borderRadius: 10,
+                padding: 14,
+                marginBottom: 12,
+              }}
+            >
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Voltar para Trial</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label style={{ fontSize: 13, color: 'var(--color-text-body)' }}>Dias:</label>
+                <select
+                  value={trialDays}
+                  onChange={(e) => setTrialDays(Number(e.target.value))}
+                  disabled={pending}
+                  style={{
+                    background: 'var(--color-bg-card-muted)',
+                    border: '1px solid var(--color-border-default)',
+                    color: 'var(--color-text-primary)',
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    fontSize: 13,
+                  }}
+                >
+                  <option value={7}>7 dias</option>
+                  <option value={14}>14 dias</option>
+                  <option value={30}>30 dias</option>
+                </select>
+                <button
+                  onClick={() => runAction(manageRow.coupleId, { kind: 'trial', days: trialDays })}
+                  disabled={pending}
+                  style={{
+                    background: 'var(--color-bg-card-muted)',
+                    border: '1px solid var(--color-border-default)',
+                    color: 'var(--color-text-body)',
+                    padding: '7px 14px',
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: pending ? 'wait' : 'pointer',
+                    marginLeft: 'auto',
+                  }}
+                >
+                  {pending ? '...' : 'Aplicar Trial'}
+                </button>
+              </div>
+            </div>
+
+            {/* Cancelar */}
+            <button
+              onClick={() => {
+                if (confirm('Cancelar o acesso deste casal? Eles perdem o premium imediatamente.'))
+                  runAction(manageRow.coupleId, { kind: 'cancel' })
+              }}
+              disabled={pending}
+              style={{
+                width: '100%',
+                background: 'rgba(248, 113, 113, 0.12)',
+                border: '1px solid rgba(248, 113, 113, 0.4)',
+                color: '#f87171',
+                padding: '9px 14px',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: pending ? 'wait' : 'pointer',
+              }}
+            >
+              {pending ? '...' : 'Cancelar acesso'}
+            </button>
           </div>
         </div>
       )}
