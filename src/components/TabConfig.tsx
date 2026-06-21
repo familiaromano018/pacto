@@ -11,6 +11,10 @@ import PendingRequestsCard from './PendingRequestsCard'
 import WhatsappCard from './WhatsappCard'
 import type { ClosedMonth, CustomCategory } from './types'
 
+// Integração WhatsApp fica ESCONDIDA até estar 100% testada.
+// Pra ligar: setar NEXT_PUBLIC_WHATSAPP_ENABLED=true na Vercel e redeployar.
+const WHATSAPP_ENABLED = process.env.NEXT_PUBLIC_WHATSAPP_ENABLED === 'true'
+
 interface Props {
   nameA: string
   nameB: string
@@ -121,8 +125,8 @@ export default function TabConfig({
         </div>
       </Card>
 
-      {/* Integração WhatsApp */}
-      <WhatsappCard />
+      {/* Integração WhatsApp — escondida até testar (liga via NEXT_PUBLIC_WHATSAPP_ENABLED=true) */}
+      {WHATSAPP_ENABLED && <WhatsappCard />}
 
       {/* Aparência — tema claro/escuro */}
       <Card>
