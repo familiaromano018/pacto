@@ -19,6 +19,7 @@ interface Props {
   method: '50/50' | 'proporcional' | 'unificada' | 'categorias'
   mesada: string
   categorySplit: Record<string, 'A' | 'B' | 'ambos'>
+  categoryBudgets: Record<string, number>
   closedMonths: ClosedMonth[]
   customCategories: CustomCategory[]
   coupleCode: string | null
@@ -30,6 +31,7 @@ interface Props {
     incomeA?: string; incomeB?: string
     method?: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada?: string
     categorySplit?: Record<string, 'A' | 'B' | 'ambos'>
+    categoryBudgets?: Record<string, number>
   }) => void
   onSignOut: () => void
   onExportMonth: (monthKey: string) => void
@@ -37,13 +39,14 @@ interface Props {
 }
 
 export default function TabConfig({
-  nameA, nameB, incomeA, incomeB, method, mesada, categorySplit, closedMonths, customCategories,
+  nameA, nameB, incomeA, incomeB, method, mesada, categorySplit, categoryBudgets, closedMonths, customCategories,
   coupleCode, partnerJoined, coupleId, currentUserId,
   onUpdate, onSignOut, onExportMonth, onRemoveCategory,
 }: Props) {
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
   const [copied, setCopied] = useState(false)
   const [theme, setThemeState] = useState<Theme>('dark')
+  const [budgetDraft, setBudgetDraft] = useState<Record<string, string>>({})
   useEffect(() => { setThemeState(getTheme()) }, [])
   function chooseTheme(t: Theme) { setTheme(t); setThemeState(t) }
 
@@ -316,6 +319,77 @@ export default function TabConfig({
           </div>
         </Card>
       )}
+
+      {/* Orçamento por categoria */}
+      <Card>
+        <h3
+          style={{
+            fontFamily: tokens.primitive.fontFamily.display,
+            fontWeight: tokens.primitive.fontWeight.extrabold,
+            fontSize: tokens.primitive.fontSize.xl,
+            color: tokens.color.text_heading,
+            marginBottom: tokens.primitive.space[2],
+          }}
+        >
+          Orçamento mensal por categoria
+        </h3>
+        <p
+          style={{
+            fontSize: tokens.primitive.fontSize.sm,
+            color: tokens.color.text_muted,
+            marginBottom: tokens.primitive.space[6],
+            lineHeight: 1.5,
+          }}
+        >
+          Defina um limite por categoria. Na aba <strong>Visão</strong> aparece a barra de
+          progresso e o app avisa quando vocês passam de 80% e quando estouram. Vazio = sem limite.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: tokens.primitive.space[4] }}>
+          {allCategoryNames(customCategories).map((cat) => {
+            const saved = categoryBudgets[cat]
+            const value = budgetDraft[cat] ?? (saved ? String(saved) : '')
+            const commit = (raw: string) => {
+              const n = Math.max(0, parseFloat(raw.replace(',', '.')) || 0)
+              const next = { ...categoryBudgets }
+              if (n > 0) next[cat] = n
+              else delete next[cat]
+              onUpdate({ categoryBudgets: next })
+            }
+            return (
+              <div
+                key={cat}
+                style={{ display: 'flex', alignItems: 'center', gap: tokens.primitive.space[4] }}
+              >
+                <span style={{ flex: 1, fontSize: tokens.primitive.fontSize.base, color: tokens.color.text_body, minWidth: 0 }}>
+                  {categoryEmoji(cat, customCategories)} {cat}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                  <span style={{ fontSize: tokens.primitive.fontSize.sm, color: tokens.color.text_muted }}>R$</span>
+                  <input
+                    inputMode="decimal"
+                    placeholder="0"
+                    value={value}
+                    onChange={(e) => setBudgetDraft((d) => ({ ...d, [cat]: e.target.value }))}
+                    onBlur={(e) => commit(e.target.value)}
+                    style={{
+                      width: 96,
+                      background: tokens.color.bg_card,
+                      color: tokens.color.text_body,
+                      border: `1.5px solid ${tokens.color.border_default}`,
+                      borderRadius: 10,
+                      padding: '6px 10px',
+                      fontSize: tokens.primitive.fontSize.sm,
+                      fontFamily: 'inherit',
+                      textAlign: 'right',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </Card>
 
       {/* Mesada */}
       <Card>

@@ -78,6 +78,7 @@ function AuthedShell({ userId }: { userId: string }) {
   const [method, setMethod] = useLocalState<'50/50' | 'proporcional' | 'unificada' | 'categorias'>('method', '50/50')
   const [mesada, setMesada] = useLocalState('mesada', '')
   const [categorySplit, setCategorySplit] = useLocalState<Record<string, 'A' | 'B' | 'ambos'>>('category-split', {})
+  const [categoryBudgets, setCategoryBudgets] = useLocalState<Record<string, number>>('category-budgets', {})
 
   // ── Data state (persisted) ──
   const [expenses, setExpenses] = useLocalState<Expense[]>('expenses', [])
@@ -149,6 +150,7 @@ function AuthedShell({ userId }: { userId: string }) {
         }
         if (!mesada && row.mesada) setMesada(row.mesada)
         if (row.category_split && Object.keys(categorySplit).length === 0) setCategorySplit(row.category_split)
+        if (row.category_budgets && Object.keys(categoryBudgets).length === 0) setCategoryBudgets(row.category_budgets)
       }
     }
     async function loadMembers() {
@@ -180,7 +182,7 @@ function AuthedShell({ userId }: { userId: string }) {
         loadPartner().catch(() => {})
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'couples', filter: `id=eq.${coupleId}` }, (payload) => {
-        const row = payload.new as { name_a?: string; name_b?: string; income_a?: string; income_b?: string; method?: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada?: string; category_split?: Record<string, 'A' | 'B' | 'ambos'>; code?: string }
+        const row = payload.new as { name_a?: string; name_b?: string; income_a?: string; income_b?: string; method?: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada?: string; category_split?: Record<string, 'A' | 'B' | 'ambos'>; category_budgets?: Record<string, number>; code?: string }
         if (row.code) setCoupleCode(row.code)
         // espelha mudanças do parceiro no state local (sem entrar em loop: useLocalState não dispara enqueue)
         if (row.name_a != null) setNameA(row.name_a)
@@ -190,6 +192,7 @@ function AuthedShell({ userId }: { userId: string }) {
         if (row.method) setMethod(row.method)
         if (row.mesada != null) setMesada(row.mesada)
         if (row.category_split != null) setCategorySplit(row.category_split)
+        if (row.category_budgets != null) setCategoryBudgets(row.category_budgets)
       })
       .subscribe()
 
@@ -565,6 +568,7 @@ function AuthedShell({ userId }: { userId: string }) {
     nameA: string; nameB: string; incomeA: string; incomeB: string
     method: '50/50' | 'proporcional' | 'unificada' | 'categorias'; mesada: string
     categorySplit: Record<string, 'A' | 'B' | 'ambos'>
+    categoryBudgets: Record<string, number>
   }>) {
     const serverPatch: Record<string, any> = {}
     if (patch.nameA != null) { setNameA(patch.nameA); serverPatch.name_a = patch.nameA }
@@ -574,6 +578,7 @@ function AuthedShell({ userId }: { userId: string }) {
     if (patch.method != null) { setMethod(patch.method); serverPatch.method = patch.method }
     if (patch.mesada != null) { setMesada(patch.mesada); serverPatch.mesada = patch.mesada }
     if (patch.categorySplit != null) { setCategorySplit(patch.categorySplit); serverPatch.category_split = patch.categorySplit }
+    if (patch.categoryBudgets != null) { setCategoryBudgets(patch.categoryBudgets); serverPatch.category_budgets = patch.categoryBudgets }
     if (Object.keys(serverPatch).length > 0) {
       enqueue({ table: 'couples', op: 'update', payload: serverPatch })
       pushDrain()
@@ -764,6 +769,7 @@ function AuthedShell({ userId }: { userId: string }) {
             fixedCosts={fixedCosts}
             installments={installments}
             customCategories={customCategories}
+            categoryBudgets={categoryBudgets}
             onDrillTo={handleDrillTo}
           />
         )}
@@ -811,6 +817,7 @@ function AuthedShell({ userId }: { userId: string }) {
             nameA={nameA} nameB={nameB}
             incomeA={incomeA} incomeB={incomeB}
             method={method} mesada={mesada} categorySplit={categorySplit}
+            categoryBudgets={categoryBudgets}
             closedMonths={closedMonths}
             customCategories={customCategories}
             coupleCode={coupleCode}

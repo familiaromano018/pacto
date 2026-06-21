@@ -13,6 +13,7 @@ import {
   PaymentMethodIcon,
 } from '@/lib/payment'
 import type { Expense, FixedCost, Installment, CustomCategory } from './types'
+import { computeAlerts, type AppAlert } from '@/lib/alerts'
 
 interface Props {
   nameA: string
@@ -22,6 +23,7 @@ interface Props {
   fixedCosts: FixedCost[]
   installments: Installment[]
   customCategories: CustomCategory[]
+  categoryBudgets: Record<string, number>
   onDrillTo?: (target: { kind: 'category' | 'method'; key: string }) => void
 }
 
@@ -35,8 +37,14 @@ const PALETTE = [
   '#94a3b8',
 ]
 
+const ALERT_STYLE: Record<AppAlert['level'], { bg: string; border: string }> = {
+  danger: { bg: 'rgba(248,113,113,0.10)', border: 'rgba(248,113,113,0.35)' },
+  warn: { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)' },
+  info: { bg: 'rgba(91,141,255,0.10)', border: 'rgba(91,141,255,0.30)' },
+}
+
 export default function TabVisao({
-  nameA, nameB, monthKey, expenses, fixedCosts, installments, customCategories, onDrillTo,
+  nameA, nameB, monthKey, expenses, fixedCosts, installments, customCategories, categoryBudgets, onDrillTo,
 }: Props) {
   const monthInfo = parseMonthKey(monthKey)
   const prevMonthKey = shiftMonth(monthKey, -1)
@@ -134,6 +142,20 @@ export default function TabVisao({
     return { arr, maxDay, daysInMonth }
   }, [cur.byDay, monthInfo.year, monthInfo.month])
 
+  const byCategoryObj = useMemo(() => Object.fromEntries(cur.byCategory), [cur.byCategory])
+  const alerts = useMemo(
+    () => computeAlerts({ byCategory: byCategoryObj, categoryBudgets, fixedCosts, installments }),
+    [byCategoryObj, categoryBudgets, fixedCosts, installments],
+  )
+  const budgetRows = useMemo(
+    () =>
+      Object.entries(categoryBudgets || {})
+        .filter(([, lim]) => Number(lim) > 0)
+        .map(([cat, lim]) => ({ cat, limit: Number(lim), spent: byCategoryObj[cat] ?? 0 }))
+        .sort((a, b) => b.spent / b.limit - a.spent / a.limit),
+    [categoryBudgets, byCategoryObj],
+  )
+
   const isEmpty = cur.total === 0
 
   return (
@@ -195,6 +217,40 @@ export default function TabVisao({
         )}
       </div>
 
+      {alerts.length > 0 && (
+        <div style={{ marginBottom: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {alerts.map((a) => {
+            const s = ALERT_STYLE[a.level]
+            return (
+              <div
+                key={a.id}
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  alignItems: 'flex-start',
+                  padding: '11px 13px',
+                  background: s.bg,
+                  border: `1px solid ${s.border}`,
+                  borderRadius: 12,
+                }}
+              >
+                <span style={{ fontSize: 16, lineHeight: 1.2, flexShrink: 0 }}>{a.icon}</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: tokens.color.text_heading }}>
+                    {a.title}
+                  </div>
+                  {a.detail && (
+                    <div style={{ fontSize: 12, color: tokens.color.text_muted, marginTop: 2 }}>
+                      {a.detail}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       {isEmpty ? (
         <EmptyVisao />
       ) : (
@@ -212,6 +268,66 @@ export default function TabVisao({
               total={totalForChart}
             />
           </ChartCard>
+
+          {/* ── Orçamento por categoria ── */}
+          {budgetRows.length > 0 && (
+            <ChartCard title="Orçamento por categoria">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {budgetRows.map(({ cat, limit, spent }) => {
+                  const ratio = spent / limit
+                  const over = spent >= limit
+                  const near = !over && ratio >= 0.8
+                  const barColor = over ? tokens.color.danger : near ? '#f59e0b' : tokens.color.success
+                  return (
+                    <div key={cat}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: 13,
+                          marginBottom: 5,
+                          color: tokens.color.text_body,
+                          gap: 8,
+                        }}
+                      >
+                        <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {categoryEmoji(cat, customCategories)} {cat}
+                        </span>
+                        <span
+                          style={{
+                            fontVariantNumeric: 'tabular-nums',
+                            flexShrink: 0,
+                            color: over ? tokens.color.danger : tokens.color.text_muted,
+                            fontWeight: over ? 700 : 400,
+                          }}
+                        >
+                          {formatBRL(spent)} / {formatBRL(limit)}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          height: 8,
+                          background: tokens.color.bg_app,
+                          borderRadius: 999,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${Math.min(ratio, 1) * 100}%`,
+                            height: '100%',
+                            background: barColor,
+                            borderRadius: 999,
+                            transition: 'width .3s ease',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </ChartCard>
+          )}
 
           {/* ── Donut formas de pagamento ── */}
           {sortedMethods.length > 0 && (() => {

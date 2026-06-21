@@ -8,6 +8,8 @@ export type Scope = 'casal' | 'A' | 'B'
 export type PaidBy = 'A' | 'B'
 export type Method = '50/50' | 'proporcional' | 'unificada' | 'categorias'
 export type CategorySplit = Record<string, 'A' | 'B' | 'ambos'>
+/** Orçamento mensal por categoria: nome da categoria -> limite em R$ (0/ausente = sem limite) */
+export type CategoryBudgets = Record<string, number>
 export type PrivacyMode = 'open' | 'private'
 export type PaymentMethod = 'pix' | 'debito' | 'credito' | 'dinheiro' | 'boleto' | 'transferencia'
 
@@ -21,6 +23,7 @@ export interface CoupleRow {
   method: Method
   mesada: string
   category_split: CategorySplit | null
+  category_budgets: CategoryBudgets | null
   privacy_mode: PrivacyMode
   created_at: string
   updated_at: string

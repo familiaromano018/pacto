@@ -34,7 +34,7 @@ export type Mutation =
   | { id: string; ts: number; table: 'custom_categories'; op: 'delete'; payload: { id: string } }
   | {
       id: string; ts: number; table: 'couples'; op: 'update'
-      payload: Partial<Pick<CoupleRow, 'name_a' | 'name_b' | 'income_a' | 'income_b' | 'method' | 'mesada' | 'category_split' | 'privacy_mode'>>
+      payload: Partial<Pick<CoupleRow, 'name_a' | 'name_b' | 'income_a' | 'income_b' | 'method' | 'mesada' | 'category_split' | 'category_budgets' | 'privacy_mode'>>
     }
 
 // ── Storage helpers ────────────────────────────────────────────────────────────
