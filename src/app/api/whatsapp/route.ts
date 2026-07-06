@@ -2,7 +2,7 @@
  * Webhook WhatsApp (Evolution API) — entrada de mensagens.
  *
  * Configurar na Evolution (Webhook da instância):
- *   URL:    https://pacto-beta.vercel.app/api/whatsapp?secret=<WHATSAPP_WEBHOOK_SECRET>
+ *   URL:    https://pacto-app.tec.br/api/whatsapp?secret=<WHATSAPP_WEBHOOK_SECRET>
  *   Evento: MESSAGES_UPSERT
  *
  * Fase 0: trata só a VERIFICAÇÃO de número. Quando o usuário manda o código de
