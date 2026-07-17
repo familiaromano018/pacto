@@ -7,7 +7,8 @@ const config: CapacitorConfig = {
   // (server.url abaixo). Mantemos um placeholder mínimo em www/.
   webDir: 'www',
   server: {
-    url: 'https://pacto-app.tec.br',
+    // Abre direto no app (login/dashboard), não na landing de marketing.
+    url: 'https://pacto-app.tec.br/app',
     cleartext: false,
   },
 }

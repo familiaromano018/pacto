@@ -64,6 +64,13 @@ export default function RootLayout({
             __html: `try{var t=localStorage.getItem('pacto-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}`,
           }}
         />
+        {/* Rota B: marca html.is-native no app nativo (Capacitor), antes da pintura,
+            pra esconder CTAs de pagamento externo via CSS sem piscar */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var c=window.Capacitor;if(c&&(typeof c.isNativePlatform==='function'?c.isNativePlatform():c.isNative)){document.documentElement.classList.add('is-native')}}catch(e){}`,
+          }}
+        />
       </head>
       <body>
         <MetaPixel />

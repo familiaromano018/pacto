@@ -5,6 +5,7 @@ import { signOut } from '@/lib/supabase/useSession'
 import type { SubscriptionStatus } from '@/lib/subscription/useSubscription'
 import { trackPixel } from './MetaPixel'
 import { trackGA } from './GoogleAnalytics'
+import { useIsNative } from '@/lib/native'
 
 interface Props {
   status: SubscriptionStatus | null
@@ -16,6 +17,7 @@ const HOTMART_CHECKOUT_URL =
   'https://pay.hotmart.com/' // placeholder até produto ser criado
 
 export default function PaywallScreen({ status, coupleCode }: Props) {
+  const isNative = useIsNative()
   const isTrialExpired = status === 'trial'
   const isPastDue = status === 'past_due'
   const isCanceled = status === 'canceled' || status === 'expired'
@@ -26,7 +28,10 @@ export default function PaywallScreen({ status, coupleCode }: Props) {
     ? 'Sua assinatura terminou'
     : 'Seu trial terminou'
 
-  const sub = isPastDue
+  // Rota B: no app nativo não empurramos checkout externo — texto neutro, sem "assine".
+  const sub = isNative
+    ? 'Sua assinatura não está ativa no momento.'
+    : isPastDue
     ? 'Atualiza o pagamento pra continuar usando o Pacto.'
     : isCanceled
     ? 'Renove pra voltar a usar. Seus dados continuam salvos.'
@@ -34,6 +39,7 @@ export default function PaywallScreen({ status, coupleCode }: Props) {
 
   function openCheckout() {
     if (typeof window === 'undefined') return
+    if (isNative) return // Rota B: sem checkout externo no app nativo
     trackPixel('InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'Pacto Mensal' })
     trackGA('begin_checkout', { value: 29.90, currency: 'BRL', source: 'paywall' })
     const params = new URLSearchParams()
@@ -127,6 +133,7 @@ export default function PaywallScreen({ status, coupleCode }: Props) {
 
         <button
           onClick={openCheckout}
+          data-hide-native
           style={{
             width: '100%',
             padding: '15px 22px',

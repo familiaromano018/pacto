@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
+/* Rota B — no app nativo (Capacitor) escondemos CTAs de pagamento externo.
+   O <head> marca html.is-native antes da pintura; aqui ocultamos os elementos. */
+html.is-native [data-hide-native] {
+  display: none !important;
+}
+
 :root {
   /* ── Identidade (azul como brand — combina com "Casal no Azul") ── */
   --color-person-a: #5b8dff;

@@ -2,6 +2,7 @@
 
 import { trackPixel } from './MetaPixel'
 import { trackGA } from './GoogleAnalytics'
+import { useIsNative } from '@/lib/native'
 
 const HOTMART_CHECKOUT_URL =
   process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL ||
@@ -19,8 +20,11 @@ interface Props {
  *  - 0 a 2 dias: vermelho (urgente)
  */
 export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
+  const isNative = useIsNative()
+
   function openCheckout() {
     if (typeof window === 'undefined') return
+    if (isNative) return // Rota B: sem checkout externo no app nativo
     trackPixel('InitiateCheckout', { value: 29.90, currency: 'BRL', content_name: 'Pacto Mensal' })
     trackGA('begin_checkout', { value: 29.90, currency: 'BRL', source: 'trial_banner' })
     const params = new URLSearchParams()
@@ -48,6 +52,7 @@ export default function TrialBanner({ daysRemaining, coupleCode }: Props) {
 
   return (
     <div
+      data-hide-native
       style={{
         background: `linear-gradient(90deg, ${tone.bg} 0%, ${tone.bg2} 100%)`,
         borderBottom: `1px solid ${tone.border}`,

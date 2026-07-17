@@ -1,6 +1,6 @@
 # Pacto — Onde Paramos (retomar aqui)
 
-> Última atualização: **21/06/2026**. Abra este arquivo ao retomar o projeto.
+> Última atualização: **06/07/2026**. Abra este arquivo ao retomar o projeto.
 > Docs irmãos: `RESUMO-PROJETO.md` (visão geral), `SEGURANCA-LGPD-OPEN-FINANCE.md` (gate da Fase 2).
 
 ---
@@ -14,22 +14,24 @@
 - **Central de avisos no app** — banner na Visão (orçamento perto/estourado + contas fixas/parcelas vencendo em ≤5 dias).
   - Lógica pura e reaproveitável em `src/lib/alerts.ts`.
 
-## ⏸️ Pausado
-- **WhatsApp (Evolution)** — código 100% pronto (texto, voz, foto/nota, consultas, envio), mas:
-  - **UI escondida** atrás de flag: `NEXT_PUBLIC_WHATSAPP_ENABLED` (desligado por padrão).
-  - **Bloqueado por config + chip**: falta o chip e 7 variáveis na Vercel:
-    `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, `EVOLUTION_API_URL`, `EVOLUTION_API_KEY`,
-    `EVOLUTION_INSTANCE`, `WHATSAPP_WEBHOOK_SECRET`, `NEXT_PUBLIC_PACTO_WHATSAPP`.
-  - **Pra reativar:** conseguir o chip → setar as 7 vars + `NEXT_PUBLIC_WHATSAPP_ENABLED=true` → redeploy → apontar webhook MESSAGES_UPSERT da Evolution pra `https://pacto-app.tec.br/api/whatsapp?secret=<WHATSAPP_WEBHOOK_SECRET>`.
-  - Quando ligar: os MESMOS avisos do app (`alerts.ts`) passam a ir também pro WhatsApp.
-  - 🧹 Nit: comentário em `src/app/api/whatsapp/route.ts` ainda cita domínio antigo `pacto-beta.vercel.app`.
+## 🟡 WhatsApp — ATIVADO e configurado, PROVADO funcionando (06/07/2026)
+Reativado e testado ponta a ponta. **Tudo funciona** — o único bloqueio atual é o número estar em **throttle temporário** do WhatsApp.
+
+- **Config em produção (Vercel, projeto pacto):** as 7 vars setadas + flag `NEXT_PUBLIC_WHATSAPP_ENABLED=true` (card WhatsApp aparece no app).
+- **Instância Evolution:** servidor **`https://evo.ai.saramonic.com.br`** (do Saramonic, compartilhado), instância **`PACTO`**, número **5511913339948** (perfil "Turbo"). `EVOLUTION_INSTANCE=PACTO`.
+- **Webhook Evolution:** apontado (via API) pra `https://pacto-app.tec.br/api/whatsapp?secret=<WHATSAPP_WEBHOOK_SECRET>`, evento `MESSAGES_UPSERT`, `webhookByEvents:false`. Secret guardado nas env vars da Vercel.
+- **Provado no debug:** número verifica ✅, webhook recebe ✅, parser lança gasto no app ✅ (R$15 farmácia entrou), `sendText` retorna 201 ✅, todas as env presentes no runtime ✅.
+- **⚠️ Bloqueio atual = THROTTLE do número:** mandamos dezenas de msgs de teste em minutos → WhatsApp soft-bloqueou a ENTREGA (msgs ficam PENDING). **Não é bug.** Restart não resolve na hora. **Resolver = esperar 30min–horas SEM enviar**, depois testar UMA msg. Uso real (baixo volume) não dispara isso.
+- **Gotchas Evolution v2.3.7 descobertos:** (1) o `webhook/set` faz MERGE (pra limpar headers, mandar `headers:{}`); (2) `webhookBase64` não persistiu por webhook — áudio usa fallback `getMediaBase64`. Áudio/foto ainda NÃO validados na prática (parar no throttle).
+- Quando entregar de novo: os MESMOS avisos do app (`alerts.ts`) podem passar a ir pro WhatsApp (ainda não implementado o disparo proativo).
+- **Reabrir teste:** depois do número esfriar, mandar "gastei 20 no mercado" pro **5511 91333-9948** e ver se responde. Se quiser testar muito, usar **chip dedicado** (não o do Saramonic).
 
 ---
 
 ## 🎯 Próximos passos (prioridade)
 
-### 1. Reativar WhatsApp (quando o chip chegar)
-Plugar chip + 7 vars + flag → testar ponta a ponta → ligar pra todos.
+### 1. Terminar validação do WhatsApp (esperar throttle destravar)
+Já ativado e provado. Falta só: esperar o número esfriar → testar 1 msg de texto → validar áudio e foto de nota → então liberar/divulgar pros casais. Se o Saramonic reclamar do número compartilhado, migrar pra chip dedicado.
 
 ### 2. Open Finance / sincronização bancária (Fase 2 — a maior bola perdida do mercado BR)
 - **O que é:** conectar contas dos dois (marido + esposa, cada um com seu consentimento) via agregador autorizado (**Pluggy** ou Belvo) e importar transações **automaticamente** → vira gasto no app (paid_by A/B automático).

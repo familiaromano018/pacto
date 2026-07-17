@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build artifact (Android bundle) — regenerável, não versionar
+pacto-release.aab
