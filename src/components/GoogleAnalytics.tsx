@@ -1,11 +1,17 @@
 'use client'
 
 import Script from 'next/script'
+import { useEffect, useState } from 'react'
+import { isNativeApp } from '@/lib/native'
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
 export default function GoogleAnalytics() {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   if (!GA_ID) return null
+  // Rota B: não carrega dentro do app nativo (Capacitor) — ver MetaPixel.
+  if (!mounted || isNativeApp()) return null
 
   return (
     <>

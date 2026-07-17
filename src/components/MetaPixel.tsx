@@ -1,6 +1,8 @@
 'use client'
 
 import Script from 'next/script'
+import { useEffect, useState } from 'react'
+import { isNativeApp } from '@/lib/native'
 
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1484532419600656'
 
@@ -8,8 +10,17 @@ const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1484532419600656'
  * Meta (Facebook) Pixel — instala script e dispara PageView automático.
  * Pra disparar outros eventos (InitiateCheckout, Purchase, etc), usa o helper
  * `trackPixel(event, params?)` definido abaixo.
+ *
+ * Rota B: NÃO carrega dentro do app nativo (Capacitor) — assim o app nativo
+ * não coleta/compartilha atividade de uso, batendo com o "Data Safety" das lojas.
+ * No site/landing continua ligado (medição da campanha do Meta).
  */
 export default function MetaPixel() {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  // null no SSR e na 1ª pintura (evita mismatch); depois só injeta se NÃO for nativo.
+  if (!mounted || isNativeApp()) return null
+
   return (
     <>
       <Script
